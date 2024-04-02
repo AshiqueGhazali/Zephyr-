@@ -23,16 +23,16 @@
 							<li class="nav-item"><a class="nav-link" href="/shop">Product</a></li>
 							<li class="nav-item submenu dropdown">
 								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-								 aria-expanded="false">Login</a>
+								 aria-expanded="false"><%=locals.user?locals.user.Fname:'Login'%></a>
 								<ul class="dropdown-menu">
-									<% if (user && user.is_verified) { %>
-										<li class="nav-item"><a class="nav-link" href="/profileDetails">My Profile</a></li>
-									<% } else { %>
-										<li class="nav-item"><a class="nav-link" href="/login">My Profile</a></li>
-									<% } %>
+									<li class="nav-item"><a class="nav-link" href="/profileDetails">My Profile</a></li>
 									<li class="nav-item"><a class="nav-link" href="/orders">Orders</a></li>
 									<li class="nav-item"><a class="nav-link" href="/wishlist">Wishlist</a></li>
-									<li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+									<% if (locals.user) { %>
+										<li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+									<% }else{ %>
+										<li class="nav-item"><a class="nav-link" href="/register">Signup</a></li>
+									<% } %>
 								</ul>
 							</li>
 						</ul>

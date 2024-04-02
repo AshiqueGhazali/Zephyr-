@@ -148,15 +148,28 @@ const securePassword = async (password)=>{
 
 const loadHome = async (req,res)=>{
     try {
-        const loggedInUser = req.session.user;
-        res.render('home',{ user: loggedInUser })
+        let userId = req.session.userId ? req.session.userId : '';
+        if(req.session.userId){
+            const userData = await User.findById({_id:userId });
+            res.render('home',{user:userData})
+        }
+        else{
+            res.render('home')
+        }
     } catch (error) {
         console.log(error.message);
     }
 }
 const loadShop = async (req,res)=>{
     try {
-        res.render('shop')
+        let userId = req.session.userId
+        if(req.session.userId){
+            const userData = await User.findById({_id:userId})
+            res.render('shop',{user:userData})
+        }else{
+            res.render('shop')
+        }
+
     } catch (error) {
         console.log(error.message);
     }
@@ -232,7 +245,6 @@ const verifyOtp = async (req,res)=>{
         const userEmail = req.session.user
         if(!req.body){
             res.status(400).render('otp',{userEmail, message:"please Enter otp"})
-            console.log("no user");
         }
         const otpUserData = await otpModel.findOne({_id:req.session.otpId})
         const otpUser =otpUserData.otp
@@ -257,19 +269,17 @@ const verifyLogin  = async (req,res)=>{
     try {
         const email  = req.body.email
         const password = req.body.password
-        const userData = await User.findOne({email:email}).select('+is_verified')
+        const userData = await User.findOne({email:email})
 
         if(userData){
             const passwordMatch = await bcrypt.compare(password,userData.password)
             if(passwordMatch){
-                if(userData.is_verified == false){
-                    res.render('login');
-                }else{
-                    req.session.user = userData;
-                    req.session.userId  = userData._id
-                    res.redirect('/home')
-                }
-                
+                    if(userData.is_block==false){
+                        req.session.userId  = userData._id
+                        res.redirect('/home')
+                    }else{
+                        res.render('login',{message:"Your Account is Blocked"})
+                    }
             }else{
                 res.render('login',{message:"user email and password incorrect"})
             }
@@ -282,6 +292,23 @@ const verifyLogin  = async (req,res)=>{
     }
 }
 
+const userLogout = async(req,res)=>{
+    try {
+        req.session.destroy();
+        res.redirect('/home')
+    } catch (error) {
+        
+    }
+}
+
+const profile =async(req,res)=>{
+    try {
+        res.send("user Detail page")
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
 
 module.exports={
     loadHome,
@@ -292,6 +319,8 @@ module.exports={
     insertUser,
     ResendOtp,
     verifyOtp,
-    verifyLogin
+    verifyLogin,
+    userLogout,
+    profile
     
 }

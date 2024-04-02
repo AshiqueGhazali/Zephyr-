@@ -35,7 +35,7 @@ const userSchema = mongoose.Schema({
     },
     is_block:{
         type:Boolean,
-        requred:false
+        default:false
     },
     
 },{
