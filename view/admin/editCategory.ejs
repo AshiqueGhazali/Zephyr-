@@ -26,7 +26,7 @@
                 <div class="form-group">
                   <label for="image">Image Upload</label>
                   <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="image" name="categoryImage"  onchange="updateLabelImg(this)">
+                    <input type="file" class="custom-file-input" id="image" name="categoryImage" value="<%= category.imageUrl %>" onchange="updateLabelImg(this)">
                     <label class="custom-file-label" for="image"><%= category.imageUrl %></label>
                   </div>
                 </div>

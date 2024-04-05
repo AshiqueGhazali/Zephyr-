@@ -37,6 +37,7 @@ const addProduct = async(req,res)=>{
             dialColor:req.body.dialColor,
             strapColor:req.body.strapColor,
             inStock:req.body.inStock,
+            description:req.body.description,
             image:[]
         })
 
@@ -150,7 +151,7 @@ const deleteImage = async(req,res)=>{
 
 const editProduct = async(req,res)=>{
     try {
-        console.log(req.body.id); 
+        
         const files = req.files
   
         const imagePaths = []; 
@@ -176,6 +177,7 @@ const editProduct = async(req,res)=>{
             dialColor:req.body.dialColor,
             strapColor:req.body.strapColor,
             inStock:req.body.inStock,
+            description:req.body.description
         }})
 
         if(files.length==0){

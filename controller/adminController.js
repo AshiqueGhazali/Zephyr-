@@ -66,6 +66,7 @@ const blockUser = async(req,res)=>{
         const id = req.params.id
         if(id){
             await User.updateOne({_id:id},{$set:{is_block:true}})
+            delete req.session.userId
             return res.redirect('/admin/userManagement')
         }
     } catch (error) {

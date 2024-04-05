@@ -7,6 +7,7 @@ const otpModel = require("../model/otpModel")
 const User = require("../model/userModel")
 const Products = require('../model/productModel')
 const Category = require('../model/categoryModel')
+const Review = require('../model/userReviewModel')
 
 // otp verification function
 const otpGenrator = ()=>{
@@ -153,12 +154,14 @@ const securePassword = async (password)=>{
 const loadHome = async (req,res)=>{
     try {
         let userId = req.session.userId ? req.session.userId : '';
+        const productData = await Products.find()
+        const categoryData = await Category.find()
         if(req.session.userId){
             const userData = await User.findById({_id:userId });
-            res.render('home',{user:userData})
+            res.render('home',{user:userData,products:productData,category:categoryData})
         }
         else{
-            res.render('home')
+            res.render('home',{products:productData,category:categoryData})
         }
     } catch (error) {
         console.log(error.message);
@@ -167,11 +170,13 @@ const loadHome = async (req,res)=>{
 const loadShop = async (req,res)=>{
     try {
         let userId = req.session.userId
+        const productData = await Products.find()
+        const categoryData = await Category.find()
         if(req.session.userId){
             const userData = await User.findById({_id:userId})
-            res.render('shop',{user:userData})
+            res.render('shop',{user:userData,products:productData,category:categoryData})
         }else{
-            res.render('shop')
+            res.render('shop',{products:productData,category:categoryData})
         }
 
     } catch (error) {
@@ -273,9 +278,6 @@ const verifyLogin  = async (req,res)=>{
             if(passwordMatch){
                     if(userData.is_block==false){
                         req.session.userId  = userData._id
-                        // req.session.isBlock = userData.is_block
-
-                        // console.log(req.session.isBlock);
 
                         res.redirect('/home')
                     }else{
@@ -302,9 +304,46 @@ const userLogout = async(req,res)=>{
     }
 }
 
+const singleProductLoad = async(req,res)=>{
+    try {
+        const id =  req.query.id
+        const productData = await Products.findOne({_id:id})
+        const reviews = await Review.find({produtId:id})
+
+        if(req.session.userId){
+            const userData = await User.findById({_id:req.session.userId})
+            res.render('singleProduct',{user:userData,product:productData,review:reviews})
+        }else{
+            res.render('singleProduct',{product:productData,review:reviews})
+        }
+           
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
 const profile =async(req,res)=>{
     try {
         res.send("user Detail page")
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const saveReview = async(req,res)=>{
+    try {
+        
+console.log(req.body.id);
+        const review = new Review({
+            Name:req.body.name,
+            Email:req.body.email,
+            phone:req.body.number,
+            Message:req.body.message,
+            produtId:req.body.id
+        })
+        await review.save()
+        res.redirect('/shop')
+
     } catch (error) {
         console.log(error.message);
     }
@@ -316,12 +355,13 @@ module.exports={
     loadShop,
     loginLoad,
     registerLoad,
-    // otpLoad,
     insertUser,
     ResendOtp,
     verifyOtp,
     verifyLogin,
     userLogout,
-    profile
+    profile,
+    singleProductLoad,
+    saveReview
     
 }

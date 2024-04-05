@@ -27,10 +27,13 @@ const loginCheck =async(req,res,next)=>{
 
 const isLogout = async(req,res,next)=>{
     try {
+        // console.log(req.session.userId)
         if(req.session.userId){
-            return res.redirect('/home')
+            res.redirect('/home')
+        }else{
+            next()
         }
-        next()
+        
     } catch (error) {
         console.log(error.message);
     }

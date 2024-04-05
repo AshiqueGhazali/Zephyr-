@@ -3,7 +3,7 @@ const session = require("express-session")
 const user_route = express()
 
 // middleware for session handling
-const userAuth = require('../middleware/userAuth')
+
 
 const userController = require("../controller/userController")
 
@@ -12,7 +12,7 @@ user_route.use(session({
   resave: false,
   saveUninitialized: true,
 }));
-
+const userAuth = require('../middleware/userAuth')
 
 user_route.set('view engine', 'ejs')
 user_route.set('views', './view/user')
@@ -30,6 +30,8 @@ user_route.get("/resendOTP",userAuth.isLogout, userController.ResendOtp)
 user_route.post("/otpVerify", userController.verifyOtp)
 user_route.post("/verifyLogin",userAuth.isLogout, userController.verifyLogin)
 user_route.get('/logout',userAuth.loginCheck,userController.userLogout)
+user_route.get('/singleProduct',userController.singleProductLoad)
+user_route.post('/reviewSubmit',userController.saveReview)
 
 user_route.get('/profileDetails', userAuth.isLogin, userController.profile)
 
