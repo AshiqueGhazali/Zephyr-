@@ -21,7 +21,7 @@ function checkPassword(event) {
     let lastName = document.getElementById("lastName").value.trim();
     const nameRegex = /^[a-zA-Z]+$/;
   
-    if (firstName.length === 0 || lastName.length === 0) {
+    if (firstName.length === 0 || lastName.length === 0 || firstName.slice(-1)==='' ) {
         message.textContent = "Name cannot be empty.";
         message.style.color = "red";
         return;

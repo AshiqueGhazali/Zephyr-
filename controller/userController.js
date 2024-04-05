@@ -1,8 +1,12 @@
-const User = require("../model/userModel")
-const otpModel = require("../model/otpModel")
 const bcrypt = require("bcrypt")
 const nodemailer = require('nodemailer')
 const mailgen = require("mailgen")
+
+// requiring models
+const otpModel = require("../model/otpModel")
+const User = require("../model/userModel")
+const Products = require('../model/productModel')
+const Category = require('../model/categoryModel')
 
 // otp verification function
 const otpGenrator = ()=>{
@@ -221,13 +225,6 @@ const insertUser = async (req,res)=>{
         console.log(error.message);
     }
 }
-const otpLoad= async(req,res)=>{
-    try {
-        res.render('otp')
-    } catch (error) {
-        console.log(error.message);
-    }
-}
 
 const ResendOtp = async(req,res)=>{
     try {
@@ -276,6 +273,10 @@ const verifyLogin  = async (req,res)=>{
             if(passwordMatch){
                     if(userData.is_block==false){
                         req.session.userId  = userData._id
+                        // req.session.isBlock = userData.is_block
+
+                        // console.log(req.session.isBlock);
+
                         res.redirect('/home')
                     }else{
                         res.render('login',{message:"Your Account is Blocked"})
@@ -315,7 +316,7 @@ module.exports={
     loadShop,
     loginLoad,
     registerLoad,
-    otpLoad,
+    // otpLoad,
     insertUser,
     ResendOtp,
     verifyOtp,

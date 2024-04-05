@@ -16,19 +16,12 @@ app.use("/",userRout)
 const adminRout = require("./routes/adminRout.js")
 app.use('/admin',adminRout)
 
-app.use(nocache())
+app.use(nocache())  
 
 app.use(express.static("public"))
 app.use("/assets",express.static(path.join(__dirname,'public/assets')))
 app.use('/css',express.static(path.join(__dirname,'public/css')))
 app.use('/js',express.static(path.join(__dirname,'public/js')))
-
-// app.use((req, res, next) => {
-//     if (req.url.endsWith('.js')) {
-//         res.set('Content-Type', 'application/javascript');
-//     }
-//     next();
-// });
 
 const port = process.env.PORT || 3000
 app.listen(port,()=>{

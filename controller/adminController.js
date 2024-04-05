@@ -16,6 +16,7 @@ const verifyLogin = async(req,res)=>{
 
         if(isUser.username==username ){
             if(isUser.password==password){
+                req.session.admin = { username: isUser.username }
                 res.render('dashboard')
             }else{
                 return res.render('login',{message:"Please enter a valid User Name and Password"})
@@ -83,6 +84,15 @@ const unBlockUser = async(req,res)=>{
         console.log(error.message);
     }
 }
+
+const logout = async (req,res)=>{
+    try {
+        req.session.destroy()
+        res.redirect('/admin/login')
+    } catch (error) {
+        console.log(error.message);
+    }
+}
 module.exports={
     loginLoad,
     verifyLogin,
@@ -90,5 +100,6 @@ module.exports={
     loadUserManagement,
     searchUser,
     blockUser,
-    unBlockUser
+    unBlockUser,
+    logout
 }

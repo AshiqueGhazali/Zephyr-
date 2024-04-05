@@ -67,3 +67,36 @@ footer {
 #blockButton{
     color: aliceblue;
 }
+
+/* product management css*/
+.card {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 0;
+    padding: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add box shadow */
+  }
+
+  .card-content {
+    display: flex;
+    align-items: center;
+  }
+
+  .card-content img {
+    width: 125px;
+    height: 125px;
+  }
+
+  .card-content div {
+    margin-right: 20px;
+  }
+  #priceDetails{
+    margin-right: 0;
+  }
+  .card-buttons{
+    margin-bottom: 10px;
+  }
+  .span {
+    font-weight: bold;
+  }

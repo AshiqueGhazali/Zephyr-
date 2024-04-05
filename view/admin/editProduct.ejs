@@ -1,0 +1,131 @@
+<%- include('../layouts/adminHeader') %>
+         <link rel="stylesheet" href="/css/style3.css">
+
+    <body>
+
+        <nav class="navbar navbar-light bg-light">
+          <a class="navbar-brand" href="#">
+            <img src="/assets/img/logoZephyr.png"  class="d-inline-block align-top" alt="">
+          </a>
+          <a href="/admin/productManagement"><button class="btn btn-secondary mr-3">Go Back</button></a>
+        </nav>
+        
+        <div class="container">
+          <div class="row justify-content-center form-container">
+            <div class="col-md-8">
+              <h2 class="text-center mb-4 text-danger">Edit Product</h2>
+              <form action="/admin/editProduct" method="post" id="myForm" enctype="multipart/form-data" onsubmit="return validateForm()">
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="form-groups">
+                            <label for="categoryName">Product Name</label>
+                            <input type="text" class="form-control" id="productName"  name="productName" value="<%=product.productName %>" >
+                          </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="form-groups">
+                            <label for="description">Brand Name</label>
+                            <input type="text" class="form-control" id="brandName" name="brandName"  value="<%=product.brand %>" >
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="form-groups">
+                            <label for="categoryName">Model</label>
+                            <input type="text" class="form-control" id="model"  name="model" value="<%=product.model %>" >
+                          </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="form-groups">
+                            <label for="description">Category</label>
+                            <select name="category" class="form-control" id="category">
+                                <% for(let i=0; i< category.length; i++){ %> 
+                                    <option value="<%=product.category %>"><%= category[i].name %></option>
+                               <% } %>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="form-groups">
+                            <label for="categoryName">Dial Color</label>
+                            <input type="text" class="form-control" id="dialColor"  name="dialColor" value="<%=product.dialColor %>" >
+                          </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="form-groups">
+                            <label for="description">Strap Color</label>
+                            <input type="text" class="form-control" id="strapColor" name="strapColor" value="<%=product.strapColor %>">
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="form-groups">
+                            <label for="description">In Stock</label>
+                            <input type="number" class="form-control" id="inStock" name="inStock" value="<%=product.inStock %>" >
+                            <input type="hidden" name="id" value="<%= product._id %>">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="form-groups">
+                            <label for="categoryName">Original Price</label>
+                            <input type="text" class="form-control" id="mrp"  name="mrp" value="<%=product.price %>">
+                          </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="form-groups">
+                            <label for="description">Discount Price</label>
+                            <input type="text" class="form-control" id="discountPrice" name="discountPrice" value="<%=product.discountPrice %>" onkeyup="calculateDiscount()">
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="form-groups">
+                            <label for="description">Discount(%)</label>
+                            <input type="number" class="form-control" id="discount" name="discount" value="<%=product.discount %>" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="image" name="productImage" onchange="updateLabel(this)"  multiple>
+                    <label class="custom-file-label" for="image">Choose files</label>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-success btn-lg btn-block">Edit Product</button>
+                </div>
+              </form>
+              <br>
+              <button type="button" class="btn btn-danger btn-lg btn-block" onclick="clearForm()">Cancel</button>
+              <br>
+              <div id="validationMessages" class="text-danger"></div><br>
+              <% if(typeof message !== "undefined"){ %>
+                
+                <p style="color: brown;"><%=message%></p> 
+                
+                <% }  %>
+             
+            </div>
+            <div class="col-md-4">
+                <h4 class="text-center mb-3">Selected Images</h4>
+                <div  id="selectedImagesContainer" class="row">
+                    <% for(let i=0 ; i< product.image.length; i++){ %> 
+                        <div class="col-md-6 class="ml-5"">
+                        <img src="/assets/<%=product.image[i]%>" >
+                        <p><%= product.image[i] %></p>
+                        <a href="/admin/deleteImage?id=<%=product._id %>&img=<%=product.image[i]%>"><button class="btn-block btn-danger">Remove</button></a><br>
+                    </div>
+                    <% } %>
+                    
+                </div>
+            </div>
+          </div>
+        </div>
+  
+
+<script src="/js/adminFormValidation.js"></script>
+
+
+<%- include('../layouts/adminFooter') %>
