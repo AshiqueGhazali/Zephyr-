@@ -5,11 +5,11 @@ function validateEmail(email) {
 }
 
 // checking password
-// function validatePassword(password) {
-//     const letterRegex = /[a-zA-Z]/;
-//     const digitRegex = /\d/;
-//     return password.length >= 6 && letterRegex.test(password) && digitRegex.test(password);
-// }
+function validatePassword(password) {
+    const letterRegex = /[a-zA-Z]/;
+    const digitRegex = /\d/;
+    return password.length >= 6 && letterRegex.test(password) && digitRegex.test(password);
+}
 
 function checkPassword(event) {
     event.preventDefault();

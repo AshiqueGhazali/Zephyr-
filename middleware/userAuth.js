@@ -1,6 +1,7 @@
 // middleware for is login or not is not login when click some link redirect to login page
 const isLogin=async(req,res,next)=>{
     try {
+        console.log(req.session.userId);
         if(req.session.userId ){
             next()
         }else{
@@ -17,7 +18,7 @@ const loginCheck =async(req,res,next)=>{
         if(req.session.userId){
             next()
         }else{
-            return res.redirect('/logout')
+            res.redirect('/logout')
         }
         
     } catch (error) {

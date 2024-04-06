@@ -154,8 +154,8 @@ const securePassword = async (password)=>{
 const loadHome = async (req,res)=>{
     try {
         let userId = req.session.userId ? req.session.userId : '';
-        const productData = await Products.find()
-        const categoryData = await Category.find()
+        const productData = await Products.find({isDeleted:false})
+        const categoryData = await Category.find({isDeleted:false})
         if(req.session.userId){
             const userData = await User.findById({_id:userId });
             res.render('home',{user:userData,products:productData,category:categoryData})
@@ -170,8 +170,8 @@ const loadHome = async (req,res)=>{
 const loadShop = async (req,res)=>{
     try {
         let userId = req.session.userId
-        const productData = await Products.find()
-        const categoryData = await Category.find()
+        const productData = await Products.find({isDeleted:false})
+        const categoryData = await Category.find({isDeleted:false})
         if(req.session.userId){
             const userData = await User.findById({_id:userId})
             res.render('shop',{user:userData,products:productData,category:categoryData})
@@ -292,7 +292,7 @@ const verifyLogin  = async (req,res)=>{
 
     } catch (error) {
         console.log(error.message)
-    }
+}
 }
 
 const userLogout = async(req,res)=>{

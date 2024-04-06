@@ -6,7 +6,7 @@
 /*
  *  Owl Carousel - Core
  */
-.owl-carousel {
+ .owl-carousel {
   display: none;
   width: 100%;
   -webkit-tap-highlight-color: transparent;
@@ -37,8 +37,11 @@
     -webkit-touch-callout: none; }
   .owl-carousel .owl-item img {
     display: block;
-    width: 100%;
-    -webkit-transform-style: preserve-3d; }
+    width: 66%;
+    -webkit-transform-style: preserve-3d;
+    margin-left: 180px;
+    margin-top: 43px;
+    }
   .owl-carousel .owl-nav.disabled,
   .owl-carousel .owl-dots.disabled {
     display: none; }

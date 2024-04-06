@@ -1,4 +1,6 @@
 const User = require('../model/userModel')
+const Products = require('../model/productModel')
+const Category = require('../model/categoryModel')
 
 const loginLoad = async(req,res)=>{
     try {
@@ -17,7 +19,10 @@ const verifyLogin = async(req,res)=>{
         if(isUser.username==username ){
             if(isUser.password==password){
                 req.session.admin = { username: isUser.username }
-                res.render('dashboard')
+                const userCount = await User.find().count()
+                const productCount = await Products.find().count()
+                const categoryCount = await Category.find().count()
+                res.render('dashboard',{userCount:userCount,productCount:productCount,categoryCount:categoryCount})
             }else{
                 return res.render('login',{message:"Please enter a valid User Name and Password"})
             }
@@ -32,7 +37,11 @@ const verifyLogin = async(req,res)=>{
 
 const loadHome = async(req,res)=>{
     try {
-        res.render('dashboard')
+        const userCount = await User.find().count()
+        const productCount = await Products.find().count()
+        const categoryCount = await Category.find().count()
+
+        res.render('dashboard',{userCount:userCount,productCount:productCount,categoryCount:categoryCount})
     } catch (error) {
         console.log(error.message);
     }

@@ -63,6 +63,8 @@ function removeImage(imageElement) {
 
 
 
+
+
     function calculateDiscount() {
         var OriginalPriceInput = document.getElementById('mrp').value;
         var discountPriceInput = document.getElementById('discountPrice').value;
@@ -106,6 +108,7 @@ function removeImage(imageElement) {
         var mrp = document.getElementById('mrp').value;
         var discountPrice = document.getElementById('discountPrice').value;
         var validationMessages = document.getElementById('validationMessages');
+        
         
         
         validationMessages.innerHTML = '';
