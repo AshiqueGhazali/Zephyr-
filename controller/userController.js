@@ -349,6 +349,14 @@ console.log(req.body.id);
     }
 }
 
+const googleAuth = async(req,res)=>{
+    try {
+        res.redirect('/home')
+        
+    } catch (error) {
+        console.log(error.message);
+    }
+}
 
 module.exports={
     loadHome,
@@ -362,6 +370,7 @@ module.exports={
     userLogout,
     profile,
     singleProductLoad,
-    saveReview
+    saveReview,
+    googleAuth
     
 }

@@ -6,9 +6,19 @@ const sharp =require('sharp')
 
 const productsLoad = async(req,res)=>{
     try {
+        // const product = await Products.find()
+        // res.render('productManagement',{product:product})
 
-        const product = await Products.find()
-        res.render('productManagement',{product:product})
+        const currentPage = parseInt(req.query.page)
+        const productPerPage = 10
+        const skip =(currentPage-1)*productPerPage ;
+
+        const product = await Products.find().skip(skip).limit(productPerPage)
+
+        const totalProduct = await Products.countDocuments()
+        const totalPages = Math.ceil(totalProduct/productPerPage)
+
+        res.render('productManagement',{product,currentPage,totalPages})
     } catch (error) {
         console.log(error.message);
     }

@@ -110,64 +110,90 @@
            </div>
          </div>
          <br><br><br>
-         
-         <% if (product.length > 0){ %>
-         <% for(let i=0 ; i< product.length ; i++){ %> 
-            <div class="col-md-12 grid-margin stretch-card">
-              <div class="container">
-                <div class="card">
-                  <div class="row">
-                    <div class="col-12 col-xl-6 mb-4 mb-xl-0">
-                      <div class="card-content">
-                        <div class="div1">
-                          <img src="/assets/<%=product[i].image[0] %>" alt="Image">
-                        </div>
-                        <div class="div2">
-                          <p>Name : <span class="text-warning span"><%=product[i].productName %></span> </p>
-                          <p>Brand Name : <span class="text-warning span"><%=product[i].brand %></span></p>
-                          <p>Color : <span class="text-warning span"><%=product[i].strapColor %></span></p>
-                          <p>Category : <span class="text-warning span"><%=product[i].category %></span></p>
-                          <% if(product[i].inStock > 0) { %> 
-                            <p>In Stock</p>
-                          <% } else {  %>  
-                            <p class="text-danger">out of Stock</p>
-                            <% }  %> 
-                        </div>
-            
-                      </div>
-                    </div>
-                    <div class="col-12 col-xl-6">
-                     <div class="justify-content-end d-flex">
-                      <div id="priceDetails">
-                          <div class="div3">
-                            <p class="text-danger">MRP: <%=product[i].price %></p>
-                            <p style="color: green; font-weight: bold;">Discount: <%= Math.abs(product[i].discount)%> %</p>
-                            <p>Price : <span class="text-success span"><%=product[i].discountPrice %></span></p>
-                          </div>
-                      </div>
-                      <div class="col-12 col-xl-4">
-                        <div class="justify-content-end d-flex">
-                         <div id="">
-                          <% if(product[i].isDeleted) { %> 
-                            <a href="/admin/listProduct?id=<%=product[i]._id %>"><button class="card-buttons btn-info">List</button></a><br>
-                            <a href="/admin/deleteProduct?id=<%=product[i]._id %>"><button class="card-buttons btn-warning">Delete</button></a><br>
-                          <% }else { %> 
-                            <a href="/admin/editProduct?id=<%=product[i]._id %>"><button class="card-buttons btn-info">Edit</button></a><br>
-                            <a href="/admin/unlistProduct?id=<%=product[i]._id %>"><button class="card-buttons btn-warning">Unlist</button></a><br>
-                          <% } %>
-                         </div>                     
-                     </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div> 
-        </div>
+
+         <!-- pagination -->
+         <nav aria-label="page navigation example">
+          <ul class="pagination justify-content-end">
+            <% if (currentPage > 1) { %> 
+              <li class="page-item">
+                <a href="/admin/productManagement/page=<%=currentPage -1 %>" class="page-link" tabindex="-1">Previous</a>
+              </li>
+            <% }else { %>
+              <li class="page-item">
+                <a href="" class="page-link" tabindex="-1">Previous</a>
+              </li>
+           <% } %>
+
+           <% for (let i = 1; i <= totalPages ; i++) { %> 
+            <li class="page-item">
+              <a class="nav-link" href="/admin/productManagement?page=<%=i %>"><%= i %></a>
+            </li>
           <% } %>
+
+          <% if (currentPage < 1) { %> 
+            <li class="page-item">
+              <a href="/admin/productManagement/page=<%=currentPage +1 %>" class="page-link">Next</a>
+            </li>
+          <% }else { %>
+            <li class="page-item">
+              <a href="" class="page-link" tabindex="-1">next</a>
+            </li>
+         <% } %>
+
+          </ul>
+         </nav>
+
+
+         <!-- Product listing -->
+         <table class="table table-striped">
+          <thead>
+            <tr class="table-info">
+              <th scope="col">image</th>
+              <th scope="col">Product Name</th>
+              <th scope="col">Brand</th>
+              <th scope="col">Category</th>
+              <th scope="col">Status</th>
+              <th scope="col">Price</th>
+              <th scope="col">Discount</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (product.length > 0){ %>
+              <% for(let i=0 ; i< product.length ; i++){ %>
+            <tr>
+              <td><img style="height: 10; width: 10;" src="/assets/<%=product[i].image[0] %>" alt="Image"></td>
+              <td><%=product[i].productName %></td>
+              <td><%=product[i].brand %></td>
+              <td><%=product[i].category %></td>
+
+              <% if(product[i].inStock > 0) { %>
+                <td><%=product[i].inStock %></td>
+              <% } else {  %>
+                <td><p class="text-danger">out of Stock</p></td>  
+              <% }  %>
+              
+              <td>₹ <%=product[i].discountPrice %></td>
+              <td class="text-success" ><%=product[i].discount %> %</td>
+              <% if(product[i].isDeleted) { %>
+                <td>
+                  <a href="/admin/listProduct?id=<%=product[i]._id %>"><i class="fa-regular fa-eye mr-3 text-success"></i></a> 
+                  <a href="/admin/deleteProduct?id=<%=product[i]._id %>"><i class="fa-solid fa-trash-can text-danger"></i></a>
+                </td>
+              <% }else { %>
+                  <td>
+                    <a href="/admin/editProduct?id=<%=product[i]._id %>"><i class="fa-regular fa-pen-to-square mr-3 text-secondary"></i></a> 
+                    <a href="/admin/unlistProduct?id=<%=product[i]._id %>"><i class="fa-regular fa-eye-slash text-danger"></i></a>
+                  </td>
+              <% } %>
+              
+            </tr>
+            <% } %>
        <%  }else{ %>
           <h3>no Product Found</h3>
          <% } %>
+          </tbody>
+        </table>
  
           <footer class="footer">
             <div class="d-sm-flex justify-content-center justify-content-sm-between">

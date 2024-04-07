@@ -5,7 +5,7 @@ const admin_Route = express()
 // Importing Controllers....
 const adminController = require('../controller/adminController')
 const categoryController = require('../controller/categoryController')
-const upload = require('../controller/multer')
+const upload = require('../middleware/multer')
 const productController = require('../controller/productController')
 
 // importing auth
@@ -48,6 +48,7 @@ admin_Route.get('/editCategory',adminAuth.isLogin,categoryController.editCategor
 admin_Route.post('/editCategory',upload.single('categoryImage'),categoryController.editCategory)
 admin_Route.get('/restoreCategory',adminAuth.isLogin,categoryController.restoreCategory)
 admin_Route.get('/deleteCategory',adminAuth.isLogin,categoryController.deleteCategory)
+
 
 // product Management Routes
 admin_Route.get('/productManagement',adminAuth.isLogin,productController.productsLoad)

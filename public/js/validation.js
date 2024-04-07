@@ -15,6 +15,7 @@ function checkPassword(event) {
     event.preventDefault();
   
     let password = document.getElementById("password").value.trim();
+    let cnfm_password = document.getElementById("cnfm_password")
     let message = document.getElementById("message");
     let email = document.getElementById("email").value.trim();
     let firstName = document.getElementById("firstName").value.trim();
@@ -37,6 +38,12 @@ function checkPassword(event) {
         message.textContent = "Please enter a valid Password";
         message.style.color = "red";
         return;
+    }
+
+    if (password != cnfm_password.value){
+        message.textContent = "Conform password does not match";
+        message.style.color = "red" ;
+        return
     }
     // if (!validatePassword(password)) {
     //     message.textContent = "Password must be at least 6 characters long and contain at least one letter and one digit";

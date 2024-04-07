@@ -69,8 +69,8 @@ function removeImage(imageElement) {
         var OriginalPriceInput = document.getElementById('mrp').value;
         var discountPriceInput = document.getElementById('discountPrice').value;
         
-        var discountPrice = parseFloat(OriginalPriceInput);
-        var OriginalPrice = parseFloat(discountPriceInput);
+        var discountPrice = parseFloat(discountPriceInput);
+        var OriginalPrice = parseFloat(OriginalPriceInput);
         
         
         if (!isNaN(discountPrice) && !isNaN(OriginalPrice)) {

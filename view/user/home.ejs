@@ -166,17 +166,21 @@
 			<div class="row justify-content-center">
 				<div class="col-lg-8 col-md-12">
 					<div class="row">
+						<% if (category[0]) { %>  
 						<div class="col-lg-8 col-md-8">
 							<div class="single-deal">
 								<div class="overlay"></div>
 								<img class="img-fluid" style="width: 458px; height: 184px;" src="/assets/categoryImg/<%= category[0].imageUrl %>" alt="">
 								<a href="/assets/img/category/c1.jpg" class="img-pop-up" target="_blank">
 									<div class="deal-details">
+										
 										<h6 class="deal-title"><%= category[0].name %></h6>
 									</div>
 								</a>
 							</div>
 						</div>
+						<% } %>
+						<% if (category[1]) { %> 
 						<div class="col-lg-4 col-md-4">
 							<div class="single-deal">
 								<div class="overlay"></div>
@@ -188,6 +192,8 @@
 								</a>
 							</div>
 						</div>
+						<% } %>
+						<% if (category[2]) { %> 
 						<div class="col-lg-4 col-md-4">
 							<div class="single-deal">
 								<div class="overlay"></div>
@@ -199,17 +205,20 @@
 								</a>
 							</div>
 						</div>
+						<% } %>
+						<% if (category[3]) { %>
 						<div class="col-lg-8 col-md-8">
 							<div class="single-deal">
 								<div class="overlay"></div>
 								<img class="img-fluid" style="width: 458px; height: 184px;"  src="/assets/categoryImg/<%= category[3].imageUrl %>" alt="">
 								<a href="/assets/img/category/c4.jpg" class="img-pop-up" target="_blank">
 									<div class="deal-details">
-										<h6 class="deal-title">S<%= category[3].name %></h6>
+										<h6 class="deal-title"><%= category[3].name %></h6>
 									</div>
 								</a>
 							</div>
 						</div>
+						<% } %>
 					</div>
 				</div>
 				<div class="col-lg-4 col-md-6">

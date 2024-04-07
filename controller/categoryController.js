@@ -2,8 +2,16 @@ const Category = require('../model/categoryModel')
 
 const categoryPageLoad = async(req,res)=>{
     try {
-        const categoryData= await Category.find({})
-        res.render('categoryManagement',{categories:categoryData})
+        const currentPage = parseInt(req.query.page) || 1 
+        const categoriesPerPage = 8;
+        const skip = (currentPage - 1) * categoriesPerPage ;
+
+        const categories = await Category.find().skip(skip).limit(categoriesPerPage)
+
+        const totalCategories = await Category.countDocuments()
+        const totalPages = Math.ceil(totalCategories / categoriesPerPage)
+
+        res.render('categoryManagement', { categories, currentPage, totalPages });
     } catch (error) {
         console.log(error.message);
     }
@@ -142,6 +150,8 @@ const deleteCategory = async(req,res)=>{
         console.log(error.message);
     }
 }
+
+
 module.exports ={
     categoryPageLoad,
     addCategoryPageLoad,
@@ -151,5 +161,6 @@ module.exports ={
     editCategoryLoad,
     editCategory,
     restoreCategory,
-    deleteCategory
+    deleteCategory,
+    
 }
