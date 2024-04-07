@@ -6,8 +6,6 @@ const sharp =require('sharp')
 
 const productsLoad = async(req,res)=>{
     try {
-        // const product = await Products.find()
-        // res.render('productManagement',{product:product})
 
         const currentPage = parseInt(req.query.page)
         const productPerPage = 10

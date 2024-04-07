@@ -54,7 +54,7 @@ user_route.get('/google/callback',passport.authenticate('google',{failureRedirec
 
 
 
-user_route.get('/profileDetails', userAuth.isLogin, userController.profile)
+user_route.get('/profileDetails', userAuth.isLogin, userController.userProfileLoad)
 
 
 module.exports = user_route

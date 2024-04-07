@@ -48,8 +48,19 @@ const loadHome = async(req,res)=>{
 }
 const loadUserManagement = async(req,res)=>{
     try {
-        const userData= await User.find({})
-        res.render('userManagement',{users:userData})
+        // const userData= await User.find({})
+        // res.render('userManagement',{users:userData})
+        const currentPage = parseInt(req.query.page)
+        const userPerPage = 10
+        const skip =(currentPage-1)*userPerPage ;
+
+        const users = await User.find().skip(skip).limit(userPerPage)
+
+        const totalProduct = await User.countDocuments()
+        const totalPages = Math.ceil(totalProduct/userPerPage)
+
+        res.render('userManagement',{users,currentPage,totalPages})
+
     } catch (error) {
         console.log(error.message);
     }

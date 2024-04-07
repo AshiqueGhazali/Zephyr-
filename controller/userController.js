@@ -322,7 +322,7 @@ const singleProductLoad = async(req,res)=>{
     }
 }
 
-const profile =async(req,res)=>{
+const userProfileLoad =async(req,res)=>{
     try {
         res.send("user Detail page")
     } catch (error) {
@@ -368,7 +368,7 @@ module.exports={
     verifyOtp,
     verifyLogin,
     userLogout,
-    profile,
+    userProfileLoad,
     singleProductLoad,
     saveReview,
     googleAuth
