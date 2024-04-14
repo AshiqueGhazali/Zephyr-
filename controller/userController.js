@@ -322,18 +322,10 @@ const singleProductLoad = async(req,res)=>{
     }
 }
 
-const userProfileLoad =async(req,res)=>{
-    try {
-        res.send("user Detail page")
-    } catch (error) {
-        console.log(error.message);
-    }
-}
 
 const saveReview = async(req,res)=>{
     try {
         
-console.log(req.body.id);
         const review = new Review({
             Name:req.body.name,
             Email:req.body.email,
@@ -351,13 +343,53 @@ console.log(req.body.id);
 
 const googleAuth = async(req,res)=>{
     try {
-        res.redirect('/home')
+        res.redirect('/home',)
         
     } catch (error) {
         console.log(error.message);
     }
 }
 
+const userProfileLoad =async(req,res)=>{
+    try {
+        const id = req.query.id
+        const userData = await User.findById({_id:id})
+       
+        res.render('userProfileDetails',{user:userData})
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const updateProfileLoad = async(req,res)=>{
+    try {
+        // const id = req.query.id
+        let userId = req.session.userId
+
+        const userData = await User.findById({_id:userId})
+        res.render('updateProfile',{user:userData})
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const updateProfile = async (req,res)=>{
+    try {
+        const userData = await User.findByIdAndUpdate({_id:req.body.id},{$set:{
+            Fname:req.body.firstName,
+            Lname:req.body.lastName,
+            username:req.body.username,
+            email:req.body.email,
+            phone:req.body.phone
+        }})
+
+          
+        res.redirect('/profileDetails')
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
 module.exports={
     loadHome,
     loadShop,
@@ -371,6 +403,8 @@ module.exports={
     userProfileLoad,
     singleProductLoad,
     saveReview,
-    googleAuth
+    googleAuth,
+    updateProfileLoad,
+    updateProfile
     
 }

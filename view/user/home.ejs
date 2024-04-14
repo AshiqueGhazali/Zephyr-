@@ -25,12 +25,15 @@
 								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
 								 aria-expanded="false"><%=locals.user?locals.user.Fname:'Login'%></a>
 								<ul class="dropdown-menu">
-									<li class="nav-item"><a class="nav-link" href="/profileDetails">My Profile</a></li>
-									<li class="nav-item"><a class="nav-link" href="/orders">Orders</a></li>
-									<li class="nav-item"><a class="nav-link" href="/wishlist">Wishlist</a></li>
 									<% if (locals.user) { %>
+										<li class="nav-item"><a class="nav-link" href="/profileDetails?id=<%= user._id %>">My Profile</a></li>
+										<li class="nav-item"><a class="nav-link" href="/orders?id=<%= user._id %>">Orders</a></li>
+										<li class="nav-item"><a class="nav-link" href="/wishlist?id=<%= user._id %>">Wishlist</a></li>
 										<li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
 									<% }else{ %>
+										<li class="nav-item"><a class="nav-link" href="/profileDetails">My Profile</a></li>
+										<li class="nav-item"><a class="nav-link" href="/orders">Orders</a></li>
+										<li class="nav-item"><a class="nav-link" href="/wishlist">Wishlist</a></li>
 										<li class="nav-item"><a class="nav-link" href="/register">Signup</a></li>
 									<% } %>
 								</ul>

@@ -53,8 +53,10 @@ user_route.get('/google/callback',passport.authenticate('google',{failureRedirec
 
 
 
-
+// user profile , address , order , cart , wallet , wishlist , 
 user_route.get('/profileDetails', userAuth.isLogin, userController.userProfileLoad)
+user_route.get('/updateProfile', userAuth.isLogin,userController.updateProfileLoad)
+user_route.post('/updateProfile',userController.updateProfile)
 
 
 module.exports = user_route

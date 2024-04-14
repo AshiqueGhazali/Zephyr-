@@ -24,13 +24,16 @@
 								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
 								 aria-expanded="false"><%=locals.user?locals.user.Fname:'Login'%></a>
 								<ul class="dropdown-menu">
-									<li class="nav-item"><a class="nav-link" href="/profileDetails">My Profile</a></li>
-									<li class="nav-item"><a class="nav-link" href="/orders">Orders</a></li>
-									<li class="nav-item"><a class="nav-link" href="/wishlist">Wishlist</a></li>
-									<% if(locals.user) { %>
+									<% if (locals.user) { %>
+										<li class="nav-item"><a class="nav-link" href="/profileDetails?id=<%= user._id %>">My Profile</a></li>
+										<li class="nav-item"><a class="nav-link" href="/orders?id=<%= user._id %>">Orders</a></li>
+										<li class="nav-item"><a class="nav-link" href="/wishlist?id=<%= user._id %>">Wishlist</a></li>
 										<li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
-									<%} else {%>
-										<li class="nav-item"><a class="nav-link" href="/register">Sign Up</a></li>
+									<% }else{ %>
+										<li class="nav-item"><a class="nav-link" href="/profileDetails">My Profile</a></li>
+										<li class="nav-item"><a class="nav-link" href="/orders">Orders</a></li>
+										<li class="nav-item"><a class="nav-link" href="/wishlist">Wishlist</a></li>
+										<li class="nav-item"><a class="nav-link" href="/register">Signup</a></li>
 									<% } %>
 								</ul>
 							</li>
@@ -169,7 +172,7 @@
 								<div class="single-product">
 									<img class="img-fluid" src="/assets/<%= products[i].image[i] %>" alt="">
 									<div class="product-details">
-										<h6><%= products[1].productName %></h6>
+										<h6><%= products[i].productName %></h6>
 										<div class="price">
 											<h6>₹ <%= products[i].discountPrice %></h6>
 											<h6 class="l-through">₹ <%= products[i].price %></h6>

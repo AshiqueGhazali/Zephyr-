@@ -10,3 +10,19 @@ body {
 .form-groups{
   margin-bottom: 0;
 }
+.main-nav-list.active a {
+  background: linear-gradient(to right, #004580, #0084bf);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.btn-blue {
+  background: linear-gradient(to right, #17326d, #027cb7);
+  color: white;
+  border: none;
+}
+
+.btn-red {
+  background: linear-gradient(to right, #027cb7, #17326d);
+  color: white;
+  border: none;
+}
