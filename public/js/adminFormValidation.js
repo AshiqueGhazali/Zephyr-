@@ -85,7 +85,7 @@ function removeImage(imageElement) {
     function clearForm() {
         var form = document.getElementById("myForm");
         form.reset(); 
-      }
+    }
 
 
     function updateLabelImg(input) {

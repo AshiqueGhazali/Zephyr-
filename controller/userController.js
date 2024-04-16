@@ -8,6 +8,8 @@ const User = require("../model/userModel")
 const Products = require('../model/productModel')
 const Category = require('../model/categoryModel')
 const Review = require('../model/userReviewModel')
+const Address = require('../model/addressModel')
+const { sanitizeFilter } = require("mongoose")
 
 // otp verification function
 const otpGenrator = ()=>{
@@ -383,9 +385,83 @@ const updateProfile = async (req,res)=>{
             phone:req.body.phone
         }})
 
-          
-        res.redirect('/profileDetails')
+        // redirect to /profileDetails page , but got some error  
+        res.redirect('/home')
 
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const addressManagementLoad = async (req,res)=>{
+    try {
+        let userId = req.session.userId
+
+        const userData = await User.findById({_id:userId})
+        const address = await Address.find({user_id:userId})
+
+        res.render('addressManagement',{user:userData,address:address})
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const saveAddress = async(req,res)=>{
+    try {
+        const id = req.session.userId
+        const userAddress = new Address({
+            user_id : id,
+            Name : req.body.Name,
+            Mobile : req.body.phone,
+            PIN : req.body.pincode,
+            Locality : req.body.locality,
+            address : req.body.address,
+            city : req.body.city,
+            state : req.body.state,
+            landmark : req.body.landmark,
+            alternatePhone : req.body.phone2,
+            is_Home : !!req.body.home,
+            is_Work : !!req.body.work,
+        })
+
+        await userAddress.save()
+        res.redirect('/addressManagement')
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const editAddress = async (req,res)=>{
+    try {
+        const id = req.session.userId
+        const edit = await Address.updateOne({user_id:id},{$set:{
+            Name : req.body.Name,
+            Mobile : req.body.phone,
+            PIN : req.body.pincode,
+            Locality : req.body.locality,
+            address : req.body.address,
+            city : req.body.city,
+            state : req.body.state,
+            landmark : req.body.landmark,
+            alternatePhone : req.body.phone2,
+            is_Home : !!req.body.home,
+            is_Work : !!req.body.work,
+        }})
+
+        res.redirect('/addressManagement')
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const deleteAddress = async (req,res)=>{
+    try {
+        const id = req.query.id
+        if(id){
+            await Address.deleteOne({_id:id})
+            return res.redirect('/addressManagement')
+        }
     } catch (error) {
         console.log(error.message);
     }
@@ -405,6 +481,10 @@ module.exports={
     saveReview,
     googleAuth,
     updateProfileLoad,
-    updateProfile
+    updateProfile,
+    addressManagementLoad,
+    saveAddress,
+    editAddress,
+    deleteAddress
     
 }

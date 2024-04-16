@@ -61,3 +61,50 @@ function checkPassword(event) {
     document.getElementById("signUpForm").submit();
 }
 
+
+// validation address
+function addressValidation(event,  formId, messageId) {
+    event.preventDefault();
+  
+    let Name = document.getElementById("name").value.trim();
+    let Phone = document.getElementById("phone").value.trim();
+    let Pincode = document.getElementById("pincode").value.trim();
+    let locality = document.getElementById("locality").value.trim();
+    let address = document.getElementById("address").value.trim();
+    let city = document.getElementById("city").value.trim();
+    let state = document.getElementById("state").value.trim();
+    let message = document.getElementById(messageId);
+
+    const nameRegex = /^[a-zA-Z]+$/;
+    const phoneRegex = /^\d{10}$/; 
+    const pincodeRegex = /^\d{6}$/;
+  
+    if (Name.length === 0 || Name.slice(-1)==='' ) {
+        message.textContent = "Name cannot be empty.";
+        message.style.color = "red";
+        return;
+    }
+    
+    if (!nameRegex.test(Name)) {
+        message.textContent = "Please enter a valid Name.";
+        message.style.color = "red";
+        return;
+    }
+  
+    if (!phoneRegex.test(Phone)) {
+        message.textContent = "Please enter a valid Phone Number";
+        message.style.color = "red";
+        return;
+    }
+
+    if (!pincodeRegex.test(Pincode)) {
+        message.textContent = "Please enter a valid PIN Address";
+        message.style.color = "red";
+        return;
+    }
+
+    
+  
+    document.getElementById(formId).submit();
+}
+

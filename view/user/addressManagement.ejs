@@ -1,0 +1,362 @@
+<%- include('../layouts/header') %>
+
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="/css/style3.css">
+
+
+<body style="background-color: #f1f3f6;">
+
+	<!-- Start Header Area -->
+	<header class="header_area sticky-header">
+		<div class="main_menu">
+			<nav class="navbar navbar-expand-lg navbar-light main_box1">
+				<div class="container">
+
+ 					<a class="navbar-brand logo_h" href="/home"><img src="/assets/img/logoWhite.png" alt=""></a>
+					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+					 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+
+                    <div class="collapse navbar-collapse offset" id="navbarSupportedContent">
+						<ul class="nav navbar-nav menu_nav ml-auto">
+							<li class="nav-item"><a class="nav-link1" href="/home">Home</a></li>
+							<li class="nav-item"><a class="nav-link1" href="/shop">Product</a></li>
+							<li class="nav-item submenu dropdown">
+								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+								 aria-expanded="false"><%= user.Fname %></a>
+								<ul class="dropdown-menu">
+									<li class="nav-item"><a class="nav-link" href="/profileDetails?id=<%= user._id %>">My Profile</a></li>
+									<li class="nav-item"><a class="nav-link" href="/orders?id=<%= user._id %>">Orders</a></li>
+									<li class="nav-item"><a class="nav-link" href="/wishlist?id=<%= user._id %>">Wishlist</a></li>
+									<li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+								</ul>
+							</li>
+						</ul>
+						<ul class="nav navbar-nav navbar-right">
+							<li class="nav-item"><a href="#" class="cart"><span><i class="fa-solid fa-cart-shopping" style="color: #ffffff;"></i></span></a></li>
+							<li class="nav-item">
+								<button class="search"><span id="search"><i class="fa-solid fa-magnifying-glass" style="color: #ffffff;"></i></span></button>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</nav>
+		</div>
+		<div class="search_input" id="search_input_box">
+			<div class="container">
+				<form class="d-flex justify-content-between">
+					<input type="text" class="form-control" id="search_input" placeholder="Search Here">
+					<button type="submit" class="btn"></button>
+					<span id="close_search" title="Close Search"><i class="fa-solid fa-magnifying-glass"></i></span>
+				</form>
+			</div>
+		</div>
+	</header>
+	<!-- End Header Area -->
+
+	
+	<!-- End Banner Area -->
+	<div class="container">
+		<div class="row" style="margin-top: 154px;">
+			<div class="col-xl-3 col-lg-4 col-md-5">
+				<div class="sidebar-categories">
+					<div class="head"><%= user.Fname %></div>
+				</div>
+				<div class="sidebar-categories" style="margin-top: 15px;">
+					<ul class="main-categories">
+						<li class="main-nav-list"><a data-toggle="collapse" href="#fruitsVegetable" aria-expanded="false" aria-controls="fruitsVegetable">
+							<span class="fa-regular fa-user"></span>&nbsp;&nbsp;&nbsp;ACCOUNT SETTINGS</a>
+							<ul class="collapse" id="fruitsVegetable" data-toggle="collapse" aria-expanded="false" aria-controls="fruitsVegetable">
+								<li class="main-nav-list child"><a href="/profileDetails?id=<%= user._id %>">Personal Information</a></li>
+								<li class="main-nav-list child active"><a href="/addressManagement?id=<%= user._id %>">Manage Addresses</a></li>
+								<li class="main-nav-list child"><a href="/updateProfile?id=<%= user._id %>">Update Profile</a></li>
+								
+							</ul>
+				   		</li>
+						<li class="main-nav-list">
+							<a  href="/orders?id=<%= user._id %>" aria-expanded="false" aria-controls="fruitsVegetable">
+								<span class="fa-solid fa-bag-shopping"></span>&nbsp;&nbsp;&nbsp;MY ORDERS</a>
+						</li>
+						<li class="main-nav-list">
+							<a  href="/wishlist?id=<%= user._id %>" aria-expanded="false" aria-controls="fruitsVegetable">
+								<span class="fa-regular fa-heart"></span>&nbsp;&nbsp;&nbsp;WISHLIST</a>
+						</li>
+						<li class="main-nav-list">
+							<a  href="/waller?id=<%= user._id %>" aria-expanded="false" aria-controls="fruitsVegetable">
+								<span class="fa-solid fa-wallet"></span>&nbsp;&nbsp;&nbsp;WALLET</a>
+						</li>
+						<li class="main-nav-list">
+							<a  href="/logout" aria-expanded="false" aria-controls="fruitsVegetable">
+								<span class="fa-solid fa-arrow-up-right-from-square fa-flip-horizontal"></span>&nbsp;&nbsp;&nbsp;Logout</a>
+						</li>
+						
+					</ul>
+				</div>
+			</div>
+			<div class="col-xl-9 col-lg-8 col-md-7">
+				<div class="row" style="background-color: #ffffff; margin-bottom: 10%;">
+					<div class="form-group col-lg-12 pt-3">
+						<h3 class=" mb-4 text-secondary">Manage Addresses</h3>
+						<!-- <div class="card  mb-5">
+							<div class="card-body">
+								<a href="/addNewAddress" class="active"><span class="fa-solid fa-plus ml-2 mr-3"></span> ADD NEW ADDRESS</a>
+							</div>
+						</div> -->
+						<button type="button" class="btn btn-secondary btn-lg btn-block" id="addNewAddressBtn"><span class="fa-solid fa-plus ml-2 mr-3"></span> ADD NEW ADDRESS</button>
+
+						
+						<div id="newAddressForm" style="display: none; background-color: #f6faff;" class="card">
+							<div class="card-body">
+								<form id="myForm" action="/addAddress" method="post" onsubmit="addressValidation(event, 'myForm', 'message')">
+									<div class="form-group row">
+										<div class="col-lg-6 mb-3">
+											<input type="text" class="form-control" id="name" name="Name" placeholder="Name">
+										</div>
+										<div class="col-lg-6 mb-3"">
+											<input type="text" class="form-control" id="phone" name="phone" placeholder="10 - digit Mobile Number">
+										</div>
+										<div class="col-lg-6 mb-3"">
+											<input type="text" class="form-control" id="pincode" name="pincode" placeholder="Pincode">
+										</div>
+										<div class="col-lg-6 mb-3"">
+											<input type="text" class="form-control" id="locality" name="locality" placeholder="Locality">
+										</div>
+										<div class="col-lg-12 mb-3"">
+											<input type="text" class="form-control" id="address" rows="3" name="address" placeholder="Address (Area/Street)"></textarea>										</div>
+										<div class="col-lg-6 mb-3"">
+											<input type="text" class="form-control" id="city" name="city" placeholder="City/District/Town">
+										</div>
+										<div class="col-lg-6 mb-3"">
+											<input type="text" class="form-control" id="state" name="state" placeholder="State">
+										</div>
+										<div class="col-lg-6 mb-3"">
+											<input type="text" class="form-control" id="landmark" name="landmark" placeholder="Landmark(optional)">
+										</div>
+										<div class="col-lg-6 mb-3"">
+											<input type="text" class="form-control" id="phone2" name="phone2" placeholder="Alternate Phone(optional)">
+										</div>
+										<div class="col-lg-6 mb-3"">
+											<label for="name" class="">Address Type</label>
+											<div class="form-check">
+												<input class="form-check-input" type="radio" name="home" value="1" id="flexRadioDefault1">
+  												<label class="form-check-label" for="flexRadioDefault1"> Home</label>
+												
+												<input class="form-check-input ml-4" type="radio" name="work" value="1" id="flexRadioDefault1">
+  												<label class="form-check-label ml-5" for="flexRadioDefault1"> Work</label>
+											</div>
+										</div>
+										<div class="col-lg-12 mb-3"">
+											<button type="submit" class="btn btn-success mr-2">SAVE ADDRESS</button>
+											<button type="button" class="btn btn-danger" onclick="clearForm()">Cancel</button>
+											<p id="message" style="color: #ffff;"></p>
+											<% if(typeof message !== "undefined"){
+										    %>
+											<p style="color: red;"><%=message%></p> 
+											<% } %>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+						<!-- address card -->
+						<% if (address.length > 0){ %> 
+							<div class="card mt-5">
+								<% for (let i = 0 ; i < address.length ; i++){ %>
+									<div class="card-body row">
+										<div class="col-lg-11"><h5><%= address[i].Name %>  <%= address[i].Mobile %><br>
+										<h6><%= address[i].address %>, <%= address[i].Locality %> Subdistrict, <%= address[i].city %>,<br><%= address[i].state %> - <%= address[i].PIN %></h6></h5>
+										</div>
+										<div class="col-lg-1">
+											<h4 id="editAddressBtn<%= i %>"><i class="fa-solid fa-pen-to-square"></i></h4>
+											<a href="/deleteAddress?id=<%=address[i]._id %>"><h4><i class="fa-solid fa-trash"></i></h4></a>
+										</div>
+									</div>
+									
+										<!-- edit form -->
+										<div id="editAddress<%= i %>" style="display: none; background-color: #f6faff;" class="card">
+											<div class="card-body">
+												<form id="editAddressForm<%= i %>" action="/editAddress" method="post" >
+													<div class="form-group row">
+														<div class="col-lg-6 mb-3">
+															<input type="text" class="form-control" id="name" name="Name" value="<%= address[i].Name %>">
+														</div>
+														<div class="col-lg-6 mb-3"">
+															<input type="text" class="form-control" id="phone" name="phone" value="<%= address[i].Mobile %>">
+														</div>
+														<div class="col-lg-6 mb-3"">
+															<input type="text" class="form-control" id="pincode" name="pincode" value="<%= address[i].PIN %>">
+														</div>
+														<div class="col-lg-6 mb-3"">
+															<input type="text" class="form-control" id="locality" name="locality" value="<%= address[i].Locality %>">
+														</div>
+														<div class="col-lg-12 mb-3"">
+															<input type="text" class="form-control" id="address" rows="3" name="address" value="<%= address[i].address %>"></textarea>										</div>
+														<div class="col-lg-6 mb-3"">
+															<input type="text" class="form-control" id="city" name="city" value="<%= address[i].city %>">
+														</div>
+														<div class="col-lg-6 mb-3"">
+															<input type="text" class="form-control" id="state" name="state" value="<%= address[i].state %>">
+														</div>
+														<div class="col-lg-6 mb-3"">
+															<input type="text" class="form-control" id="landmark" name="landmark" value="<%= address[i].landmark %>">
+														</div>
+														<div class="col-lg-6 mb-3"">
+															<input type="text" class="form-control" id="phone2" name="phone2" value="<%= address[i].alternatePhone %>">
+														</div>
+														<div class="col-lg-6 mb-3"">
+															<label for="name" class="">Address Type</label>
+															<div class="form-check">
+																<input class="form-check-input" type="radio" name="home" id="home" value="1" <%= address[i].is_Home ? 'checked' : '' %>>
+																  <label class="form-check-label" for="home"> Home</label>
+																
+																<input class="form-check-input ml-4" type="radio" name="work" id="work" value="1" <%= address[i].is_Work ? 'checked' : '' %>>
+																  <label class="form-check-label ml-5" for="Work"> Work</label>
+															</div>
+														</div>
+														<div class="col-lg-12 mb-3"">
+															<button type="submit" class="btn btn-success mr-2">SAVE EDITS</button>
+															<button type="button" class="btn btn-danger" onclick="clearForm1(<%= i %>)">Cancel</button>
+															<p id="message<%= i %>" style="color: #ffff;"></p>
+															<% if(typeof message !== "undefined"){
+																%>
+																<p style="color: red;"><%=message%></p> 
+															<%
+															}
+															%>
+															</div>
+													</div>
+												</form>
+											</div>
+										</div>
+										<!-- edit form -->
+								<% } %>
+								
+							</div>
+						<% } else { %>
+							<br><br>
+							<h3> No Address Found</h3>
+						 <% } %>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- start footer Area -->
+	<footer class="footer-area section_gap">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-3  col-md-6 col-sm-6">
+					<div class="single-footer-widget">
+						<h6>About</h6>
+						<p><a class="About" href="">About Us</a></p>
+						<p><a class="About" href="">Contact Us</a></p>
+					</div>
+				</div>
+				<div class="col-lg-4  col-md-6 col-sm-6">
+					<div class="single-footer-widget">
+						<h6>Newsletter</h6>
+						<p>Stay update with our latest</p>
+						<div class="" id="mc_embed_signup">
+
+							<form target="_blank" novalidate="true" action="https://spondonit.us12.list-manage.com/subscribe/post?u=1462626880ade1ac87bd9c93a&amp;id=92a4423d01"
+							 method="get" class="form-inline">
+
+								<div class="d-flex flex-row">
+
+									<input class="form-control" name="EMAIL" placeholder="Enter Email" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter Email '"
+									 required="" type="email">
+
+
+									<button class="click-btn btn btn-default"><i class="fa fa-long-arrow-right" aria-hidden="true"></i></button>
+									<div style="position: absolute; left: -5000px;">
+										<input name="b_36c4fd991d266f23781ded980_aefe40901a" tabindex="-1" value="" type="text">
+									</div>
+								</div>
+								<div class="info"></div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-3  col-md-6 col-sm-6">
+					<div class="single-footer-widget mail-chimp">
+						<h6 class="mb-20">Instragram Feed</h6>
+						<ul class="instafeed d-flex flex-wrap">
+							<li><img src="/assets/img/i1.jpg" alt=""></li>
+							<li><img src="/assets/img/i2.jpg" alt=""></li>
+							<li><img src="/assets/img/i3.jpg" alt=""></li>
+							<li><img src="/assets/img/i4.jpg" alt=""></li>
+							<li><img src="/assets/img/i5.jpg" alt=""></li>
+							<li><img src="/assets/img/i6.jpg" alt=""></li>
+							<li><img src="/assets/img/i7.jpg" alt=""></li>
+							<li><img src="/assets/img/i8.jpg" alt=""></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-lg-2 col-md-6 col-sm-6">
+					<div class="single-footer-widget">
+						<h6>Follow Us</h6>
+						<p>Let us be social</p>
+						<div class="footer-social d-flex align-items-center">
+							<a href="#"><i class="fa fa-facebook"></i></a>
+							<a href="#"><i class="fa fa-twitter"></i></a>
+							<a href="#"><i class="fa fa-dribbble"></i></a>
+							<a href="#"><i class="fa fa-behance"></i></a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="footer-bottom d-flex justify-content-center align-items-center flex-wrap">
+				<p class="footer-text m-0"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+&copy;<script>document.write(new Date().getFullYear());</script> - Zephyr
+<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+</p>
+			</div>
+		</div>
+	</footer>
+	<!-- End footer Area -->
+
+	<script>
+		document.getElementById('addNewAddressBtn').addEventListener('click', function() {
+        var newAddressForm = document.getElementById('newAddressForm');
+        if (newAddressForm.style.display === 'none') {
+            newAddressForm.style.display = 'block';
+        } else {
+            newAddressForm.style.display = 'none';
+        }
+    });
+
+	
+	<% for (let i = 0 ; i < address.length ; i++){ %>
+		document.getElementById('editAddressBtn<%= i %>').addEventListener('click', function() {
+			var editAddressForm = document.getElementById('editAddress<%= i %>');
+			var newAddressForm = document.getElementById('newAddressForm');
+			if (editAddressForm.style.display === 'none') {
+				editAddressForm.style.display = 'block';
+				newAddressForm.style.display = 'none';
+			} else {
+				editAddressForm.style.display = 'none';
+			}
+		});
+	<% } %>
+
+
+
+	function clearForm1(index) {
+		var form = document.getElementById("editAddressForm" + index);
+		if (form) {
+			form.reset();
+		}
+	}
+
+	</script>
+
+<script src="/js/adminFormValidation.js"></script>
+<script src="/js/validation.js"></script>
+
+
+<%- include('../layouts/footer') %>
