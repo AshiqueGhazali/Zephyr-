@@ -48,8 +48,6 @@ const loadHome = async(req,res)=>{
 }
 const loadUserManagement = async(req,res)=>{
     try {
-        // const userData= await User.find({})
-        // res.render('userManagement',{users:userData})
         const currentPage = parseInt(req.query.page)
         const userPerPage = 10
         const skip =(currentPage-1)*userPerPage ;
@@ -69,30 +67,54 @@ const loadUserManagement = async(req,res)=>{
 const searchUser = async(req,res)=>{
     try {
         let users = [];
+        const currentPage = parseInt(req.query.page)
+        const userPerPage = 10
+        const skip =(currentPage-1)*userPerPage ;
+
+        const totalProduct = await User.countDocuments()
+        const totalPages = Math.ceil(totalProduct/userPerPage)
+
+
         if(req.query.search){
             
-            users = await User.find({Fname:{$regex:req.query.search,$options: 'i'}})
+            users = await User.find({Fname:{$regex:req.query.search,$options: 'i'}}).skip(skip).limit(userPerPage)
         }else{
-            users = await User.find()
+            users = await User.find().skip(skip).limit(userPerPage)
         }
-        res.render('userManagement',{users:users})
+        res.render('userManagement',{users:users,currentPage,totalPages})
     } catch (error) {
         console.log(error.message);
     }
 }
 
-const blockUser = async(req,res)=>{
+// const blockUser = async(req,res)=>{
+//     try {
+//         const id = req.params.id
+//         if(id){
+//             await User.updateOne({_id:id},{$set:{is_block:true}})
+//             delete req.session.userId
+//             return res.redirect('/admin/userManagement')
+//         }
+//     } catch (error) {
+//         console.log(error.message);
+//     }
+// }
+const blockUser = async (req, res) => {
     try {
-        const id = req.params.id
-        if(id){
-            await User.updateOne({_id:id},{$set:{is_block:true}})
-            delete req.session.userId
-            return res.redirect('/admin/userManagement')
-        }
+      const id = req.query.id;
+      if (id) {
+        await User.updateOne({ _id: id }, { $set: { is_block: true } });
+        delete req.session.userId
+        res.status(200).json({ message: "User blocked successfully" });
+      } else {
+        res.status(400).json({ message: "Invalid user ID" });
+      }
     } catch (error) {
-        console.log(error.message);
+      console.log(error.message);
+      res.status(500).json({ message: "Internal server error" });
     }
-}
+  };
+  
 
 const unBlockUser = async(req,res)=>{
     try {

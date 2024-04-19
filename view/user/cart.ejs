@@ -1,0 +1,340 @@
+<%- include('../layouts/header') %>
+
+<link rel="stylesheet" href="/css/cart/magnific-popup.css">
+<link rel="stylesheet" href="/css/cart/main.css">
+<link rel="stylesheet" href="/css/cart/responsive.css">
+
+<body id="category">
+	<link rel="stylesheet" href="css/main.css">
+
+	<!-- Start Header Area -->
+	<header class="header_area sticky-header">
+		<div class="main_menu">
+			<nav class="navbar navbar-expand-lg navbar-light main_box">
+				<div class="container">
+					<a class="navbar-brand logo_h" href="/home"><img src="/assets/img/logoZephyr.png" alt=""></a>
+					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+					 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<div class="collapse navbar-collapse offset" id="navbarSupportedContent">
+						<ul class="nav navbar-nav menu_nav ml-auto">
+							<li class="nav-item"><a class="nav-link" href="/home">Home</a></li>
+							<li class="nav-item"><a class="nav-link" href="/shop">Product</a></li>
+	
+							<li class="nav-item submenu dropdown">
+								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+								 aria-expanded="false"><%=locals.user?locals.user.Fname:'Login'%></a>
+								<ul class="dropdown-menu">
+									<% if (locals.user) { %>
+										<li class="nav-item"><a class="nav-link" href="/profileDetails?id=<%= user._id %>">My Profile</a></li>
+										<li class="nav-item"><a class="nav-link" href="/orders?id=<%= user._id %>">Orders</a></li>
+										<li class="nav-item"><a class="nav-link" href="/wishlist?id=<%= user._id %>">Wishlist</a></li>
+										<li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+									<% }else{ %>
+										<li class="nav-item"><a class="nav-link" href="/profileDetails">My Profile</a></li>
+										<li class="nav-item"><a class="nav-link" href="/orders">Orders</a></li>
+										<li class="nav-item"><a class="nav-link" href="/wishlist">Wishlist</a></li>
+										<li class="nav-item"><a class="nav-link" href="/register">Signup</a></li>
+									<% } %>
+								</ul>
+							</li>
+						</ul>
+						<ul class="nav navbar-nav navbar-right">
+							<li class="nav-item"><a href="/cart" class="cart"><span><i class="fa-solid fa-cart-shopping"></i></span></a></li>
+							<li class="nav-item">
+								<button class="search"><span id="search"><i class="fa-solid fa-magnifying-glass"></i></span></button>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</nav>
+		</div>
+		<div class="search_input" id="search_input_box">
+			<div class="container">
+				<form class="d-flex justify-content-between">
+					<input type="text" class="form-control" id="search_input" placeholder="Search Here">
+					<button type="submit" class="btn"></button>
+					<span id="close_search" title="Close Search"><i class="fa-solid fa-magnifying-glass"></i></span>				
+				</form>
+			</div>
+		</div>
+	</header>
+	<!-- End Header Area -->
+
+	<!-- Start Banner Area -->
+	<section class="banner-area organic-breadcrumb">
+		<div class="container">
+			<div class="breadcrumb-banner d-flex flex-wrap align-items-center justify-content-end">
+				<div class="col-first">
+					<h1>Cart</h1>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- End Banner Area -->
+
+
+	<% if (userCart.length === 0) { %>
+		<p><%= message %></p>
+	<% } else { %>
+		<div class="cart-section mt-150 mb-150">
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-8 col-md-12">
+						<div class="cart-table-wrap">
+							<table class="cart-table">
+								<thead class="cart-table-head">
+									<tr class="table-head-row">
+										<th class="product-remove"></th>
+										<th class="product-image">Product Image</th>
+										<th class="product-name">Name</th>
+										<th class="product-price">Price</th>
+										<th class="product-quantity">Quantity</th>
+										<th class="product-total">Total</th>
+									</tr>
+								</thead>
+								<tbody>
+									<% userCart.forEach(cartItem => { %>
+										<tr class="table-body-row">
+											<td class="product-remove"><a href="/removeFromCart?productId=<%= cartItem.productDetails[0]._id %>"><i class="far fa-window-close"></i></a></td>
+											<td class="product-image"><a href="/singleProduct?id=<%= cartItem.productDetails[0]._id %>"><img src="/assets/<%= cartItem.productDetails[0].image[1] %>" alt=""></a></td>
+											<td class="product-name"><a href="/singleProduct?id=<%= cartItem.productDetails[0]._id %>" style="color: black;"><%= cartItem.productDetails[0].productName %></a></td>
+											<td class="product-price">₹ <%= cartItem.productDetails[0].discountPrice %></td>
+											<td class="product-quantity">
+												<button class="decrease-quantity" data-product-id="<%= cartItem.productDetails[0]._id %>"> - </button>
+												<span class="quantity" id="quantity"><%= cartItem.cartItems.quantity %></span>
+												<button class="increase-quantity" data-product-id="<%= cartItem.productDetails[0]._id %>"> + </button>
+											</td>
+											<td class="product-total "><div class="total-show" id="total-show"><%= cartItem.cartItems.quantity %></div></td>
+										</tr>
+								    <% }); %>
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<div class="col-lg-4">
+						<div class="total-section">
+							<table class="total-table">
+								<thead class="total-table-head">
+									<tr class="table-total-row">
+										<th>Total</th>
+										<th>Price</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr class="total-data">
+										<td><strong>Subtotal: </strong></td>
+										<td>₹ <%= totalPrice %></td>
+									</tr>
+									<tr class="total-data">
+										<td><strong>Shipping: </strong></td>
+										<td>₹ 60</td>
+									</tr>
+									<tr class="total-data">
+										<td><strong>Total: </strong></td>
+										<td>₹ <%= totalPrice+60 %></td>
+									</tr>
+								</tbody>
+							</table>
+							<div class="cart-buttons">
+								<!-- <a href="#" class="boxed-btn"><button type="submit" style="background: none; border: none;">Update Cart</button></a> -->
+								<a href="checkout.html" class="boxed-btn black">Check Out</a>
+							</div>
+						</div>
+
+
+						<div class="coupon-section">
+							<h3>Apply Coupon</h3>
+							<div class="coupon-form-wrap">
+								<form action="index.html">
+									<p><input type="text" placeholder="Coupon"></p>
+									<p><input type="submit" value="Apply"></p>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	<% } %>
+
+	<!-- start footer Area -->
+	<footer class="footer-area section_gap">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-3  col-md-6 col-sm-6">
+					<div class="single-footer-widget">
+						<h6>About</h6>
+						<p><a class="About" href="">About Us</a></p>
+						<p><a class="About" href="">Contact Us</a></p>
+					</div>
+				</div>
+				<div class="col-lg-4  col-md-6 col-sm-6">
+					<div class="single-footer-widget">
+						<h6>Newsletter</h6>
+						<p>Stay update with our latest</p>
+						<div class="" id="mc_embed_signup">
+
+							<form target="_blank" novalidate="true" action="https://spondonit.us12.list-manage.com/subscribe/post?u=1462626880ade1ac87bd9c93a&amp;id=92a4423d01"
+							 method="get" class="form-inline">
+
+								<div class="d-flex flex-row">
+
+									<input class="form-control" name="EMAIL" placeholder="Enter Email" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Enter Email '"
+									 required="" type="email">
+
+
+									<button class="click-btn btn btn-default"><i class="fa fa-long-arrow-right" aria-hidden="true"></i></button>
+									<div style="position: absolute; left: -5000px;">
+										<input name="b_36c4fd991d266f23781ded980_aefe40901a" tabindex="-1" value="" type="text">
+									</div>
+
+									<!-- <div class="col-lg-4 col-md-4">
+													<button class="bb-btn btn"><span class="lnr lnr-arrow-right"></span></button>
+												</div>  -->
+								</div>
+								<div class="info"></div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-3  col-md-6 col-sm-6">
+					<div class="single-footer-widget mail-chimp">
+						<h6 class="mb-20">Instragram Feed</h6>
+						<ul class="instafeed d-flex flex-wrap">
+							<li><img src="/assets/img/i1.jpg" alt=""></li>
+							<li><img src="/assets/img/i2.jpg" alt=""></li>
+							<li><img src="/assets/img/i3.jpg" alt=""></li>
+							<li><img src="/assets/img/i4.jpg" alt=""></li>
+							<li><img src="/assets/img/i5.jpg" alt=""></li>
+							<li><img src="/assets/img/i6.jpg" alt=""></li>
+							<li><img src="/assets/img/i7.jpg" alt=""></li>
+							<li><img src="/assets/img/i8.jpg" alt=""></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-lg-2 col-md-6 col-sm-6">
+					<div class="single-footer-widget">
+						<h6>Follow Us</h6>
+						<p>Let us be social</p>
+						<div class="footer-social d-flex align-items-center">
+							<a href="#"><i class="fa fa-facebook"></i></a>
+							<a href="#"><i class="fa fa-twitter"></i></a>
+							<a href="#"><i class="fa fa-dribbble"></i></a>
+							<a href="#"><i class="fa fa-behance"></i></a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="footer-bottom d-flex justify-content-center align-items-center flex-wrap">
+				<p class="footer-text m-0"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+&copy;<script>document.write(new Date().getFullYear());</script> - Zephyr
+<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+</p>
+			</div>
+		</div>
+	</footer>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+	<script>
+		document.querySelectorAll('.decrease-quantity').forEach(button => {
+			button.addEventListener('click', decreaseQuantity);
+		});
+
+		document.querySelectorAll('.increase-quantity').forEach(button => {
+			button.addEventListener('click', increaseQuantity);
+		});
+
+		function decreaseQuantity(event) {
+			const productId = event.target.dataset.productId;
+			const quantity = document.getElementById("quantity")
+			const totalShow = document.getElementById("totalShow") 
+
+			const currentQuantity = parseInt(event.target.nextElementSibling.innerText); 
+			if (currentQuantity > 1) {
+				updateQuantity(productId, -1);
+				quantity.innerHTML= currentQuantity-1
+				totalShow.innerHTML= currentQuantity-1
+			}else{
+				Swal.fire({
+					title: "Quantity cannot be less than 1",
+					showClass: {
+						popup: `
+						animate__animated
+						animate__fadeInUp
+						animate__faster
+						`
+					},
+					hideClass: {
+						popup: `
+						animate__animated
+						animate__fadeOutDown
+						animate__faster
+						`
+					}
+				});
+			}
+		}
+
+		function increaseQuantity(event) {
+			const productId = event.target.dataset.productId;
+			const quantity = document.getElementById("quantity")
+			const totalShow = document.getElementById("totalShow")
+			const currentQuantity = parseInt(event.target.previousElementSibling.innerText)
+			const maxQuantity = 10;
+
+			if (currentQuantity < maxQuantity) {
+				updateQuantity(productId, 1);
+				quantity.innerHTML= currentQuantity+1
+				totalShow.innerHTML= currentQuantity+1
+			} else {
+				Swal.fire({
+					title: `Quantity cannot exceed ${maxQuantity}`,
+					showClass: {
+						popup: `
+						animate__animated
+						animate__fadeInUp
+						animate__faster
+						`
+					},
+					hideClass: {
+						popup: `
+						animate__animated
+						animate__fadeOutDown
+						animate__faster
+						`
+					}
+				});
+			}
+		}
+
+		function updateQuantity(productId, change) {
+			$.ajax({
+                url: `/updateQuantity?productId=${productId}&change=${change}`,
+                type: 'POST',
+				
+                success: function (response) {
+					console.log("localjfalj");
+                    $('.total-section').load(location.href + ' .total-section')
+                    console.log('Quantity updated successfully');
+                },
+                error: function (error) {
+                    console.error('Error updating quantity:', error);
+                    $('#quantityErrorMessage').text('Quantity error: ' + error.responseJSON.message);
+                    $('#quantityErrorModal').modal('show');
+                }
+				
+            });
+		}
+
+
+	</script>
+
+
+<%- include('../layouts/footer') %>

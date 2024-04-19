@@ -69,12 +69,19 @@ const searchProduct = async(req,res)=>{
     try {
         let productData = []
 
+        const currentPage = parseInt(req.query.page)
+        const productPerPage = 10
+        const skip =(currentPage-1)*productPerPage ;
+
+        const totalProduct = await Products.countDocuments()
+        const totalPages = Math.ceil(totalProduct/productPerPage)
+
         if( req.query.search){
-            productData = await Products.find({productName:{$regex:req.query.search,$options: 'i'}})
+            productData = await Products.find({productName:{$regex:req.query.search,$options: 'i'}}).skip(skip).limit(productPerPage)
         }else{
-            productData = await Products.find()
+            productData = await Products.find().skip(skip).limit(productPerPage)
         }
-        res.render('productManagement',{product:productData})
+        res.render('productManagement',{product:productData,currentPage,totalPages})
     } catch (error) {
         console.log(error.message);
     }

@@ -157,7 +157,9 @@
                                         <td><%= new Date(users[i].createdAt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) %></td>
                                         <td>
                                           <% if(users[i].is_block==false) { %>
-                                            <button class="edit-btn btn-info"><a href="/admin/blockUser/<%= users[i]._id %>" id="blockButton">Block</a></button>
+                                            <!-- <button class="edit-btn btn-info"><a href="/admin/blockUser/<%= users[i]._id %>" id="blockButton">Block</a></button> -->
+                                            <button class="edit-btn btn-info block-btn" onclick="blockUser('<%= users[i]._id %>')">Block</button>
+
                                           <%}else{ %>
                                             <button class="edit-btn btn-danger"><a href="/admin/unBlockUser/<%= users[i]._id %>" id="blockButton">Unblock</a></button> 
                                           <% } %>
@@ -187,6 +189,51 @@
       </div>   
     </div>
 
+    <script>
+      function blockUser(userId) {
+        // SweetAlert confirmation dialog
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You won't be able to revert this!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Yes, block user!",
+          cancelButtonText: "No, cancel!",
+          reverseButtons: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetch(`/admin/blockUser?id=${userId}`, {
+              method: 'GET' 
+            })
+            .then(response => {
+              if (response.ok) {
+                Swal.fire({
+                  title: "User Blocked!",
+                  text: "The user has been blocked.",
+                  icon: "success"
+                }).then(() => {
+                  window.location.reload();
+                });
+              } else {
+                Swal.fire({
+                  title: "Error",
+                  text: "An error occurred while blocking the user.",
+                  icon: "error"
+                });
+              }
+            })
+            .catch(error => {
+              console.error("Error:", error);
+              Swal.fire({
+                title: "Error",
+                text: "An error occurred while blocking the user.",
+                icon: "error"
+              });
+            });
+          }
+        });
+      }
 
+    </script>
 
     <%- include('../layouts/adminFooter') %>

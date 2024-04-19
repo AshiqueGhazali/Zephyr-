@@ -59,13 +59,21 @@ const addCategory = async(req,res)=>{
 }
 const searchCategory = async(req,res)=>{
     try {
+        const currentPage = parseInt(req.query.page) || 1 
+        const categoriesPerPage = 8;
+        const skip = (currentPage - 1) * categoriesPerPage ;
+
+        const totalCategories = await Category.countDocuments()
+        const totalPages = Math.ceil(totalCategories / categoriesPerPage)
+
+
         let categories = []
         if(req.query.search){
-            categories = await Category.find({name:{$regex:req.query.search,$options: 'i'}})
+            categories = await Category.find({name:{$regex:req.query.search,$options: 'i'}}).skip(skip).limit(categoriesPerPage)
         }else{
-            categories= await Category.find({})
+            categories= await Category.find({}).skip(skip).limit(categoriesPerPage)
         }
-        res.render('categoryManagement',{categories:categories})
+        res.render('categoryManagement',{categories:categories, currentPage, totalPages})
     } catch (error) {
         console.log(error.message);
     }

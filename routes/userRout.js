@@ -64,4 +64,22 @@ user_route.post('/addAddress',userController.saveAddress)
 user_route.post('/editAddress',userController.editAddress)
 user_route.get('/deleteAddress',userController.deleteAddress)
 
+// user Cart Management
+user_route.get('/cart',userAuth.isLogin, userController.cartLoad)
+user_route.get('/addTocart',userController.addToCart)
+user_route.get('/removeFromCart',userController.removeFromCart)
+user_route.post('/updateQuantity',userController.updateQuantity)
+
+
+// Product Filters
+user_route.get('/filterByPrice',userController.filterByPrice)
+user_route.get('/filterByCategory',userController.filterByCategory)
+user_route.get('/filterByColor',userController.filterByColor)
+user_route.get('/filterByBrand',userController.filterByBrand)
+
+// checkout and order
+user_route.get('/checkout',userAuth.isLogin,userController.checkoutPageLoad)
+user_route.get('/orders', userAuth.isLogin,userController.ordersPageLoad)
+
+
 module.exports = user_route

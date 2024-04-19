@@ -35,7 +35,7 @@ admin_Route.get('/logout',adminController.logout)
 // user Management Routes
 admin_Route.get('/userManagement',adminAuth.isLogin,adminController.loadUserManagement)
 admin_Route.get('/searchUser',adminAuth.isLogin,adminController.searchUser)
-admin_Route.get('/blockUser/:id',adminAuth.isLogin, adminController.blockUser)
+admin_Route.get('/blockUser',adminAuth.isLogin, adminController.blockUser)
 admin_Route.get('/unBlockUser/:id',adminAuth.isLogin,adminController.unBlockUser)
 
 // category Management Routes

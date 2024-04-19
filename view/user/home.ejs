@@ -174,7 +174,7 @@
 							<div class="single-deal">
 								<div class="overlay"></div>
 								<img class="img-fluid" style="width: 458px; height: 184px;" src="/assets/categoryImg/<%= category[0].imageUrl %>" alt="">
-								<a href="/assets/img/category/c1.jpg" class="img-pop-up" target="_blank">
+								<a href="/filterByCategory?sortBy=<%= category[0].name %>">
 									<div class="deal-details">
 										
 										<h6 class="deal-title"><%= category[0].name %></h6>
@@ -188,7 +188,7 @@
 							<div class="single-deal">
 								<div class="overlay"></div>
 								<img class="img-fluid" style="width: 262px; height: 184px;" src="/assets/categoryImg/<%= category[1].imageUrl %>" alt="">
-								<a href="/assets/img/category/c2.jpg" class="img-pop-up" target="_blank">
+								<a href="/filterByCategory?sortBy=<%= category[1].name %>">
 									<div class="deal-details">
 										<h6 class="deal-title"><%= category[1].name %></h6>
 									</div>
@@ -201,7 +201,7 @@
 							<div class="single-deal">
 								<div class="overlay"></div>
 								<img class="img-fluid"  style="width: 262px; height: 184px;" src="/assets/categoryImg/<%= category[2].imageUrl %>" alt="">
-								<a href="/assets/img/category/c3.jpg" class="img-pop-up" target="_blank">
+								<a href="/filterByCategory?sortBy=<%= category[2].name %>">
 									<div class="deal-details">
 										<h6 class="deal-title"><%= category[2].name %></h6>
 									</div>
@@ -214,7 +214,7 @@
 							<div class="single-deal">
 								<div class="overlay"></div>
 								<img class="img-fluid" style="width: 458px; height: 184px;"  src="/assets/categoryImg/<%= category[3].imageUrl %>" alt="">
-								<a href="/assets/img/category/c4.jpg" class="img-pop-up" target="_blank">
+								<a href="/filterByCategory?sortBy=<%= category[3].name %>">
 									<div class="deal-details">
 										<h6 class="deal-title"><%= category[3].name %></h6>
 									</div>
@@ -228,7 +228,7 @@
 					<div class="single-deal">
 						<div class="overlay"></div>
 						<img class="img-fluid w-100" src="/assets/img/category/c5.jpg" alt="">
-						<a href="/assets/img/category/c5.jpg" class="img-pop-up" target="_blank">
+						<a href=" ">
 							<div class="deal-details">
 								<h6 class="deal-title">Sneaker for Sports</h6>
 							</div>
@@ -260,7 +260,7 @@
 					<% for(let i = 0 ; i< 8 && i< products.length ; i++){ %>
 						<div class="col-lg-3 col-md-6">
 							<div class="single-product">
-								<img class="img-fluid" src="/assets/<%= products[i].image[i] %>" alt="">
+								<img class="img-fluid" src="/assets/<%= products[i].image[1] %>" alt="">
 								<div class="product-details">
 									<h6><%= products[i].productName %></h6>
 									<div class="price">
@@ -268,9 +268,9 @@
 										<h6 class="l-through">₹ <%= products[i].price %></h6>
 									</div>
 									<div class="prd-bottom">
-										<a href="" class="social-info">
+										<a href="/addTocart?productId=<%=products[i]._id %>" class="social-info">
 											<span class="fa-solid fa-cart-shopping"></span>
-											<p class="hover-text">add to bag</p>
+											<p class="hover-text">add to cart</p>
 										</a>
 										<a href="" class="social-info">
 											<span class="fa-regular fa-heart"></span>

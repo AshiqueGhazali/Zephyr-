@@ -9,7 +9,9 @@ const Products = require('../model/productModel')
 const Category = require('../model/categoryModel')
 const Review = require('../model/userReviewModel')
 const Address = require('../model/addressModel')
-const { sanitizeFilter } = require("mongoose")
+const Cart = require('../model/cartModel')
+const { default: mongoose } = require("mongoose");
+// const { sanitizeFilter } = require("mongoose")
 
 // otp verification function
 const otpGenrator = ()=>{
@@ -156,7 +158,7 @@ const securePassword = async (password)=>{
 const loadHome = async (req,res)=>{
     try {
         let userId = req.session.userId ? req.session.userId : '';
-        const productData = await Products.find({isDeleted:false})
+        const productData = await Products.find({isDeleted:false}).sort({ createdAt: -1 })
         const categoryData = await Category.find({isDeleted:false})
         if(req.session.userId){
             const userData = await User.findById({_id:userId });
@@ -172,13 +174,27 @@ const loadHome = async (req,res)=>{
 const loadShop = async (req,res)=>{
     try {
         let userId = req.session.userId
-        const productData = await Products.find({isDeleted:false})
+
+         // pagination setting
+         const currentPage = parseInt(req.query.page)
+         const productPerPage = 28
+         const skip =(currentPage-1)*productPerPage ;
+ 
+         const totalProduct = await User.countDocuments()
+         const totalPages = Math.ceil(totalProduct/productPerPage)
+         //pagination end
+
+
+        const productData = await Products.find({isDeleted:false}).skip(skip).limit(productPerPage)
         const categoryData = await Category.find({isDeleted:false})
+        const color = await Products.distinct('strapColor')
+        const Brand = await Products.distinct('brand')
+
         if(req.session.userId){
             const userData = await User.findById({_id:userId})
-            res.render('shop',{user:userData,products:productData,category:categoryData})
+            res.render('shop',{user:userData,products:productData,category:categoryData,color:color,brand:Brand,currentPage,totalPages})
         }else{
-            res.render('shop',{products:productData,category:categoryData})
+            res.render('shop',{products:productData,category:categoryData,color:color,brand:Brand,currentPage,totalPages})
         }
 
     } catch (error) {
@@ -352,6 +368,8 @@ const googleAuth = async(req,res)=>{
     }
 }
 
+// user Address Profile ##################
+
 const userProfileLoad =async(req,res)=>{
     try {
         const id = req.query.id
@@ -392,6 +410,8 @@ const updateProfile = async (req,res)=>{
         console.log(error.message);
     }
 }
+
+// user Address Management ##################
 
 const addressManagementLoad = async (req,res)=>{
     try {
@@ -466,6 +486,324 @@ const deleteAddress = async (req,res)=>{
         console.log(error.message);
     }
 }
+
+// user Cart Management ################## 
+
+const cartLoad = async (req,res)=>{
+    try {
+        const userId = req.session.userId
+        const userData = await User.findById({_id:userId})
+        const userCart = await Cart.aggregate([
+            {$match:{userId:new mongoose.Types.ObjectId(userId)}},
+            {$unwind:'$cartItems'},
+            {$lookup:{
+                from:'products',
+                localField: "cartItems.productId",
+                foreignField: "_id",
+                as: "productDetails",
+            }}
+        ])
+
+        // total
+        
+        const totalPriceResult = await Cart.aggregate([
+            { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+            { $unwind: '$cartItems' },
+            { $lookup: {
+                from: 'products',
+                localField: 'cartItems.productId',
+                foreignField: '_id',
+                as: 'productDetails'
+            } },
+            { $unwind: '$productDetails' },
+            { $project: {
+                _id: 0,
+                totalPrice: { $multiply: ['$productDetails.discountPrice', '$cartItems.quantity'] }
+            } },
+            { $group: {
+                _id: null,
+                totalPrice: { $sum: '$totalPrice' }
+            } }
+        ]);
+        
+        const totalPrice = totalPriceResult.length > 0 ? totalPriceResult[0].totalPrice : 0;
+        
+        // total
+
+        
+        if (userCart.length === 0) {
+            return res.render('cart', {user: userData, userCart: [], message: 'Your cart is empty.'});
+        }
+
+        res.render('cart', {user: userData, userCart: userCart,totalPrice});
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const addToCart = async(req,res)=>{
+    try {
+        const productId = req.query.productId
+        const userId = req.session.userId
+
+        if(typeof userId == 'undefined'){
+            return res.redirect('/login')
+        }
+
+        let cart = await Cart.findOne({ userId: userId });
+        if (!cart) {
+            cart = new Cart({
+                userId: userId,
+                cartItems: [{ productId: productId }]
+            });
+        } else {
+            const existingItem = cart.cartItems.find(item => item.productId.equals(productId));
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.cartItems.push({ productId: productId });
+            }
+        }
+        await cart.save()
+        res.redirect('/cart')
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const removeFromCart = async (req,res)=>{
+    try {
+        const userID = req.session.userId;
+        const productId = req.query.productId;
+
+        const cartData = await Cart.findOne({ userId: userID });
+        const index = cartData.cartItems.findIndex((value) => {
+        return value.productId.toString() === productId;
+        });
+
+        cartData.cartItems.splice(index, 1);
+        await cartData.save();
+        res.redirect("/cart");
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const updateQuantity = async(req,res)=>{
+    try {
+        const userId = req.session.userId;
+        const productId = req.query.productId;
+        const change = parseInt(req.query.change);
+
+        let cart = await Cart.findOne({ userId: userId });
+
+        const index = cart.cartItems.findIndex(item => item.productId.equals(productId));
+
+        if (index !== -1) {
+            cart.cartItems[index].quantity += change;
+            
+            if (cart.cartItems[index].quantity <= 0) {
+                cart.cartItems.splice(index, 1);
+            }
+        }
+
+        await cart.save();
+        res.sendStatus(200)
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+
+
+
+
+const filterByPrice = async (req, res) => {
+    try {
+        const sortBy = req.query.sortBy; 
+
+        // pagination setting
+        const currentPage = parseInt(req.query.page)
+        const productPerPage = 28
+        const skip =(currentPage-1)*productPerPage ;
+
+        const totalProduct = await User.countDocuments()
+        const totalPages = Math.ceil(totalProduct/productPerPage)
+        //pagination end
+
+        let userId = req.session.userId
+        const categoryData = await Category.find({isDeleted:false})
+        const color = await Products.distinct('strapColor')
+        const Brand = await Products.distinct('brand')
+
+        // sorting
+        let products;
+        switch (sortBy) {
+            case 'lowToHigh':
+                products = await Products.find({ isDeleted: false }).sort({ discountPrice: 1 }).skip(skip).limit(productPerPage)
+                break;
+            case 'highToLow':
+                products = await Products.find({ isDeleted: false }).sort({ discountPrice: -1 }).skip(skip).limit(productPerPage)
+                break;
+            case 'newestFirst':
+                products = await Products.find({isDeleted:false}).sort({ createdAt: -1 }).skip(skip).limit(productPerPage)
+            default:
+                products = await Products.find({ isDeleted: false }).sort({ discountPrice: -1 }).skip(skip).limit(productPerPage)
+        }
+
+        if(req.session.userId){
+            const userData = await User.findById({_id:userId})
+            res.render('shop',{user:userData,products:products,category:categoryData,color:color,brand:Brand,currentPage,totalPages})
+        }else{
+            res.render('shop',{products:products,category:categoryData,color:color,brand:Brand,currentPage,totalPages})
+        }
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send("Internal Server Error");
+    }
+}
+
+const filterByCategory = async (req, res) => {
+    try {
+
+        let userId = req.session.userId
+
+        // pagination setting
+        const currentPage = parseInt(req.query.page)
+        const productPerPage = 28
+        const skip =(currentPage-1)*productPerPage ;
+
+        const totalProduct = await User.countDocuments()
+        const totalPages = Math.ceil(totalProduct/productPerPage)
+        //pagination end
+
+        const categoryData = await Category.find({isDeleted:false})
+        const color = await Products.distinct('strapColor')
+        const Brand = await Products.distinct('brand')
+
+        const sortBy = req.query.sortBy; 
+
+        let products = await Products.find({isDeleted: false }).skip(skip).limit(productPerPage)
+
+        if(sortBy!='allProduct'){
+            products = await Products.find({ category: sortBy, isDeleted: false }).skip(skip).limit(productPerPage)
+        }
+
+        if(req.session.userId){
+            const userData = await User.findById({_id:userId})
+            res.render('shop',{user:userData,products:products,category:categoryData,color:color,brand:Brand,currentPage,totalPages})
+        }else{
+            res.render('shop',{products:products,category:categoryData,color:color,brand:Brand,currentPage,totalPages})
+        }
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const filterByColor = async (req, res) => {
+    try {
+
+        let userId = req.session.userId
+
+        // pagination setting
+        const currentPage = parseInt(req.query.page)
+        const productPerPage = 28
+        const skip =(currentPage-1)*productPerPage ;
+
+        const totalProduct = await User.countDocuments()
+        const totalPages = Math.ceil(totalProduct/productPerPage)
+        //pagination end
+
+        const categoryData = await Category.find({isDeleted:false})
+        const color = await Products.distinct('strapColor')
+        const Brand = await Products.distinct('brand')
+
+        const sortBy = req.query.sortBy; 
+
+        let products = await Products.find({isDeleted: false }).skip(skip).limit(productPerPage)
+
+        if(sortBy!='allProduct'){
+            products = await Products.find({ strapColor: sortBy, isDeleted: false }).skip(skip).limit(productPerPage)
+        }
+
+        if(req.session.userId){
+            const userData = await User.findById({_id:userId})
+            res.render('shop',{user:userData,products:products,category:categoryData,color:color,brand:Brand,currentPage,totalPages})
+        }else{
+            res.render('shop',{products:products,category:categoryData,color:color,brand:Brand,currentPage,totalPages})
+        }
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const filterByBrand = async (req, res) => {
+    try {
+
+        let userId = req.session.userId
+
+        // pagination setting
+        const currentPage = parseInt(req.query.page)
+        const productPerPage = 28
+        const skip =(currentPage-1)*productPerPage ;
+
+        const totalProduct = await User.countDocuments()
+        const totalPages = Math.ceil(totalProduct/productPerPage)
+        //pagination end
+
+        const categoryData = await Category.find({isDeleted:false})
+        const color = await Products.distinct('strapColor')
+        const Brand = await Products.distinct('brand')
+
+        const sortBy = req.query.sortBy; 
+
+        let products = await Products.find({isDeleted: false }).skip(skip).limit(productPerPage)
+
+        if(sortBy!='allProduct'){
+            products = await Products.find({ brand: sortBy, isDeleted: false }).skip(skip).limit(productPerPage)
+        }
+
+        if(req.session.userId){
+            const userData = await User.findById({_id:userId})
+            res.render('shop',{user:userData,products:products,category:categoryData,color:color,brand:Brand,currentPage,totalPages})
+        }else{
+            res.render('shop',{products:products,category:categoryData,color:color,brand:Brand,currentPage,totalPages})
+        }
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+
+// checkout and order
+
+const ordersPageLoad = async(req,res)=>{
+    try {
+        const id = req.session.userId
+        const userData = await User.findById({_id:id})
+
+        res.render('orders',{user:userData})
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const checkoutPageLoad = async(req,res)=>{
+    try {
+        res.render('checkout')
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+
 module.exports={
     loadHome,
     loadShop,
@@ -485,6 +823,16 @@ module.exports={
     addressManagementLoad,
     saveAddress,
     editAddress,
-    deleteAddress
-    
+    deleteAddress,
+    cartLoad,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    filterByPrice,
+    filterByCategory,
+    filterByColor,
+    filterByBrand,
+    ordersPageLoad,
+    checkoutPageLoad
+
 }
