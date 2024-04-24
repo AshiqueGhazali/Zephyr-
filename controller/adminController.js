@@ -1,6 +1,7 @@
 const User = require('../model/userModel')
 const Products = require('../model/productModel')
 const Category = require('../model/categoryModel')
+const Orders = require('../model/orderModel')
 
 const loginLoad = async(req,res)=>{
     try {
@@ -22,7 +23,8 @@ const verifyLogin = async(req,res)=>{
                 const userCount = await User.find().count()
                 const productCount = await Products.find().count()
                 const categoryCount = await Category.find().count()
-                res.render('dashboard',{userCount:userCount,productCount:productCount,categoryCount:categoryCount})
+                const orderCount = await Orders.find().count()
+                res.render('dashboard',{userCount,productCount,categoryCount,orderCount})
             }else{
                 return res.render('login',{message:"Please enter a valid User Name and Password"})
             }
@@ -40,8 +42,9 @@ const loadHome = async(req,res)=>{
         const userCount = await User.find().count()
         const productCount = await Products.find().count()
         const categoryCount = await Category.find().count()
+        const orderCount = await Orders.find().count()
 
-        res.render('dashboard',{userCount:userCount,productCount:productCount,categoryCount:categoryCount})
+        res.render('dashboard',{userCount,productCount,categoryCount,orderCount})
     } catch (error) {
         console.log(error.message);
     }
@@ -87,42 +90,22 @@ const searchUser = async(req,res)=>{
     }
 }
 
-// const blockUser = async(req,res)=>{
-//     try {
-//         const id = req.params.id
-//         if(id){
-//             await User.updateOne({_id:id},{$set:{is_block:true}})
-//             delete req.session.userId
-//             return res.redirect('/admin/userManagement')
-//         }
-//     } catch (error) {
-//         console.log(error.message);
-//     }
-// }
-const blockUser = async (req, res) => {
-    try {
-      const id = req.query.id;
-      if (id) {
-        await User.updateOne({ _id: id }, { $set: { is_block: true } });
-        delete req.session.userId
-        res.status(200).json({ message: "User blocked successfully" });
-      } else {
-        res.status(400).json({ message: "Invalid user ID" });
-      }
-    } catch (error) {
-      console.log(error.message);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  };
-  
 
-const unBlockUser = async(req,res)=>{
+const blockAndUnblockUser = async(req,res)=>{
     try {
-        const id = req.params.id;
-        if(id){
-            await User.updateOne({_id:id},{$set:{is_block:false}})
-            return res.redirect('/admin/userManagement')
+        const id = req.query.id;
+        const userData = await User.findById({_id:id})
+        userData.is_block = !userData.is_block 
+        await userData.save()
+
+        if (userData.is_block) {
+            delete req.session.userId;
         }
+        
+        let message = userData.is_block ? "User Blocked successfully" : "User Unblocked successfully";
+
+        res.status(200).json({message})
+
     } catch (error) {
         console.log(error.message);
     }
@@ -142,7 +125,6 @@ module.exports={
     loadHome,
     loadUserManagement,
     searchUser,
-    blockUser,
-    unBlockUser,
-    logout
+    logout,
+    blockAndUnblockUser
 }

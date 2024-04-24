@@ -1,0 +1,158 @@
+<%- include('../layouts/header') %>
+<link rel="stylesheet" href="/css/main.css">
+<body>
+    
+	<button type="button" class="btn btn-primary btn-lg btn-block"></button>
+
+    
+    <section class="order_details section_gap mt-8">
+		<div class="container">
+			<h3 class="title_confirmation">ORDER DETAILS</h3>
+			<div class="row order_d_inner">
+				<div class="col-lg-6">
+					<div class="details_item">
+						<h4>Order Info</h4>
+						<ul class="list">
+							<!-- <li><a href="#"><span>Order number</span> : 60235</a></li> -->
+							<li><a href="#"><span>Date</span> : <%= new Date(orders.orderDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) %></a></li>
+							<li><a href="#"><span>Total Amount</span> : ₹ <%= orders.totalAmount %></a></li>
+							<li><a href="#"><span>Payment method</span> : <%= orders.paymentMethod %></a></li>
+							<li><a href="#"><span>Order Status</span> : <%= orders.orderStatus %></a></li>
+						</ul>
+					</div>
+				</div> 
+				
+				<div class="col-lg-6">
+					<div class="details_item">
+						<h4>Shipping Address</h4>
+						<ul class="list">
+							<li><a href="#"><span>Name</span> : <%= orders.address.Name %></a></li>
+							<li><a href="#"><span>City</span> : <%= orders.address.city %></a></li>
+							<li><a href="#"><span>Country</span> : <%= orders.address.state %></a></li>
+							<li><a href="#"><span>Postcode </span> : <%= orders.address.PIN %></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="order_details_table">
+				<h2>Order Details</h2>
+				<div class="table-responsive">
+					<table class="table">
+						<thead>
+							<tr>
+								<th scope="col">Product</th>
+								<th scope="col">Quantity</th>
+								<th scope="col">Total</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<% if(orders) { %> 
+									<% for (let i = 0 ; i < orders.orderItems.length ; i++) { %> 
+								<td>
+									<p><%= orders.orderItems[i].productName %></p>
+								</td>
+								<td>
+									<h5>x <%= orders.orderItems[i].quantity %></h5>
+								</td>
+								<td>
+									<p>₹ <%= orders.orderItems[i].discountPrice %></p>
+								</td>
+							</tr>
+							<% } %>
+							<tr>
+								<td>
+									<h4>Subtotal</h4>
+								</td>
+								<td>
+									<h5></h5>
+								</td>
+								<td>
+									<p>₹ <%= orders.totalAmount-60 %></p>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<h4>Shipping</h4>
+								</td>
+								<td>
+									<h5></h5>
+								</td>
+								<td>
+									<p>₹ 60.00</p>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<h4>Total</h4>
+								</td>
+								<td>
+									<h5></h5>
+								</td>
+								<td>
+									<p>₹ <%= orders.totalAmount %></p>
+								</td>
+								
+								<% } %>
+							</tr>
+
+						</tbody>
+					</table>
+					<% if (orders.orderStatus=="pending"){%> 
+					<button type="button" class="btn btn-danger btn-lg btn-block mt-4" onclick="cancelOrder('<%= orders._id %>')">Cancel Order</button>
+					<% } %>
+					<a href="/admin/orderManagement"><button type="button" class="btn btn-secondary btn-lg btn-block mt-4">BACK</button></a>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<script>
+		function cancelOrder(orderId) {
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You won't be able to revert this!",
+          icon: "warning",
+          showCancelButton: "Yes, Cancel Order",
+          cancelButtonText: "No, cancel!",
+          reverseButtons: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetch(`/admin/adminCancelOrder?orderId=${orderId}`, {
+              method: 'GET' 
+            })
+            .then(response => {
+              if (response.ok) {
+                Swal.fire({
+                  title: "Order Cancelled",
+                  text: "The Order has been Cancelled.",
+                  icon: "success"
+                })
+				.then(() => {
+				window.location.href = '/admin/orderManagement';
+                });
+              } else {
+                Swal.fire({
+                  title: "Error",
+                  text: "An error occurred while Cancel Order.",
+                  icon: "error"
+                });
+              }
+            })
+            .catch(error => {
+              
+              console.error("Error:", error);
+              Swal.fire({
+                title: "Error",
+                text: "An error occurred while Cancel Order.",
+                icon: "error"
+              });
+            });
+          }
+        });
+      }
+	</script>
+	
+   
+
+<%- include('../layouts/footer') %>

@@ -30,7 +30,7 @@
 									<li class="nav-item"><a class="nav-link" href="/login">My Profile</a></li>
 									<li class="nav-item"><a class="nav-link" href="/login">Orders</a></li>
 									<li class="nav-item"><a class="nav-link" href="/login">Wishlist</a></li>
-									<li class="nav-item"><a class="nav-link" href="/regiter">Sign Up</a></li>
+									<li class="nav-item"><a class="nav-link" href="/register">Sign Up</a></li>
 								</ul>
 							</li>
 						</ul>
@@ -88,16 +88,16 @@
 							</div>
 							<div class="col-md-12 form-group">
 								<button type="submit" value="submit" class="primary-btn">Log In</button>
-								<a href="#">Forgot Password?</a>
+								<a href="/forgotPassword">Forgot Password?</a>
 								<% if(typeof message !== "undefined"){
 									%>
 								 <p style="color: red;"><%=message%></p> 
 							  <%
 							   }
 							  %>
-							  
+							  <a href="/google"><button type="button" class="btn btn-outline-success btn-lg btn-block"><i class="fa-brands fa-google"></i>  Continue With Google</button></a>
+
 							</div>
-							<a href="/google"><button type="button" class="btn btn-secondary btn-lg btn-block">Continue With Google</button></a>
 
 						</form>
 					</div>

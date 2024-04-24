@@ -111,6 +111,12 @@ const editCategory =async(req,res)=>{
     try {
         const {category,description,isAvailable}=req.body
 
+        const CategoryData = await Category.findOne({name:category})
+        if(CategoryData){
+            res.render('addCategory',{message:"This category is alredy added"})
+            return;
+        } 
+
         if(category==''||description==''){
             res.render('addCategory',{message:"please enter category detailes"})
             return;
@@ -147,17 +153,6 @@ const restoreCategory =async(req,res)=>{
     }
 }
 
-const deleteCategory = async(req,res)=>{
-    try {
-        const id= req.query.id;
-        if(id){
-            await Category.deleteOne({_id:id})
-            return res.redirect('/admin/categoryManagement')
-        }
-    } catch (error) {
-        console.log(error.message);
-    }
-}
 
 
 module.exports ={
@@ -169,6 +164,5 @@ module.exports ={
     editCategoryLoad,
     editCategory,
     restoreCategory,
-    deleteCategory,
     
 }

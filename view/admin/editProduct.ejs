@@ -63,7 +63,7 @@
                     <div class="col-md-4 mb-3">
                         <div class="form-groups">
                             <label for="description">In Stock</label>
-                            <input type="number" class="form-control" id="inStock" name="inStock" value="<%=product.inStock %>" >
+                            <input type="number" class="form-control" id="inStock" name="inStock" value="<%=product.inStock %>" min="0">
                             <input type="hidden" name="id" value="<%= product._id %>">
                         </div>
                     </div>

@@ -143,6 +143,69 @@ const resendOtp = async(req,res)=>{
    
 }
 
+// forgot password OTP
+
+const forgotPasswordOtp = async(req,res)=>{
+    const otp = otpGenrator();
+
+    const transporter = nodemailer.createTransport({
+        service:"gmail",
+        auth: {
+            user: process.env.AUTH_EMAIL,
+            pass: process.env.AUTH_PASSWORD,
+          },
+    })
+
+    const mailGenerator = new mailgen({
+        theme: "default",
+        product: {
+          name: "Zephyr",
+          link: "https://mailgen.js/",
+        },
+    })
+
+    const response = {
+        body:{
+            name:req.session.forgotUser,
+            intro:"your OTP for Zephyr verification is",
+            table:{
+                data:[{
+                    OTP : otp
+                }]
+            },
+            outro:"Looking forward to doing more business",
+        }
+    }
+
+    const mail = mailGenerator.generate(response)
+
+    const message = {
+        from:process.env.AUTH_EMAIL,
+        to:req.session.forgotUser,
+        subject:"Zephyr OTP Verification",
+        html:mail
+    }
+
+    try{
+        const newOtp = new otpModel({
+            email:req.session.forgotUser,
+            otp:otp,
+            createdAt:Date.now(),
+            expiresAt:Date.now()+30000
+        })
+
+        const data =await newOtp.save()
+        req.session.forgotOtpId=data._id
+        await transporter.sendMail(message);
+       
+    }catch(error){
+        console.log(error.message);
+        
+    }
+
+   
+}
+
 
 const securePassword = async (password)=>{
    try {
@@ -201,6 +264,8 @@ const loadShop = async (req,res)=>{
         console.log(error.message);
     }
 }
+
+// login and Registration
 const loginLoad= async (req,res)=>{
     try {
         res.render('login')
@@ -313,6 +378,89 @@ const verifyLogin  = async (req,res)=>{
 }
 }
 
+// forgot password
+
+const forgotPasswordPage = async(req,res)=>{
+    try {
+        res.render('forgotPassword')
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const verifyEmail = async(req,res)=>{
+    try {
+        const email = req.body.email;
+        const isUser = await User.findOne({email:email})
+
+        if(!req.body){
+            return res.render('forgotPassword',{message:"Enter Email"})
+        }
+        if(!isUser){
+            return res.render('forgotPassword',{message:"Sorry, Your Email not found. Please try again with other Email."})
+        }
+
+        req.session.forgotUserId=isUser._id
+        req.session.forgotUser=req.body.email
+
+        forgotPasswordOtp(req,res);
+        res.render('forgotOtp',{ userEmail:email});
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const forgotOtpVerify =async(req,res)=>{
+    try {
+
+        const userEmail = req.session.forgotUser;
+        res.render('resetPassword');
+
+        // if (!req.body || !req.body.otp) {
+        //     return res.status(400).render('forgotOtp', { userEmail:userEmail, message: "Please enter OTP" });
+        // }
+
+
+        // const otpUserData = await otpModel.findOne({ _id: req.session.forgotOtpId });
+        // if (!otpUserData) {
+        //     return res.status(404).render('forgotOtp', { userEmail:userEmail, message: "OTP session expired or invalid. Please try again." });
+        // }
+
+        // const otpUser = otpUserData.otp;
+        // const otp = parseFloat(req.body.otp.join(""));
+
+
+        // if (otp === otpUser) {
+        //     res.render('resetPassword');
+        // } else {
+        //     res.status(400).render('forgotOtp', { userEmail, message: "Incorrect OTP" });
+        // }
+        // res.render('resetPassword');
+
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const resetPassword = async(req,res)=>{
+    try {
+        const userId = req.session.forgotUserId
+        const {newPassword,cnfmPassword}=req.body
+
+
+        if(newPassword!=cnfmPassword){
+            return res.render('resetPassword',{message:"Password dosn't Match"})
+        }
+
+        const spassword =await securePassword(newPassword)
+        const updatePassword = await User.findByIdAndUpdate({_id:userId},{$set:{password:spassword}})
+        res.render('login')
+    } catch (error) {
+        
+    }
+}
+
 const userLogout = async(req,res)=>{
     try {
         req.session.destroy();
@@ -381,33 +529,48 @@ const userProfileLoad =async(req,res)=>{
     }
 }
 
-const updateProfileLoad = async(req,res)=>{
-    try {
-        // const id = req.query.id
-        let userId = req.session.userId
-
-        const userData = await User.findById({_id:userId})
-        res.render('updateProfile',{user:userData})
-    } catch (error) {
-        console.log(error.message);
-    }
-}
 
 const updateProfile = async (req,res)=>{
     try {
-        const userData = await User.findByIdAndUpdate({_id:req.body.id},{$set:{
-            Fname:req.body.firstName,
-            Lname:req.body.lastName,
-            username:req.body.username,
-            email:req.body.email,
-            phone:req.body.phone
-        }})
-
-        // redirect to /profileDetails page , but got some error  
-        res.redirect('/home')
-
+        const userId = req.body.id;
+        const userData = await User.findByIdAndUpdate(
+            {_id: userId },
+            {$set: {
+                Fname: req.body.firstName,
+                Lname: req.body.lastName,
+                username: req.body.username,
+                phone: req.body.phone
+            }},
+            {new: true}
+        );
+        res.status(200).json({ message: "Profile updated successfully" });
     } catch (error) {
-        console.log(error.message);
+        console.error(error);
+        res.status(500).json({ message: "Error updating profile" });
+    }
+}
+
+
+const changePassword = async(req,res)=>{
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const userId = req.session.userId;
+
+        
+        const user = await User.findById(userId);
+
+        const passwordIsValid = await bcrypt.compare(currentPassword, user.password);
+        if (!passwordIsValid) {
+            return res.status(401).json({ message: "Current password is incorrect." });
+        }
+
+        const hashedPassword = await securePassword(newPassword)
+        await User.updateOne({_id: userId}, { $set: {password: hashedPassword} });
+
+        res.status(200).json({ message: "Password successfully updated." });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: error.message });
     }
 }
 
@@ -429,9 +592,12 @@ const addressManagementLoad = async (req,res)=>{
 const saveAddress = async(req,res)=>{
     try {
         const id = req.session.userId
+        const user = await User.findById(id)
+        const email = user.email
         const userAddress = new Address({
             user_id : id,
             Name : req.body.Name,
+            email : email,
             Mobile : req.body.phone,
             PIN : req.body.pincode,
             Locality : req.body.locality,
@@ -440,8 +606,8 @@ const saveAddress = async(req,res)=>{
             state : req.body.state,
             landmark : req.body.landmark,
             alternatePhone : req.body.phone2,
-            is_Home : !!req.body.home,
-            is_Work : !!req.body.work,
+            is_Home : req.body.addressType === 'home',
+            is_Work :  req.body.addressType === 'work',
         })
 
         await userAddress.save()
@@ -454,26 +620,17 @@ const saveAddress = async(req,res)=>{
 
 const editAddress = async (req,res)=>{
     try {
-        const id = req.session.userId
-        const edit = await Address.updateOne({user_id:id},{$set:{
-            Name : req.body.Name,
-            Mobile : req.body.phone,
-            PIN : req.body.pincode,
-            Locality : req.body.locality,
-            address : req.body.address,
-            city : req.body.city,
-            state : req.body.state,
-            landmark : req.body.landmark,
-            alternatePhone : req.body.phone2,
-            is_Home : !!req.body.home,
-            is_Work : !!req.body.work,
-        }})
+        const id = req.session.userId;
+        const edit = await Address.updateOne({ user_id: id }, { $set: req.body });
 
-        res.redirect('/addressManagement')
+        res.json({ message: "Address updated successfully!" });
     } catch (error) {
-        console.log(error.message);
+        console.error(error.message);
+        res.status(500).json({ message: "Failed to update address." });
     }
 }
+
+
 
 const deleteAddress = async (req,res)=>{
     try {
@@ -547,7 +704,7 @@ const addToCart = async(req,res)=>{
         const userId = req.session.userId
 
         if(typeof userId == 'undefined'){
-            return res.redirect('/login')
+            return res.status(401).json({ redirectUrl: '/login' });
         }
 
         let cart = await Cart.findOne({ userId: userId });
@@ -565,10 +722,12 @@ const addToCart = async(req,res)=>{
             }
         }
         await cart.save()
-        res.redirect('/cart')
+        res.status(200).json({message:"addedd to cart"})
 
     } catch (error) {
         console.log(error.message);
+        res.status(500).json({ message: "Failed to add to cart" });
+
     }
 }
 
@@ -782,27 +941,6 @@ const filterByBrand = async (req, res) => {
 }
 
 
-// checkout and order
-
-const ordersPageLoad = async(req,res)=>{
-    try {
-        const id = req.session.userId
-        const userData = await User.findById({_id:id})
-
-        res.render('orders',{user:userData})
-    } catch (error) {
-        console.log(error.message);
-    }
-}
-
-const checkoutPageLoad = async(req,res)=>{
-    try {
-        res.render('checkout')
-    } catch (error) {
-        console.log(error.message);
-    }
-}
-
 
 module.exports={
     loadHome,
@@ -813,17 +951,21 @@ module.exports={
     ResendOtp,
     verifyOtp,
     verifyLogin,
+    forgotPasswordPage,
+    verifyEmail,
+    forgotOtpVerify,
+    resetPassword,
     userLogout,
     userProfileLoad,
     singleProductLoad,
     saveReview,
     googleAuth,
-    updateProfileLoad,
     updateProfile,
     addressManagementLoad,
     saveAddress,
     editAddress,
     deleteAddress,
+    changePassword,
     cartLoad,
     addToCart,
     removeFromCart,
@@ -832,7 +974,5 @@ module.exports={
     filterByCategory,
     filterByColor,
     filterByBrand,
-    ordersPageLoad,
-    checkoutPageLoad
 
 }

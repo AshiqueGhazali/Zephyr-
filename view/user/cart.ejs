@@ -78,7 +78,8 @@
 
 
 	<% if (userCart.length === 0) { %>
-		<p><%= message %></p>
+		<h4 class=""><%= message %></h4>
+		<br><br>
 	<% } else { %>
 		<div class="cart-section mt-150 mb-150">
 			<div class="container">
@@ -104,11 +105,11 @@
 											<td class="product-name"><a href="/singleProduct?id=<%= cartItem.productDetails[0]._id %>" style="color: black;"><%= cartItem.productDetails[0].productName %></a></td>
 											<td class="product-price">₹ <%= cartItem.productDetails[0].discountPrice %></td>
 											<td class="product-quantity">
-												<button class="decrease-quantity" data-product-id="<%= cartItem.productDetails[0]._id %>"> - </button>
-												<span class="quantity" id="quantity"><%= cartItem.cartItems.quantity %></span>
-												<button class="increase-quantity" data-product-id="<%= cartItem.productDetails[0]._id %>"> + </button>
+												<button class="decrease-quantity" data-product-id="<%= cartItem.productDetails[0]._id %>" data-in-stock="<%= cartItem.productDetails[0].inStock %>"> - </button>
+												<span class="quantity" id="quantity<%= cartItem.productDetails[0]._id %>"><%= cartItem.cartItems.quantity %></span>
+												<button class="increase-quantity" data-product-id="<%= cartItem.productDetails[0]._id %>" data-in-stock="<%= cartItem.productDetails[0].inStock %>"> + </button>
 											</td>
-											<td class="product-total "><div class="total-show" id="total-show"><%= cartItem.cartItems.quantity %></div></td>
+											<td class="product-total "><div class="total-show" id="totalShow<%= cartItem.productDetails[0]._id %>"><%= cartItem.cartItems.quantity %></div></td>
 										</tr>
 								    <% }); %>
 								</tbody>
@@ -142,7 +143,7 @@
 							</table>
 							<div class="cart-buttons">
 								<!-- <a href="#" class="boxed-btn"><button type="submit" style="background: none; border: none;">Update Cart</button></a> -->
-								<a href="checkout.html" class="boxed-btn black">Check Out</a>
+								<a href="/checkout" class="boxed-btn black">Check Out</a>
 							</div>
 						</div>
 
@@ -253,8 +254,8 @@
 
 		function decreaseQuantity(event) {
 			const productId = event.target.dataset.productId;
-			const quantity = document.getElementById("quantity")
-			const totalShow = document.getElementById("totalShow") 
+			const quantity = document.getElementById("quantity"+productId)
+			const totalShow = document.getElementById("totalShow"+productId) 
 
 			const currentQuantity = parseInt(event.target.nextElementSibling.innerText); 
 			if (currentQuantity > 1) {
@@ -284,10 +285,11 @@
 
 		function increaseQuantity(event) {
 			const productId = event.target.dataset.productId;
-			const quantity = document.getElementById("quantity")
-			const totalShow = document.getElementById("totalShow")
+			const inStock = parseInt(event.target.dataset.inStock);
+			const quantity = document.getElementById("quantity"+productId)
+			const totalShow = document.getElementById("totalShow"+productId)
 			const currentQuantity = parseInt(event.target.previousElementSibling.innerText)
-			const maxQuantity = 10;
+			const maxQuantity = inStock;
 
 			if (currentQuantity < maxQuantity) {
 				updateQuantity(productId, 1);
@@ -314,7 +316,7 @@
 			}
 		}
 
-		function updateQuantity(productId, change) {
+		function updateQuantity(productId, change, stock) {
 			$.ajax({
                 url: `/updateQuantity?productId=${productId}&change=${change}`,
                 type: 'POST',

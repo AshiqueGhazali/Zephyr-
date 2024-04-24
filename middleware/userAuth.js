@@ -40,9 +40,24 @@ const isLogout = async(req,res,next)=>{
     }
 }
 
+// Is orderConformed
+
+const isOrderd =async(req,res,next)=>{
+    try {
+        if(req.session.orderConforme){
+            next()
+        }else{
+            res.redirect('/home')
+
+        }
+    } catch (error) {
+        console.log(error.message);
+    }
+}
 
 module.exports = {
     isLogin,
     loginCheck,
     isLogout,
+    isOrderd
 }

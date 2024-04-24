@@ -1,7 +1,17 @@
 const mongoose = require ('mongoose')
 
 const addressSchema = mongoose.Schema({
+    user_id: {
+        // type: String,
+        // required: true
+        type: mongoose.SchemaTypes.ObjectId,
+        required:true
+    },
     Name : {
+        type:String,
+        required:true
+    },
+    email :{
         type:String,
         required:true
     },

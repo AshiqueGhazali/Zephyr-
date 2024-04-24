@@ -175,13 +175,12 @@
               <td class="text-success" ><%=product[i].discount %> %</td>
               <% if(product[i].isDeleted) { %>
                 <td>
-                  <a href="/admin/listProduct?id=<%=product[i]._id %>"><i class="fa-regular fa-eye mr-3 text-success"></i></a> 
-                  <a href="/admin/deleteProduct?id=<%=product[i]._id %>"><i class="fa-solid fa-trash-can text-danger"></i></a>
+                  <button type="button" class="btn btn-outline-success" onclick="listAndUnlistProduct('<%=product[i]._id %>',true)"><i class="fa-regular fa-eye mr-3 "></i></button>
                 </td>
               <% }else { %>
                   <td>
                     <a href="/admin/editProduct?id=<%=product[i]._id %>"><i class="fa-regular fa-pen-to-square mr-3 text-secondary"></i></a> 
-                    <a href="/admin/unlistProduct?id=<%=product[i]._id %>"><i class="fa-regular fa-eye-slash text-danger"></i></a>
+                    <button type="button" class="btn btn-outline-danger" onclick="listAndUnlistProduct('<%=product[i]._id %>',false)"><i class="fa-regular fa-eye-slash "></i></button>
                   </td>
               <% } %>
               
@@ -193,15 +192,62 @@
           </tbody>
         </table>
  
-          <footer class="footer">
-            <div class="d-sm-flex justify-content-center justify-content-sm-between">
-              <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2024.<a href="" target="_blank">Zephyr</a></span>
-            </div>
-          </footer> 
         </div>
       </div>   
+      <footer class="footer">
+        <div class="d-sm-flex justify-content-center justify-content-sm-between">
+          <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">Copyright © 2024.<a href="" target="_blank">Zephyr</a></span>
+        </div>
+      </footer>
     </div>
 
+
+    <script>
+      function listAndUnlistProduct(productId,status) {
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You won't be able to revert this!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: status ? "Yes, List Product!" : "Yes, UnList Product!",
+          cancelButtonText: "No, cancel!",
+          reverseButtons: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetch(`/admin/listAndUnlistProduct?id=${productId}`, {
+              method: 'GET' 
+            })
+            .then(response => {
+              if (response.ok) {
+                Swal.fire({
+                  title: status ? "Product Listed!" : "Product UnListed!",
+                  text: status ? "The Product has been Listed." : "The Product has been Unlisred.",
+                  icon: "success"
+                }).then(() => {
+                  window.location.reload();
+                });
+              } else {
+                Swal.fire({
+                  title: "Error",
+                  text: "An error occurred while blocking the user.",
+                  icon: "error"
+                });
+              }
+            })
+            .catch(error => {
+              
+              console.error("Error:", error);
+              Swal.fire({
+                title: "Error",
+                text: "An error occurred while blocking the user.",
+                icon: "error"
+              });
+            });
+          }
+        });
+      }
+
+    </script>
 
 
     <%- include('../layouts/adminFooter') %>

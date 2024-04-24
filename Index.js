@@ -8,6 +8,8 @@ const app = express()
 const morgan = require('morgan')
 
 mongoose.connect("mongodb://127.0.0.1:27017/zephyr_eCommerce")
+// mongoose.connect(process.env.MONGO_URL)
+
 
 dotenv.config({path:'.env'})
 

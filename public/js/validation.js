@@ -108,3 +108,38 @@ function addressValidation(event,  formId, messageId) {
     document.getElementById(formId).submit();
 }
 
+
+function updateProfileValidation(event) {
+    event.preventDefault();
+
+    let message = document.getElementById("message");
+    let firstName = document.getElementById("fName").value.trim(); 
+    let lastName = document.getElementById("lName").value.trim();
+    let phone = document.getElementById("phone").value.trim();
+
+    console.log("FirstName:", firstName); // Check what is being captured
+    console.log("LastName:", lastName);
+
+    const nameRegex = /^[a-zA-Z]+$/;
+    const phoneRegex = /^[0-9]{10}$/; 
+
+    if (firstName.length === 0 || lastName.length === 0) {
+        message.textContent = "Name cannot be empty.";
+        return;
+    }
+    
+    if (!nameRegex.test(firstName) || !nameRegex.test(lastName)) {
+        message.textContent = "Please enter a valid name.";
+        return;
+    }
+  
+    if (!phoneRegex.test(phone)) {
+        message.textContent = "Please enter a valid phone number.";
+        return;
+    }
+
+    console.log("Name, phone, and other fields verified! Submitting form...");
+    document.getElementById("myForm").submit();
+}
+
+

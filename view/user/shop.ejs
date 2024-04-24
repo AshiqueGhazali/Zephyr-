@@ -158,7 +158,7 @@
 											<h6 class="l-through">₹ <%= products[i].price %></h6>
 										</div>
 										<div class="prd-bottom">
-											<a href="/addTocart?productId=<%=products[i]._id %>" class="social-info">
+											<a onclick="addToCart(event, '<%= products[i]._id %>')" href="javascript:void(0);" class="social-info">
 												<span class="fa-solid fa-cart-shopping"></span>
 												<p class="hover-text">add to cart</p>
 											</a>
@@ -430,6 +430,9 @@
         document.getElementById(formId).submit();
     }
 </script>
+
+<!-- helper function -->
+<script src="/js/helperFunctions.js"></script>
 
 
 <%- include('../layouts/footer') %>

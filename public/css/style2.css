@@ -100,3 +100,23 @@ footer {
   .span {
     font-weight: bold;
   }
+
+  /* order update status botton  */
+  .order-status-dropdown {
+    padding: 8px 12px;
+    border-radius: 4px;
+    background-color: #bee5eb;
+    border: 1px solid #bee5eb;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+}
+
+.order-status-dropdown:hover {
+    background-color: #4b49ac;
+    color: #ffffff;
+}
+
+.order-status-dropdown:focus {
+    border-color: #4b49ac;
+    outline: none;
+}

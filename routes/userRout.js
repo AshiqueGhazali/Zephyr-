@@ -25,6 +25,7 @@ user_route.use(passport.session())
 
 
 const userController = require("../controller/userController")
+const orderContoller = require("../controller/orderController")
 
 
 user_route.set('view engine', 'ejs')
@@ -44,6 +45,13 @@ user_route.post("/register", userController.insertUser)
 user_route.get("/resendOTP",userAuth.isLogout, userController.ResendOtp)
 user_route.post("/otpVerify", userController.verifyOtp)
 user_route.post("/verifyLogin",userAuth.isLogout, userController.verifyLogin)
+
+// forgot password and reset
+user_route.get("/forgotPassword",userAuth.isLogout,userController.forgotPasswordPage)
+user_route.post("/verifyEmail",userController.verifyEmail)
+user_route.post("/forgotOtpVerify",userController.forgotOtpVerify)
+user_route.post('/resetPassword',userController.resetPassword)
+
 user_route.get('/logout',userAuth.loginCheck,userController.userLogout)
 user_route.get('/singleProduct',userController.singleProductLoad)
 user_route.post('/reviewSubmit',userController.saveReview)
@@ -55,8 +63,8 @@ user_route.get('/google/callback',passport.authenticate('google',{failureRedirec
 
 // user profile Management 
 user_route.get('/profileDetails', userAuth.isLogin, userController.userProfileLoad)
-user_route.get('/updateProfile', userAuth.isLogin,userController.updateProfileLoad)
 user_route.post('/updateProfile',userController.updateProfile)
+user_route.post('/changePassword',userController.changePassword)
 
 // user Address Management
 user_route.get('/addressManagement', userAuth.isLogin, userController.addressManagementLoad)
@@ -66,6 +74,7 @@ user_route.get('/deleteAddress',userController.deleteAddress)
 
 // user Cart Management
 user_route.get('/cart',userAuth.isLogin, userController.cartLoad)
+// user_route.post('/addTocart',userController.addToCart)
 user_route.get('/addTocart',userController.addToCart)
 user_route.get('/removeFromCart',userController.removeFromCart)
 user_route.post('/updateQuantity',userController.updateQuantity)
@@ -78,8 +87,10 @@ user_route.get('/filterByColor',userController.filterByColor)
 user_route.get('/filterByBrand',userController.filterByBrand)
 
 // checkout and order
-user_route.get('/checkout',userAuth.isLogin,userController.checkoutPageLoad)
-user_route.get('/orders', userAuth.isLogin,userController.ordersPageLoad)
+user_route.get('/checkout',userAuth.isLogin,orderContoller.checkoutPageLoad)
+user_route.get('/orders', userAuth.isLogin,orderContoller.ordersPageLoad)
+user_route.post('/confirmOrder',userAuth.isLogin,orderContoller.confirmOrder)
+user_route.get('/confirmOrder',userAuth.isLogin,orderContoller.confirmOrderLoad)
 
 
 module.exports = user_route

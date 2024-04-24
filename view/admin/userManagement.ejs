@@ -158,10 +158,10 @@
                                         <td>
                                           <% if(users[i].is_block==false) { %>
                                             <!-- <button class="edit-btn btn-info"><a href="/admin/blockUser/<%= users[i]._id %>" id="blockButton">Block</a></button> -->
-                                            <button class="edit-btn btn-info block-btn" onclick="blockUser('<%= users[i]._id %>')">Block</button>
+                                            <button class="edit-btn btn-info block-btn" onclick="blockAndUnblockUser('<%= users[i]._id %>',false)">Block</button>
 
                                           <%}else{ %>
-                                            <button class="edit-btn btn-danger"><a href="/admin/unBlockUser/<%= users[i]._id %>" id="blockButton">Unblock</a></button> 
+                                            <button class="edit-btn btn-danger" onclick="blockAndUnblockUser('<%= users[i]._id %>',true)">Unblock</button> 
                                           <% } %>
                                             
                                         </td>
@@ -190,26 +190,26 @@
     </div>
 
     <script>
-      function blockUser(userId) {
+      function blockAndUnblockUser(userId,status) {
         // SweetAlert confirmation dialog
         Swal.fire({
           title: "Are you sure?",
           text: "You won't be able to revert this!",
           icon: "warning",
           showCancelButton: true,
-          confirmButtonText: "Yes, block user!",
+          confirmButtonText: status ? "Yes, unblock user!" : "Yes, block user!",
           cancelButtonText: "No, cancel!",
           reverseButtons: true
         }).then((result) => {
           if (result.isConfirmed) {
-            fetch(`/admin/blockUser?id=${userId}`, {
+            fetch(`/admin/blockAndUnblockUser?id=${userId}`, {
               method: 'GET' 
             })
             .then(response => {
               if (response.ok) {
                 Swal.fire({
-                  title: "User Blocked!",
-                  text: "The user has been blocked.",
+                  title: status ? "User Unblocked!" : "User Blocked!",
+                  text: status ? "The user has been unblocked." : "The user has been blocked.",
                   icon: "success"
                 }).then(() => {
                   window.location.reload();
@@ -223,6 +223,7 @@
               }
             })
             .catch(error => {
+              
               console.error("Error:", error);
               Swal.fire({
                 title: "Error",

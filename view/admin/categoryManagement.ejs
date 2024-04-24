@@ -155,7 +155,6 @@
                     <div class="card-body">
                       <% if (categories[i].isDeleted) { %>
                       <a href="/admin/restoreCategory?id=<%=categories[i]._id %>" class="card-link"><button type="button" class="btn-info">Restore</button></a>
-                      <a href="/admin/deleteCategory?id=<%=categories[i]._id %>" class="card-link"><button type="button" class="btn-danger">Delete</button></a>
                       <% }else{ %>
                         <a href="/admin/editCategory?id=<%=categories[i]._id %>" class="card-link"><button type="button" class="btn-info">Edit</button></a>
                       <a href="/admin/softDeleteCategory?id=<%=categories[i]._id %>" class="card-link"><button type="button" class="btn-danger">Delete</button></a>

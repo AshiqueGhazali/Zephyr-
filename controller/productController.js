@@ -24,7 +24,7 @@ const productsLoad = async(req,res)=>{
 
 const addProductLoad = async(req,res)=>{
     try {
-        const category = await Category.find()
+        const category = await Category.find({isDeleted:false})
         res.render('addProduct',{category:category})
     } catch (error) {
         console.log(error.message);
@@ -87,59 +87,32 @@ const searchProduct = async(req,res)=>{
     }
 }
 
-const unlistProduct = async(req,res)=>{
+
+const listAndUnlistProduct  = async(req,res)=>{
     try {
         const id = req.query.id
 
-        if(id){
-            await Products.findByIdAndUpdate({_id:id},{
-                isDeleted:true
-            })
+        const productData = await Products.findById({_id:id})
+        productData.isDeleted = !productData.isDeleted 
+        await productData.save()
 
-            return res.redirect('/admin/productManagement')
-        }
+        
+        let message = productData.isDeleted ? "Product Unlisted successfully" : "Product Listed successfully";
+
+        res.status(200).json({message})
         
     } catch (error) {
         console.log(error.message);
     }
 }
 
-const restoreProduct = async(req,res)=>{
-    try {
-        const id = req.query.id
-        if(id){
-            await Products.findByIdAndUpdate({_id:id},{
-                isDeleted:false
-            })
-
-            return res.redirect('/admin/productManagement')
-        }
-    } catch (error) {
-        console.log(error.message);
-    }
-}
-
-const deleteProduct = async(req,res)=>{
-    try {
-        const id= req.query.id
-
-        if(id){
-            await Products.deleteOne({_id:id})
-            return res.redirect('/admin/productManagement')
-
-        }
-        
-    } catch (error) {
-        console.log(error.message);
-    }
-}
 
 const editProductLoad = async(req,res)=>{
     try { 
 
         const id = req.query.id
         const product = await Products.findOne({_id:id})
-        const category = await Category.find()
+        const category = await Category.find({isDeleted:false})
         if(product){
             res.render('editProduct',{product:product,category:category})
         }else{
@@ -212,9 +185,7 @@ module.exports={
     addProductLoad,
     addProduct,
     searchProduct,
-    unlistProduct,
-    restoreProduct,
-    deleteProduct,
+    listAndUnlistProduct,
     editProductLoad,
     deleteImage,
     editProduct
