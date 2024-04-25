@@ -63,7 +63,7 @@ admin_Route.post('/editProduct', adminAuth.isLogin,upload.array('productImage'),
 admin_Route.get('/orderManagement',adminAuth.isLogin,orderController.orderManagementLoad)
 admin_Route.patch('/updateOrderStatus',adminAuth.isLogin,orderController.updateOrderStatus)
 admin_Route.get('/orderDetails',adminAuth.isLogin,orderController.ordelDetailsForAdmin)
-admin_Route.get('/adminCancelOrder',adminAuth.isLogin,orderController.adminCancellOrder)
+admin_Route.get('/adminCancelOrder',adminAuth.isLogin,orderController.cancellOrder)
 
 
 

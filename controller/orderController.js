@@ -11,8 +11,9 @@ const ordersPageLoad = async(req,res)=>{
     try {
         const id = req.session.userId
         const userData = await User.findById({_id:id})
+        const orders = await OrderModel.find({userId:id}).sort({orderDate:-1 })
 
-        res.render('orders',{user:userData})
+        res.render('orders',{user:userData,orders})
     } catch (error) {
         console.log(error.message);
     }
@@ -80,8 +81,6 @@ const checkoutPageLoad = async(req,res)=>{
         
         }
         
-        // res.render('checkout',{user:userData,userAddress})
-
     } catch (error) {
         console.log(error.message);
     }
@@ -90,13 +89,24 @@ const checkoutPageLoad = async(req,res)=>{
 
 const confirmOrder = async (req, res) => {
     try {
+
+        if (!req.session || !req.session.userId) {
+            return res.status(403).json({ message: "User is not authenticated." })
+        }
+
         const userId = req.session.userId
         const { addressId, paymentMethod } = req.body;
 
         const userData = await User.findById(userId)
         const UserAddress = await Address.findById({_id:addressId})
+        const products = req.session.product
+        for(let i=0 ; i<products.length;i++){
+            if (products[i].inStock <= 0) {
+                return res.status(403).json({ message: "Product is Out of Stock!!" })
+            }
+        }
 
-        
+
         const order = new OrderModel({
             userId : userId,
             orderItems : req.session.product,
@@ -105,10 +115,35 @@ const confirmOrder = async (req, res) => {
             totalAmount : req.session.totalAmount
         })
 
+        
+
         await order.save()
 
-        const orderData = order
-        res.render('orderDetais',{user:userData,orders:orderData});
+        const orderId = order._id
+        const data = await OrderModel.aggregate(
+            [
+            {
+                '$match': {
+                '_id': new mongoose.Types.ObjectId(orderId)
+                }
+            }
+            ]
+        )
+        for (const product of data[0].orderItems) {
+
+            const update = Number(product.quantity);
+            await Products.findOneAndUpdate(
+              { _id: product.productId },
+              {
+                $inc: { inStock: -update },
+                $set: { popularProduct: true }  
+            },
+            )
+        
+          }
+
+        res.redirect(`/orderDetails?orderId=${order._id}`)
+
         
     } catch (error) {
         console.log(error.message);
@@ -123,23 +158,25 @@ const orderManagementLoad = async(req,res)=>{
         const PerPage = 10;
         const skip = (currentPage - 1) * PerPage ;
 
-        const orders = await OrderModel.find().skip(skip).limit(PerPage)
+        const orders = await OrderModel.find().skip(skip).limit(PerPage).sort({orderDate:-1 })
 
         const totalOrders = await OrderModel.countDocuments()
         const totalPages = Math.ceil(totalOrders / PerPage)
 
         res.render('orderManagement', { orders, currentPage, totalPages });
+console.log(orderData);
     } catch (error) {
         console.log(error.message);
     }
 }
 
-const confirmOrderLoad = async(req,res)=>{
+const orderDetailsLoad = async(req,res)=>{
     try {
         const orderId = req.query.orderId
         const userData = await User.findById(req.session.userId)
+
         const orders= await OrderModel.findById(orderId)
-        res.render('orderDetais',{user:userData,orders:orders});
+        res.render('orderDetails',{user:userData,orders});
 
     } catch (error) {
         console.log(error.message);
@@ -152,7 +189,7 @@ const ordelDetailsForAdmin = async(req,res)=>{
         const orderId = req.query.orderId
         const orders = await OrderModel.findById(orderId)
 
-        res.render('AdminOrderDetais',{orders})
+        res.render('AdminOrderDetails',{orders})
         
     } catch (error) {
         console.error(error.message);
@@ -175,18 +212,38 @@ const updateOrderStatus = async (req, res) => {
     }
 }
 
-const adminCancellOrder = async(req,res)=>{
+const cancellOrder = async(req,res)=>{
     try {
         const orderid = req.query.orderId
-
-
+        console.log(orderid);
         const update = await OrderModel.findByIdAndUpdate(orderid,{$set:{orderStatus:"cancelled"}})
 
         res.status(200).send({ message: 'Order Cancelled Successfully' });
-
-
     } catch (error) {
         console.log(error.message);
+    }
+}
+
+const returnOrder = async(req,res)=>{
+    try {
+        const { orderId, reason } = req.body;
+
+        const order = await OrderModel.findByIdAndUpdate(orderId,
+            {$set:{returnReason: reason, orderStatus : 'returned'}})
+
+        if (!order) {
+            return res.status(404).send({
+                message: "Order not found."
+            });
+        }
+
+        res.status(200).send({
+            message: "Return processed successfully.",
+            order: order
+        });
+    } catch (error) {
+        console.log(error.message);
+
     }
 }
 
@@ -194,9 +251,10 @@ module.exports = {
     ordersPageLoad,
     checkoutPageLoad,
     confirmOrder,
-    confirmOrderLoad,
+    orderDetailsLoad,
     orderManagementLoad,
     updateOrderStatus,
     ordelDetailsForAdmin,
-    adminCancellOrder
+    cancellOrder,
+    returnOrder
 }

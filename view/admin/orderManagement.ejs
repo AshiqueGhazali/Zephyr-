@@ -168,7 +168,8 @@
                 <td>
                   <h5 class="status"><%= orders[i].orderStatus %></h5></td>
                 <td>
-                  <% if(orders[i].orderStatus !== "completed") { %> 
+                    <% if(orders[i].orderStatus === "pending" || orders[i].orderStatus === "delivered") { %> 
+
                   <select class="order-status-dropdown" data-order-id="<%= orders[i]._id %>" onchange="updateOrderStatus(this)">
                     <% if(orders[i].orderStatus !== "delivered" ) { %>
                     <option value="pending" <%= orders[i].orderStatus === 'pending' ? 'selected' : '' %> >Pending</option>
@@ -203,26 +204,26 @@
    
     <script>
       document.addEventListener('DOMContentLoaded', function() {
-    const orderStatusHeaders = document.querySelectorAll('.status');
+        const orderStatusHeaders = document.querySelectorAll('.status');
 
-    orderStatusHeaders.forEach(function(h5) {
-        switch(h5.textContent.trim()) {
-            case 'cancelled':
-            case 'Return':
-                h5.style.color = 'red';
-                break;
-            case 'completed':
-                h5.style.color = 'green';
-                break;
-            case 'pending':
-                h5.style.color = 'blue';
-                break;
-            default:
-                h5.style.color = 'black'; // Default color or leave it unset
-                break;
-        }
-    });
-});
+        orderStatusHeaders.forEach(function(h5) {
+            switch(h5.textContent.trim()) {
+                case 'cancelled':
+                case 'returned':
+                    h5.style.color = 'red';
+                    break;
+                case 'completed':
+                    h5.style.color = 'green';
+                    break;
+                case 'pending':
+                    h5.style.color = 'blue';
+                    break;
+                default:
+                    h5.style.color = 'black'; 
+                    break;
+              }
+          });
+      });
 
 
 

@@ -57,6 +57,15 @@
     <br><br>
     <section class="checkout_area section_gap">
         <div class="container">
+            <% if (productData && productData.length > 0) { %> 
+                <% productData.forEach(function(product) { %>
+                    <% if(product.inStock <= 0){ %>
+                    <div class="mb-4 p-2 center-content" style="background-color: rgb(255, 154, 154); display: flex;justify-content: center;align-items: center; ">
+                        <h5>Product is Out Of Stock</h5>
+                    </div>
+            <% } %>
+            <% }) %>
+            <% } %>
             <div class="cupon_area">
                 <div class="check_title">
                     <h2>Have a coupon?</h2>
@@ -212,7 +221,7 @@
     const selectedAddressId = addressRadioButtons[0].value;
     const selectedPaymentMethod = paymentRadioButtons[0].value;
 
-    // Confirm with SweetAlert
+    
     const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
             confirmButton: "btn btn-success",
@@ -242,25 +251,35 @@
     });
 
     function confirmOrder(addressId, paymentMethod) {
-        fetch('/confirmOrder', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ addressId, paymentMethod })
-        })
-        .then(response => {
+    fetch('/confirmOrder', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ addressId, paymentMethod })
+    })
+    .then(response => {
         if (response.ok) {
-            window.location.href = response.url;  
+            Swal.fire({
+                  title:"Order Placed",
+                  text: "Yur Order Conformed",
+                  icon: "success"
+                }).then(() => {
+                    window.location.href = response.url;  
+                });
+        } else if (response.status === 403) {
+            response.json().then(data => {
+                Swal.fire('Sorry', data.message );
+            });
         } else {
             throw new Error('Failed to complete order');
         }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            Swal.fire('Error', 'Network Error. Try again.', 'error');
-        });
-    }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire('Error', 'Network Error. Try again.', 'error');
+    });
+}
     </script>
 
 <%- include('../layouts/footer') %>

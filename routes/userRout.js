@@ -90,7 +90,9 @@ user_route.get('/filterByBrand',userController.filterByBrand)
 user_route.get('/checkout',userAuth.isLogin,orderContoller.checkoutPageLoad)
 user_route.get('/orders', userAuth.isLogin,orderContoller.ordersPageLoad)
 user_route.post('/confirmOrder',userAuth.isLogin,orderContoller.confirmOrder)
-user_route.get('/confirmOrder',userAuth.isLogin,orderContoller.confirmOrderLoad)
+user_route.get('/orderDetails',userAuth.isLogin,orderContoller.orderDetailsLoad)
+user_route.get('/cancelOrder',userAuth.isLogin,orderContoller.cancellOrder)
+user_route.post('/returnOrder',userAuth.isLogin,orderContoller.returnOrder)
 
 
 module.exports = user_route

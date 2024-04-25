@@ -1,4 +1,7 @@
+const { name } = require('ejs');
 const Category = require('../model/categoryModel')
+const mongoose = require('mongoose');
+
 
 const categoryPageLoad = async(req,res)=>{
     try {
@@ -36,6 +39,7 @@ const addCategory = async(req,res)=>{
 
         const categoryName = category.toLowerCase() 
         const CategoryData = await Category.findOne({name:categoryName})
+
         if(CategoryData){
             res.render('addCategory',{message:"This category is alredy added"})
             return;
@@ -110,9 +114,14 @@ const editCategoryLoad = async(req,res)=>{
 const editCategory =async(req,res)=>{
     try {
         const {category,description,isAvailable}=req.body
+        const objectId =new mongoose.Types.ObjectId(req.body.id);
+        
 
-        const CategoryData = await Category.findOne({name:category})
-        if(CategoryData){
+        const categoryName = category.toLowerCase() 
+
+        const isCategory = await Category.aggregate([{ $match: { _id: { $ne: objectId }, name: categoryName } }])
+
+        if(isCategory.length > 0){
             res.render('addCategory',{message:"This category is alredy added"})
             return;
         } 
