@@ -117,7 +117,7 @@
                 <div  id="selectedImagesContainer" class="row">
                     <% for(let i=0 ; i< product.image.length; i++){ %> 
                         <div class="col-md-6 class="ml-5"">
-                        <img src="/assets/<%=product.image[i]%>" >
+                        <img style="width: 200px; height: 200px;" src="/assets/categoryImg/<%=product.image[i]%>" >
                         <p><%= product.image[i] %></p>
                         <a href="/admin/deleteImage?id=<%=product._id %>&img=<%=product.image[i]%>"><button class="btn-block btn-danger">Remove</button></a><br>
                     </div>

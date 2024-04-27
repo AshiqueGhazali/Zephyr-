@@ -23,12 +23,15 @@
 								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
 								 aria-expanded="false"><%=locals.user?locals.user.Fname:'Login'%></a>
 								<ul class="dropdown-menu">
-									<li class="nav-item"><a class="nav-link" href="/profileDetails">My Profile</a></li>
-									<li class="nav-item"><a class="nav-link" href="/orders">Orders</a></li>
-									<li class="nav-item"><a class="nav-link" href="/wishlist">Wishlist</a></li>
 									<% if (locals.user) { %>
+									<li class="nav-item"><a class="nav-link" href="/profileDetails?id=<%= user._id %>">My Profile</a></li>
+									<li class="nav-item"><a class="nav-link" href="/orders?id=<%= user._id %>">Orders</a></li>
+									<li class="nav-item"><a class="nav-link" href="/wishlist?id=<%= user._id %>">Wishlist</a></li>
 										<li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
 									<% }else{ %>
+										<li class="nav-item"><a class="nav-link" href="/profileDetails">My Profile</a></li>
+										<li class="nav-item"><a class="nav-link" href="/orders">Orders</a></li>
+										<li class="nav-item"><a class="nav-link" href="/wishlist">Wishlist</a></li>
 										<li class="nav-item"><a class="nav-link" href="/register">Signup</a></li>
 									<% } %>
 								</ul>
@@ -62,16 +65,16 @@
 				<div class="col-lg-6">
 					<div class="s_Product_carousel">
 						<div class="single-prd-item">
-							<img class="img-fluid" src="/assets/<%= product.image[0] %>" alt="">
+							<img class="img-fluid" src="/assets/categoryImg/<%= product.image[0] %>" alt="">
 						</div>
 						<div class="single-prd-item">
-							<img class="img-fluid" src="/assets/<%= product.image[1] %>" alt="">
+							<img class="img-fluid" src="/assets/categoryImg/<%= product.image[1] %>" alt="">
 						</div>
 						<div class="single-prd-item">
-							<img class="img-fluid" src="/assets/<%= product.image[2] %>" alt="">
+							<img class="img-fluid" src="/assets/categoryImg/<%= product.image[2] %>" alt="">
 						</div>
 						<div class="single-prd-item">
-							<img class="img-fluid" src="/assets/<%= product.image[3] %>" alt="">
+							<img class="img-fluid" src="/assets/categoryImg/<%= product.image[3] %>" alt="">
 						</div>
 					</div>
 				</div>
@@ -335,9 +338,6 @@
 										<input name="b_36c4fd991d266f23781ded980_aefe40901a" tabindex="-1" value="" type="text">
 									</div>
 
-									<!-- <div class="col-lg-4 col-md-4">
-												<button class="bb-btn btn"><span class="lnr lnr-arrow-right"></span></button>
-											</div>  -->
 								</div>
 								<div class="info"></div>
 							</form>
@@ -373,9 +373,9 @@
 				</div>
 			</div>
 			<div class="footer-bottom d-flex justify-content-center align-items-center flex-wrap">
-				<p class="footer-text m-0"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+				<p class="footer-text m-0">
 				&copy;<script>document.write(new Date().getFullYear());</script> - Zephyr
-					<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+					
 </p>
 			</div>
 		</div>

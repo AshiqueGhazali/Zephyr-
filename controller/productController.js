@@ -31,9 +31,51 @@ const addProductLoad = async(req,res)=>{
     }
 }
 
+// const addProduct = async(req,res)=>{
+//     try {
+
+//         const product = new Products({
+//             productName:req.body.productName,
+//             brand:req.body.brandName,
+//             model:req.body.model,
+//             category:req.body.category,
+//             price:req.body.mrp,
+//             discountPrice:req.body.discountPrice,
+//             discount:req.body.discount,
+//             dialColor:req.body.dialColor,
+//             strapColor:req.body.strapColor,
+//             inStock:req.body.inStock,
+//             description:req.body.description,
+//             image:[]
+//         })
+
+//         await Promise.all(req.files.map(async (file) => {
+//             const imagePath = `/categoryImg/new${file.filename}`; 
+//             await sharp(file.path)
+//                 .resize(200, 200) 
+//                 .toFile(`./public/assets/${imagePath}`); 
+//             product.image.push(imagePath); 
+//         }));
+         
+//         await product.save()
+
+//         res.redirect('/admin/productManagement')
+//     } catch (error) {
+//         console.log(error.message)
+//     }
+// }
+
 const addProduct = async(req,res)=>{
     try {
 
+        const images = []
+
+        const bodyImages =req.files
+        images.push(bodyImages.productImage1[0].filename);
+        images.push(bodyImages.productImage2[0].filename);
+        images.push(bodyImages.productImage3[0].filename);
+        images.push(bodyImages.productImage4[0].filename);
+        
         const product = new Products({
             productName:req.body.productName,
             brand:req.body.brandName,
@@ -46,16 +88,8 @@ const addProduct = async(req,res)=>{
             strapColor:req.body.strapColor,
             inStock:req.body.inStock,
             description:req.body.description,
-            image:[]
+            image:images
         })
-
-        await Promise.all(req.files.map(async (file) => {
-            const imagePath = `/categoryImg/new${file.filename}`; 
-            await sharp(file.path)
-                .resize(200, 200) 
-                .toFile(`./public/assets/${imagePath}`); 
-            product.image.push(imagePath); 
-        }));
          
         await product.save()
 
@@ -64,6 +98,7 @@ const addProduct = async(req,res)=>{
         console.log(error.message)
     }
 }
+
 
 const searchProduct = async(req,res)=>{
     try {
@@ -144,7 +179,7 @@ const editProduct = async(req,res)=>{
   
         const imagePaths = []; 
         for (const file of files) {
-            const imagePath = `/categoryImg/new${file.filename}`;
+            const imagePath = `new${file.filename}`;
             // console.log(imagePath);
 
             await sharp(file.path)

@@ -1,0 +1,50 @@
+	
+.tracker {
+    position: relative;
+    width: 600px;
+}
+
+.step {
+    text-align: center;
+    width: 33.3333%;
+    float: left;
+    font-size: 16px;
+    position: relative;
+}
+
+.bullet {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #ddd;
+    display: inline-block;
+    line-height: 30px;
+    color: white;
+    font-weight: bold;
+}
+
+.text {
+    margin-top: 7px;
+    color: #aaa;
+}
+
+.active .bullet {
+    background: rgb(16, 76, 135);
+}
+
+.active .text {
+    color: #333;
+}
+
+.progress {
+    position: absolute;
+    height: 8px;
+    top: 11px;
+    width: 0;
+	background-image: linear-gradient(to right, #1b2761, #027db8);
+    transition: width 0.4s ease;
+}
+
+.progress.red {
+    background: #d9534f;
+}

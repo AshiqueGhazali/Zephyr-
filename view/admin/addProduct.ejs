@@ -12,9 +12,9 @@
         
         <div class="container">
           <div class="row justify-content-center form-container">
-            <div class="col-md-8">
+            <div class="col-md-10">
               <h2 class="text-center mb-4 text-danger">Add Product</h2>
-              <form action="/admin/addProduct" method="post" id="myForm" enctype="multipart/form-data" onsubmit="return validateForm()">
+              <form action="/admin/addProduct" method="post" id="myForm" enctype="multipart/form-data" >
                 <div class="row">
                     <div class="col-md-6 mb-4">
                         <div class="form-groups">
@@ -91,13 +91,47 @@
                     <label for="categoryName">Description</label>
                     <input type="text" class="form-control" id="description"  name="description" placeholder="Enter Discription">
                 </div>
-                <div class="custom-file">
+                <!-- <div class="custom-file">
                     <input type="file" class="custom-file-input" id="image" name="productImage" onchange="updateLabel(this)" multiple>
                     <label class="custom-file-label" for="image">Choose files</label>
+                </div> -->
+                <div class="image-upload-container">
+                    <div class="image-box" onclick="triggerInput('file-input-1')">
+                        <input type="file" id="file-input-1" name="productImage1" class="file-input" accept="image/*" style="display: none;" onchange="openCropper(event, 'preview-1')" required>
+                        <div class="image-preview" id="preview-1">
+                            <i class="fa fa-image"></i>
+                        </div>
+                    </div>
+                    <div class="image-box" onclick="triggerInput('file-input-2')">
+                        <input type="file" id="file-input-2" name="productImage2" class="file-input" accept="image/*" style="display: none;" onchange="openCropper(event, 'preview-2')" required>
+                        <div class="image-preview" id="preview-2">
+                            <i class="fa fa-image"></i>
+                        </div>
+                    </div>
+                    <div class="image-box" onclick="triggerInput('file-input-3')">
+                        <input type="file" id="file-input-3" name="productImage3" class="file-input" accept="image/*" style="display: none;" onchange="openCropper(event, 'preview-3')">
+                        <div class="image-preview" id="preview-3">
+                            <i class="fa fa-image"></i>
+                        </div>
+                    </div>
+                    <div class="image-box" onclick="triggerInput('file-input-4')">
+                        <input type="file" id="file-input-4" name="productImage4" class="file-input" accept="image/*" style="display: none;" onchange="openCropper(event, 'preview-4')">
+                        <div class="image-preview" id="preview-4">
+                            <i class="fa fa-image"></i>
+                        </div>
+                    </div>
+                </div>
+            
+                <!-- Cropper Modal -->
+                <div id="cropperModal" style="display: none;">
+                    <img id="image-to-crop">
+                    <button type="button" class="btn btn-success" onclick="cropImage()">Crop Image</button>
+                    <button type="button" class="btn btn-danger" onclick="closeCropper()">Cancel</button>
                 </div>
                 
+                <!-- enddddd -->
                 <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-success btn-lg btn-block">Add Product</button>
+                    <button type="submit" class="btn btn-success btn-lg btn-block" onclick="validateForm()">Add Product</button>
                 </div>
               </form>
               <br>
@@ -111,12 +145,91 @@
               }
               %>
             </div>
-            <div class="col-md-4">
-                <h4 class="text-center mb-3">Selected Images</h4>
-                <div  id="selectedImagesContainer"></div>
-            </div>
           </div>
         </div>
+
+        <script>
+            let currentPreviewId;
+            let cropper;
+
+        function triggerInput(inputId) {
+            document.getElementById(inputId).click();
+        }
+
+        function openCropper(event, previewId) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const modal = document.getElementById('cropperModal');
+                    modal.style.display = 'block';
+                    const imageElement = document.getElementById('image-to-crop');
+                    imageElement.src = e.target.result;
+                    currentPreviewId = previewId;  
+
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    cropper = new Cropper(imageElement, {
+                        aspectRatio: 1,
+                        viewMode: 1
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+
+        function cropImage() {
+            const canvas = cropper.getCroppedCanvas();
+            const preview = document.getElementById(currentPreviewId);
+            console.log(currentPreviewId);
+            preview.style.backgroundImage = 'url(' + canvas.toDataURL() + ')';
+            preview.innerHTML = `<i class="fa-regular fa-circle-xmark remove-icon" onclick="removeImage('${currentPreviewId}')"></i>`;
+            closeCropper();
+        }
+
+        function closeCropper() {
+            cropper.destroy();
+            document.getElementById('cropperModal').style.display = 'none';
+        }
+
+        function removeImage(previewId) {
+            const preview = document.getElementById(previewId);
+            preview.style.backgroundImage = 'none';
+            preview.innerHTML = '<i class="fa fa-image"></i>';
+        }
+
+
+        // add product 
+        function addProduct (event){
+            event.preventDefault();
+            const form = document.getElementById('myForm');
+            const formData = new FormData(form);
+
+            fetch('/admin/addProduct', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Product added successfully');
+                    window.location.href = '/admin/productManagement';
+
+                } else {
+                    alert('Failed to add product');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error adding product');
+            });
+        }
+
+       
+
+        </script>
 
         
 <script src="/js/adminFormValidation.js"></script>

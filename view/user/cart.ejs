@@ -101,7 +101,7 @@
 									<% userCart.forEach(cartItem => { %>
 										<tr class="table-body-row">
 											<td class="product-remove"><a href="/removeFromCart?productId=<%= cartItem.productDetails[0]._id %>"><i class="far fa-window-close"></i></a></td>
-											<td class="product-image"><a href="/singleProduct?id=<%= cartItem.productDetails[0]._id %>"><img src="/assets/<%= cartItem.productDetails[0].image[0] %>" alt=""></a></td>
+											<td class="product-image"><a href="/singleProduct?id=<%= cartItem.productDetails[0]._id %>"><img src="/assets/categoryImg/<%= cartItem.productDetails[0].image[0] %>" alt=""></a></td>
 											<td class="product-name"><a href="/singleProduct?id=<%= cartItem.productDetails[0]._id %>" style="color: black;"><%= cartItem.productDetails[0].productName %></a></td>
 											<td class="product-price">₹ <%= cartItem.productDetails[0].discountPrice %></td>
 											<td class="product-quantity">
@@ -142,7 +142,6 @@
 								</tbody>
 							</table>
 							<div class="cart-buttons">
-								<!-- <a href="#" class="boxed-btn"><button type="submit" style="background: none; border: none;">Update Cart</button></a> -->
 								<a href="/checkout" class="boxed-btn black">Check Out</a>
 							</div>
 						</div>
@@ -193,10 +192,6 @@
 									<div style="position: absolute; left: -5000px;">
 										<input name="b_36c4fd991d266f23781ded980_aefe40901a" tabindex="-1" value="" type="text">
 									</div>
-
-									<!-- <div class="col-lg-4 col-md-4">
-													<button class="bb-btn btn"><span class="lnr lnr-arrow-right"></span></button>
-												</div>  -->
 								</div>
 								<div class="info"></div>
 							</form>

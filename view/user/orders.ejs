@@ -84,13 +84,16 @@
 						<div class="card-body row">
 							<div class="col-lg-2">
 								<div style="height: 5em; width: 5em;  background-color: black;">
-									<img src="/assets/<%= orders[i].orderItems[0].image[0] %>" style="height: 5em; width: 5em;" alt="">
+									<img src="/assets/categoryImg/<%= orders[i].orderItems[0].image[0] %>" style="height: 5em; width: 5em;" alt="">
 								</div>
 								
 							</div>
 							<div class="col-lg-5">
 								<% for (let j =0 ; j < orders[i].orderItems.length ; j++ ){ %> 
-									<a href="/orderDetails?orderId=<%= orders[i]._id %>"><h5><%= orders[i].orderItems[j].productName %></h5></a>
+									<a href="/orderDetails?orderId=<%= orders[i]._id %>">
+										<h5><%= orders[i].orderItems[j].productName %></h5>
+									</a>
+									<p><%= new Date(orders[i].orderDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) %></p>
 								<% } %>
 							</div>
 							<div class="col-lg-3">
@@ -185,9 +188,8 @@
 				</div>
 			</div>
 			<div class="footer-bottom d-flex justify-content-center align-items-center flex-wrap">
-				<p class="footer-text m-0"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+				<p class="footer-text m-0">
 &copy;<script>document.write(new Date().getFullYear());</script> - Zephyr
-<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
 </p>
 			</div>
 		</div>
@@ -304,11 +306,11 @@
 						if (!response.ok) {
 							throw new Error('Network response was not ok');
 						}
-						return response.json(); // Process the response if you need to use it
+						return response.json();
 					})
 					.then(data => {
 						Swal.fire('Submitted!', 'Your return request has been submitted.', 'success').then(() => {
-							window.location.reload(); // Reloads the current page from the server (not from cache)
+							window.location.reload(); 
 						});
 					})
 					.catch(error => {

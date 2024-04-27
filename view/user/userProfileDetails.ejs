@@ -133,7 +133,7 @@
 							<div class="row mt-3">
 								<div class="col-lg-6 mt-3">
 									<label for="fName">First Name</label>
-									<input type="text" class="form-control" id="fName" name="firstName" value="<%= user.Fname %>">
+									<input type="text" class="form-control" id="fName" name="firstName" value="<%= user.Fname %>" required>
 								</div> 
 								<div class="col-lg-6 mt-3">
 									<label for="lName">Last Name</label>
@@ -155,7 +155,7 @@
 							<div class="row mt-2">
 								<div class="col">
 									<label for="phone">Phone</label>
-                                	<input type="text" class="form-control" id="phone" name="phone" value="<%= user.phone %>">
+                                	<input type="text" class="form-control" id="phone" name="phone" value="<%= user.phone %>" required>
 									<input type="hidden" name="id" value="<%= user._id %>">
 								</div>
 							</div>

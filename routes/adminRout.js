@@ -41,23 +41,24 @@ admin_Route.get('/blockAndUnblockUser',adminAuth.isLogin,adminController.blockAn
 // category Management Routes
 admin_Route.get('/categoryManagement',adminAuth.isLogin,categoryController.categoryPageLoad)
 admin_Route.get('/addCategory',adminAuth.isLogin,categoryController.addCategoryPageLoad)
-admin_Route.post('/addCategory', adminAuth.isLogin,upload.single('categoryImage'),categoryController.addCategory)
+admin_Route.post('/addCategory', adminAuth.isLogin,upload.upload.single('categoryImage'),categoryController.addCategory)
 admin_Route.get('/searchCategory',adminAuth.isLogin,categoryController.searchCategory)
 admin_Route.get('/softDeleteCategory',adminAuth.isLogin,categoryController.softDeleteCategory)
 admin_Route.get('/editCategory',adminAuth.isLogin,categoryController.editCategoryLoad)
-admin_Route.post('/editCategory',adminAuth.isLogin ,upload.single('categoryImage'),categoryController.editCategory)
+admin_Route.post('/editCategory',adminAuth.isLogin ,upload.upload.single('categoryImage'),categoryController.editCategory)
 admin_Route.get('/restoreCategory',adminAuth.isLogin,categoryController.restoreCategory)
 
 
 // product Management Routes
 admin_Route.get('/productManagement',adminAuth.isLogin,productController.productsLoad)
 admin_Route.get('/addProduct', adminAuth.isLogin,productController.addProductLoad)
-admin_Route.post('/addProduct', adminAuth.isLogin,upload.array('productImage'),productController.addProduct)
+// admin_Route.post('/addProduct', adminAuth.isLogin,upload.array('productImage'),productController.addProduct)
+admin_Route.post('/addProduct', adminAuth.isLogin, upload.Upload,productController.addProduct)
 admin_Route.get('/searchProduct',adminAuth.isLogin,productController.searchProduct)
 admin_Route.get('/listAndUnlistProduct',adminAuth.isLogin,productController.listAndUnlistProduct)
 admin_Route.get('/editProduct',adminAuth.isLogin,productController.editProductLoad)
 admin_Route.get('/deleteImage',adminAuth.isLogin,productController.deleteImage)
-admin_Route.post('/editProduct', adminAuth.isLogin,upload.array('productImage'),productController.editProduct)
+admin_Route.post('/editProduct', adminAuth.isLogin,upload.upload.array('productImage'),productController.editProduct)
 
 // order Management Routes
 admin_Route.get('/orderManagement',adminAuth.isLogin,orderController.orderManagementLoad)

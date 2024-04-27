@@ -164,7 +164,6 @@ const orderManagementLoad = async(req,res)=>{
         const totalPages = Math.ceil(totalOrders / PerPage)
 
         res.render('orderManagement', { orders, currentPage, totalPages });
-console.log(orderData);
     } catch (error) {
         console.log(error.message);
     }
@@ -246,6 +245,28 @@ const returnOrder = async(req,res)=>{
 
     }
 }
+
+// const searchOrder = async(req,res)=>{
+//     try {
+//         const currentPage = parseInt(req.query.page) || 1 
+//         const PerPage = 10;
+//         const skip = (currentPage - 1) * PerPage ;
+
+//         let orders  = []
+//         if(req.query.search){
+//             orders = await OrderModel.find({order.orderItems.:{$regex:req.query.search,$options: 'i'}}).skip(skip).limit(PerPage).sort({orderDate:-1 })
+//         }else{
+//             orders= await OrderModel.find({}).skip(skip).limit(PerPage).sort({orderDate:-1 })
+//         }
+
+//         const totalOrders = await OrderModel.countDocuments()
+//         const totalPages = Math.ceil(totalOrders / PerPage)
+
+//         res.render('orderManagement', { orders, currentPage, totalPages });
+//     } catch (error) {
+//         console.log(error.message);
+//     }
+// }
 
 module.exports = {
     ordersPageLoad,

@@ -44,7 +44,6 @@ const addCategory = async(req,res)=>{
             res.render('addCategory',{message:"This category is alredy added"})
             return;
         } 
-
         const image = req.file
         const imagePath = image?image.filename :'' 
 
