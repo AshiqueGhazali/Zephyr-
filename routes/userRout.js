@@ -26,6 +26,7 @@ user_route.use(passport.session())
 
 const userController = require("../controller/userController")
 const orderContoller = require("../controller/orderController")
+const cartAndWishlistController = require("../controller/cartAndWishlistController")
 
 
 user_route.set('view engine', 'ejs')
@@ -73,12 +74,10 @@ user_route.post('/editAddress',userController.editAddress)
 user_route.get('/deleteAddress',userController.deleteAddress)
 
 // user Cart Management
-user_route.get('/cart',userAuth.isLogin, userController.cartLoad)
-// user_route.post('/addTocart',userController.addToCart)
-user_route.get('/addTocart',userController.addToCart)
-user_route.get('/removeFromCart',userController.removeFromCart)
-user_route.post('/updateQuantity',userController.updateQuantity)
-
+user_route.get('/cart',userAuth.isLogin, cartAndWishlistController.cartLoad)
+user_route.get('/addTocart',cartAndWishlistController.addToCart)
+user_route.get('/removeFromCart',cartAndWishlistController.removeFromCart)
+user_route.post('/updateQuantity',cartAndWishlistController.updateQuantity)
 
 // Product Filters
 user_route.get('/filterByPrice',userController.filterByPrice)
@@ -93,6 +92,14 @@ user_route.post('/confirmOrder',userAuth.isLogin,orderContoller.confirmOrder)
 user_route.get('/orderDetails',userAuth.isLogin,orderContoller.orderDetailsLoad)
 user_route.get('/cancelOrder',userAuth.isLogin,orderContoller.cancellOrder)
 user_route.post('/returnOrder',userAuth.isLogin,orderContoller.returnOrder)
+
+// wishlist management
+user_route.get('/wishlist',userAuth.isLogin, cartAndWishlistController.wishlistLoad)
+user_route.get('/addToWishlist',cartAndWishlistController.addTowishlist)
+user_route.get('/removeFromWishlist',cartAndWishlistController.removeFromWishlist)
+
+
+
 
 
 module.exports = user_route

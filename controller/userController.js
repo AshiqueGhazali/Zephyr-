@@ -507,14 +507,41 @@ const saveReview = async(req,res)=>{
     }
 }
 
-const googleAuth = async(req,res)=>{
+// google authentication
+const googleAuth = async (req, res) => {
     try {
-        res.redirect('/home',)
+        const { email, given_name, family_name, sub } = req.user; 
+
+        let user = await User.findOne({ email: email });
+
+        if (user) {
+            if (!user.googleId) {
+                user.googleId = sub;
+                user.is_Verified = true; 
+                await user.save();
+            }
+        } else {
+            user = new User({
+                Fname: given_name,
+                Lname: family_name,
+                username: email.split('@')[0], 
+                email: email,
+                phone: '', 
+                googleId: sub,
+                is_Verified: true
+            });
+
+            await user.save();
+        }
+        req.session.userId  = user._id
+
+        res.redirect('/home');
         
     } catch (error) {
-        console.log(error.message);
+        console.error(error);
+        res.status(500).send('An error occurred during Google authentication');
     }
-}
+};
 
 // user Address Profile ##################
 
@@ -594,24 +621,14 @@ const saveAddress = async(req,res)=>{
         const id = req.session.userId
         const user = await User.findById(id)
         const email = user.email
-        const userAddress = new Address({
-            user_id : id,
-            Name : req.body.Name,
-            email : email,
-            Mobile : req.body.phone,
-            PIN : req.body.pincode,
-            Locality : req.body.locality,
-            address : req.body.address,
-            city : req.body.city,
-            state : req.body.state,
-            landmark : req.body.landmark,
-            alternatePhone : req.body.phone2,
-            is_Home : req.body.addressType === 'home',
-            is_Work :  req.body.addressType === 'work',
-        })
+
+        let userAddress = new Address(req.body)
+        userAddress.user_id=id
+        userAddress.email=email
 
         await userAddress.save()
-        res.redirect('/addressManagement')
+        // res.redirect('/addressManagement')
+        res.json({ message: "Address Saved successfully!" });
 
     } catch (error) {
         console.log(error.message);
@@ -644,141 +661,7 @@ const deleteAddress = async (req,res)=>{
     }
 }
 
-// user Cart Management ################## 
-
-const cartLoad = async (req,res)=>{
-    try {
-        const userId = req.session.userId
-        const userData = await User.findById({_id:userId})
-        const userCart = await Cart.aggregate([
-            {$match:{userId:new mongoose.Types.ObjectId(userId)}},
-            {$unwind:'$cartItems'},
-            {$lookup:{
-                from:'products',
-                localField: "cartItems.productId",
-                foreignField: "_id",
-                as: "productDetails",
-            }}
-        ])
-
-        // total
-        
-        const totalPriceResult = await Cart.aggregate([
-            { $match: { userId: new mongoose.Types.ObjectId(userId) } },
-            { $unwind: '$cartItems' },
-            { $lookup: {
-                from: 'products',
-                localField: 'cartItems.productId',
-                foreignField: '_id',
-                as: 'productDetails'
-            } },
-            { $unwind: '$productDetails' },
-            { $project: {
-                _id: 0,
-                totalPrice: { $multiply: ['$productDetails.discountPrice', '$cartItems.quantity'] }
-            } },
-            { $group: {
-                _id: null,
-                totalPrice: { $sum: '$totalPrice' }
-            } }
-        ]);
-        
-        const totalPrice = totalPriceResult.length > 0 ? totalPriceResult[0].totalPrice : 0;
-        
-        // total
-
-        
-        if (userCart.length === 0) {
-            return res.render('cart', {user: userData, userCart: [], message: 'Your cart is empty.'});
-        }
-
-        res.render('cart', {user: userData, userCart: userCart,totalPrice});
-    } catch (error) {
-        console.log(error.message);
-    }
-}
-
-const addToCart = async(req,res)=>{
-    try {
-        const productId = req.query.productId
-        const userId = req.session.userId
-
-        if(typeof userId == 'undefined'){
-            return res.status(401).json({ redirectUrl: '/login' });
-        }
-
-        let cart = await Cart.findOne({ userId: userId });
-        if (!cart) {
-            cart = new Cart({
-                userId: userId,
-                cartItems: [{ productId: productId }]
-            });
-        } else {
-            const existingItem = cart.cartItems.find(item => item.productId.equals(productId));
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                cart.cartItems.push({ productId: productId });
-            }
-        }
-        await cart.save()
-        res.status(200).json({message:"addedd to cart"})
-
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: "Failed to add to cart" });
-
-    }
-}
-
-const removeFromCart = async (req,res)=>{
-    try {
-        const userID = req.session.userId;
-        const productId = req.query.productId;
-
-        const cartData = await Cart.findOne({ userId: userID });
-        const index = cartData.cartItems.findIndex((value) => {
-        return value.productId.toString() === productId;
-        });
-
-        cartData.cartItems.splice(index, 1);
-        await cartData.save();
-        res.redirect("/cart");
-    } catch (error) {
-        console.log(error.message);
-    }
-}
-
-const updateQuantity = async(req,res)=>{
-    try {
-        const userId = req.session.userId;
-        const productId = req.query.productId;
-        const change = parseInt(req.query.change);
-
-        let cart = await Cart.findOne({ userId: userId });
-
-        const index = cart.cartItems.findIndex(item => item.productId.equals(productId));
-
-        if (index !== -1) {
-            cart.cartItems[index].quantity += change;
-            
-            if (cart.cartItems[index].quantity <= 0) {
-                cart.cartItems.splice(index, 1);
-            }
-        }
-
-        await cart.save();
-        res.sendStatus(200)
-
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-}
-
-
-
-
+// sort and filter
 
 const filterByPrice = async (req, res) => {
     try {
@@ -966,10 +849,6 @@ module.exports={
     editAddress,
     deleteAddress,
     changePassword,
-    cartLoad,
-    addToCart,
-    removeFromCart,
-    updateQuantity,
     filterByPrice,
     filterByCategory,
     filterByColor,

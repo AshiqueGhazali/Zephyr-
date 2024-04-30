@@ -131,11 +131,11 @@
                 
                 <!-- enddddd -->
                 <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-success btn-lg btn-block" onclick="validateForm()">Add Product</button>
+                    <button type="submit" class="btn btn-info btn-lg btn-block" onclick="validateForm()">Add Product</button>
                 </div>
               </form>
               <br>
-              <button type="button" class="btn btn-danger btn-lg btn-block" onclick="clearForm()">Cancel</button>
+              <button type="button" class="btn btn-secondary btn-lg btn-block" onclick="clearForm()">Cancel</button>
               <br>
               <div id="validationMessages" class="text-danger"></div><br>
               <% if(typeof message !== "undefined"){
@@ -149,8 +149,8 @@
         </div>
 
         <script>
-            let currentPreviewId;
-            let cropper;
+        let currentPreviewId;
+        let cropper;
 
         function triggerInput(inputId) {
             document.getElementById(inputId).click();

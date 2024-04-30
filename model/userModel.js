@@ -15,7 +15,8 @@ const userSchema = mongoose.Schema({
     },
     email:{
         type:String,
-        requred:true
+        requred:true,
+        unique: true
     },
     phone:{
         type:Number,
@@ -23,15 +24,15 @@ const userSchema = mongoose.Schema({
     },
     password:{
         type:String,
-        requred:true
+        requred:false
+    },
+    googleId: {
+        type: String,
+        required: false
     },
     is_Verified:{
         type:Boolean,
         required:false
-    },
-    is_Admin:{
-        type:Boolean,
-        requred:false
     },
     is_block:{
         type:Boolean,

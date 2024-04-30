@@ -12,7 +12,7 @@
         
         <div class="container">
           <div class="row justify-content-center form-container">
-            <div class="col-md-8">
+            <div class="col-md-10">
               <h2 class="text-center mb-4 text-danger">Edit Product</h2>
               <form action="/admin/editProduct" method="post" id="myForm" enctype="multipart/form-data" onsubmit="return validateForm()">
                 <div class="row">
@@ -92,17 +92,79 @@
                     <label for="categoryName">Description</label>
                     <input type="text" class="form-control" id="description"  name="description" value="<%=product.description %>">
                 </div>
-                <div class="custom-file">
+                <!-- <div class="custom-file">
                     <input type="file" class="custom-file-input" id="image" name="productImage" onchange="updateLabel(this)"  multiple>
                     <label class="custom-file-label" for="image">Choose files</label>
+                </div> -->
+                <div class="image-upload-container">
+                    <div>
+                        <div class="image-box" onclick="triggerInput('file-input-1')">
+                            <input type="file" id="file-input-1" name="productImage1" class="file-input" accept="image/*" style="display: none;" onchange="openCropper(event, 'preview-1')" required>
+                            <div class="image-preview" id="preview-1">
+                                <% if (product.image[0]) { %>
+                                    <img src="/assets/categoryImg/<%= product.image[0] %>" style="height: 250px; width: 250px;" class="img-preview">
+                                <% } else { %>
+                                    <i class="fa fa-image"></i>
+                                <% } %>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-dark btn-block" onclick="removeImage('preview-1', 0)">Remove Image</button>
+                    </div>
+                    <div>
+                        <div class="image-box" onclick="triggerInput('file-input-2')">
+                            <input type="file" id="file-input-2" name="productImage2" class="file-input" accept="image/*" style="display: none;" onchange="openCropper(event, 'preview-2')" required>
+                            <div class="image-preview" id="preview-2">
+                                <% if (product.image[1]) { %>
+                                    <img src="/assets/categoryImg/<%= product.image[1] %>" style="height: 250px; width: 250px;"  class="img-preview">
+                                <% } else { %>
+                                    <i class="fa fa-image"></i>
+                                <% } %>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-dark btn-block" onclick="removeImage('preview-2', 0)">Remove Image</button>
+                    </div>
+                    <div>
+                        <div class="image-box" onclick="triggerInput('file-input-3')">
+                            <input type="file" id="file-input-3" name="productImage3" class="file-input" accept="image/*" style="display: none;" onchange="openCropper(event, 'preview-3')">
+                            <div class="image-preview" id="preview-3">
+                            <% if (product.image[2]) { %>
+                                    <img src="/assets/categoryImg/<%= product.image[2] %>" style="height: 250px; width: 250px;"  class="img-preview">
+                                <% } else { %>
+                                    <i class="fa fa-image"></i>
+                                <% } %>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-dark btn-block" onclick="removeImage('preview-3', 0)">Remove Image</button>
+                    </div>
+                    <div>
+                        <div class="image-box" onclick="triggerInput('file-input-4')">
+                            <input type="file" id="file-input-4" name="productImage4" class="file-input" accept="image/*" style="display: none;" onchange="openCropper(event, 'preview-4')">
+                            <div class="image-preview" id="preview-4">
+                            <% if (product.image[3]) { %>
+                                    <img src="/assets/categoryImg/<%= product.image[3] %>" style="height: 250px; width: 250px;"  class="img-preview">
+                                <% } else { %>
+                                    <i class="fa fa-image"></i>
+                                <% } %>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-dark btn-block" onclick="removeImage('preview-4', 0)">Remove Image</button>
+                    </div>
+                </div>
+            
+                <!-- Cropper Modal -->
+                <div id="cropperModal" style="display: none;">
+                    <img id="image-to-crop">
+                    <button type="button" class="btn btn-success" onclick="cropImage()">Crop Image</button>
+                    <button type="button" class="btn btn-danger" onclick="closeCropper()">Cancel</button>
                 </div>
                 
+                <!-- enddddd -->
                 <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-success btn-lg btn-block">Edit Product</button>
+                    <button type="submit" class="btn btn-info btn-lg btn-block" onclick="validateForm()">Edit Product</button>
                 </div>
               </form>
               <br>
-              <button type="button" class="btn btn-danger btn-lg btn-block" onclick="clearForm()">Cancel</button>
+              <button type="button" class="btn btn-secondary btn-lg btn-block" onclick="clearForm()">Cancel</button>
               <br>
               <div id="validationMessages" class="text-danger"></div><br>
               <% if(typeof message !== "undefined"){ %>
@@ -112,23 +174,79 @@
                 <% }  %>
              
             </div>
-            <div class="col-md-4">
-                <h4 class="text-center mb-3">Selected Images</h4>
-                <div  id="selectedImagesContainer" class="row">
-                    <% for(let i=0 ; i< product.image.length; i++){ %> 
-                        <div class="col-md-6 class="ml-5"">
-                        <img style="width: 200px; height: 200px;" src="/assets/categoryImg/<%=product.image[i]%>" >
-                        <p><%= product.image[i] %></p>
-                        <a href="/admin/deleteImage?id=<%=product._id %>&img=<%=product.image[i]%>"><button class="btn-block btn-danger">Remove</button></a><br>
-                    </div>
-                    <% } %>
-                    
-                </div>
-            </div>
           </div>
         </div>
   
+<script>
+    let currentPreviewId;
+        let cropper;
 
+        function triggerInput(inputId) {
+            document.getElementById(inputId).click();
+        }
+
+        function openCropper(event, previewId) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const modal = document.getElementById('cropperModal');
+                    modal.style.display = 'block';
+                    const imageElement = document.getElementById('image-to-crop');
+                    imageElement.src = e.target.result;
+                    currentPreviewId = previewId;  
+
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    cropper = new Cropper(imageElement, {
+                        aspectRatio: 1,
+                        viewMode: 1
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+
+        function cropImage() {
+            const canvas = cropper.getCroppedCanvas();
+            const preview = document.getElementById(currentPreviewId);
+            console.log(currentPreviewId);
+            preview.style.backgroundImage = 'url(' + canvas.toDataURL() + ')';
+            preview.innerHTML = `<i class="fa-regular fa-circle-xmark remove-icon" onclick="removeImage('${currentPreviewId}')"></i>`;
+            closeCropper();
+        }
+
+        function closeCropper() {
+            cropper.destroy();
+            document.getElementById('cropperModal').style.display = 'none';
+        }
+
+        function removeImage(previewId) {
+            const preview = document.getElementById(previewId);
+            preview.style.backgroundImage = 'none';
+            preview.innerHTML = '<i class="fa fa-image"></i>';
+        }
+
+        // remove image
+        function removeImage(previewId, imageIndex) {
+            console.log("hsdfakjhfdksajhkjh");
+    $.ajax({
+        url: '/admin/removeProductImage',
+        type: 'POST',
+        data: { productId: '<%= product._id %>', imageIndex: imageIndex },
+        success: function(result) {
+            // On success, update the UI
+            const preview = document.getElementById(previewId);
+            preview.innerHTML = '<i class="fa fa-image"></i>';
+        },
+        error: function(error) {
+            console.log('Error removing image:', error);
+        }
+    });
+}
+</script>
 <script src="/js/adminFormValidation.js"></script>
 
 

@@ -99,7 +99,7 @@
 							<input type="number" name="qty" id="sst" maxlength="12" value="1" title="Quantity:" class="input-text qty">
 						</div> -->
 						<div class="card_area d-flex align-items-center">
-							<a class="icon_btn" href="#"><i class="fa-regular fa-heart"></i></a>
+							<a class="icon_btn" onclick="addToWishlist(event, '<%= product._id %>')" href="javascript:void(0);"><i class="fa-regular fa-heart"></i></a>
 							<a class="primary-btn" onclick="addToCart(event, '<%= product._id %>')" href="javascript:void(0);">Add to Cart</a>
 							<a class="primary-btn" href="/checkout?productId=<%=product._id %>">BUY NOW</a>
 						</div>

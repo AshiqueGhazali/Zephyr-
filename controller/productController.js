@@ -31,39 +31,6 @@ const addProductLoad = async(req,res)=>{
     }
 }
 
-// const addProduct = async(req,res)=>{
-//     try {
-
-//         const product = new Products({
-//             productName:req.body.productName,
-//             brand:req.body.brandName,
-//             model:req.body.model,
-//             category:req.body.category,
-//             price:req.body.mrp,
-//             discountPrice:req.body.discountPrice,
-//             discount:req.body.discount,
-//             dialColor:req.body.dialColor,
-//             strapColor:req.body.strapColor,
-//             inStock:req.body.inStock,
-//             description:req.body.description,
-//             image:[]
-//         })
-
-//         await Promise.all(req.files.map(async (file) => {
-//             const imagePath = `/categoryImg/new${file.filename}`; 
-//             await sharp(file.path)
-//                 .resize(200, 200) 
-//                 .toFile(`./public/assets/${imagePath}`); 
-//             product.image.push(imagePath); 
-//         }));
-         
-//         await product.save()
-
-//         res.redirect('/admin/productManagement')
-//     } catch (error) {
-//         console.log(error.message)
-//     }
-// }
 
 const addProduct = async(req,res)=>{
     try {
@@ -172,22 +139,56 @@ const deleteImage = async(req,res)=>{
     }
 }
 
+// const editProduct = async(req,res)=>{
+//     try {
+        
+//         const files = req.files
+  
+//         const imagePaths = []; 
+//         for (const file of files) {
+//             const imagePath = `/categoryImage/new${file.filename}`;
+//             await sharp(file.path)
+//                 .resize(200, 200)
+//                 .toFile(`./public/assets/${imagePath}`);
+
+//             imagePaths.push(imagePath);
+//         }
+
+//         const update = await Products.findByIdAndUpdate({_id:req.body.id},{$set:{
+//             productName:req.body.productName,
+//             brand:req.body.brandName,
+//             model:req.body.model,
+//             category:req.body.category,
+//             price:req.body.mrp,
+//             discountPrice:req.body.discountPrice,
+//             discount:req.body.discount,
+//             dialColor:req.body.dialColor,
+//             strapColor:req.body.strapColor,
+//             inStock:req.body.inStock,
+//             description:req.body.description
+//         }})
+
+//         if(files.length==0){
+//             return res.redirect('/admin/productManagement')
+//         }
+
+//         await Products.updateOne({_id: req.body.id}, {$push:{image:{$each:imagePaths}}});
+//         res.redirect('/admin/productManagement')
+
+//     } catch (error) {
+//         console.log(error.message);
+//     }
+// }
 const editProduct = async(req,res)=>{
     try {
         
-        const files = req.files
-  
-        const imagePaths = []; 
-        for (const file of files) {
-            const imagePath = `new${file.filename}`;
-            // console.log(imagePath);
+        const images = []
 
-            await sharp(file.path)
-                .resize(200, 200)
-                .toFile(`./public/assets/${imagePath}`);
-
-            imagePaths.push(imagePath);
-        }
+        const bodyImages =req.files
+        images.push(bodyImages.productImage1[0].filename);
+        images.push(bodyImages.productImage2[0].filename);
+        images.push(bodyImages.productImage3[0].filename);
+        images.push(bodyImages.productImage4[0].filename);
 
         const update = await Products.findByIdAndUpdate({_id:req.body.id},{$set:{
             productName:req.body.productName,
@@ -207,7 +208,7 @@ const editProduct = async(req,res)=>{
             return res.redirect('/admin/productManagement')
         }
 
-        await Products.updateOne({_id: req.body.id}, {$push:{image:{$each:imagePaths}}});
+        await Products.updateOne({_id: req.body.id}, {$push:{image:{$each:images}}});
         res.redirect('/admin/productManagement')
 
     } catch (error) {
