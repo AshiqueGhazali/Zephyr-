@@ -52,13 +52,11 @@ admin_Route.get('/restoreCategory',adminAuth.isLogin,categoryController.restoreC
 // product Management Routes
 admin_Route.get('/productManagement',adminAuth.isLogin,productController.productsLoad)
 admin_Route.get('/addProduct', adminAuth.isLogin,productController.addProductLoad)
-// admin_Route.post('/addProduct', adminAuth.isLogin,upload.array('productImage'),productController.addProduct)
 admin_Route.post('/addProduct', adminAuth.isLogin, upload.Upload,productController.addProduct)
 admin_Route.get('/searchProduct',adminAuth.isLogin,productController.searchProduct)
 admin_Route.get('/listAndUnlistProduct',adminAuth.isLogin,productController.listAndUnlistProduct)
 admin_Route.get('/editProduct',adminAuth.isLogin,productController.editProductLoad)
 admin_Route.get('/removeProductImage',adminAuth.isLogin,productController.deleteImage)
-// admin_Route.post('/editProduct', adminAuth.isLogin,upload.upload.array('productImage'),productController.editProduct)
 admin_Route.post('/editProduct', adminAuth.isLogin, upload.Upload,productController.editProduct)
 
 
@@ -67,6 +65,7 @@ admin_Route.get('/orderManagement',adminAuth.isLogin,orderController.orderManage
 admin_Route.patch('/updateOrderStatus',adminAuth.isLogin,orderController.updateOrderStatus)
 admin_Route.get('/orderDetails',adminAuth.isLogin,orderController.ordelDetailsForAdmin)
 admin_Route.get('/adminCancelOrder',adminAuth.isLogin,orderController.cancellOrder)
+admin_Route.get('/approveReturn',adminAuth.isLogin,orderController.approveReturn)
 
 
 

@@ -97,7 +97,7 @@
 
 						</tbody>
 					</table>
-					<% if (orders.orderStatus=="pending"){%> 
+					<% if (orders.orderStatus=="order confirmed"){%> 
 					<button type="button" class="btn btn-danger btn-lg btn-block mt-4" onclick="cancelOrder('<%= orders._id %>')">Cancel Order</button>
 					<% } %>
 					<a href="/admin/orderManagement"><button type="button" class="btn btn-secondary btn-lg btn-block mt-4">BACK</button></a>

@@ -473,7 +473,7 @@ const userLogout = async(req,res)=>{
 const singleProductLoad = async(req,res)=>{
     try {
         const id =  req.query.id
-        const productData = await Products.findOne({_id:id})
+        const productData = await Products.findOne({_id:id,isDeleted:false})
         const reviews = await Review.find({produtId:id})
 
         if(req.session.userId){
@@ -823,6 +823,49 @@ const filterByBrand = async (req, res) => {
     }
 }
 
+// search Product 
+const searchProduct = async(req,res)=>{
+    try {
+        let userId = req.session.userId
+        let userData = null
+        if(userId){
+            userData = await User.findById({_id:userId})
+        }
+
+        // pagination setting
+        const currentPage = parseInt(req.query.page)
+        const productPerPage = 28
+        const skip =(currentPage-1)*productPerPage ;
+
+        const totalProduct = await User.countDocuments()
+        const totalPages = Math.ceil(totalProduct/productPerPage)
+        //pagination end
+
+
+       let productData = []
+       const categoryData = await Category.find({isDeleted:false})
+       const color = await Products.distinct('strapColor')
+       const Brand = await Products.distinct('brand')
+
+       if(req.query.search){
+            productData = await Products.find({$and:[{isDeleted:false},{productName:{$regex:req.query.search,$options: 'i'}}]}).skip(skip).limit(productPerPage)
+            res.render('shop',{user:userData,products:productData,category:categoryData,color:color,brand:Brand,currentPage,totalPages})
+       }else{
+            res.render('shop',{user:userData,products:productData,category:categoryData,color:color,brand:Brand,currentPage,totalPages})
+
+       }
+
+    //    if(req.session.userId){
+    //        res.render('shop',{user:userData,products:productData,category:categoryData,color:color,brand:Brand,currentPage,totalPages})
+    //    }else{
+    //        res.render('shop',{products:productData,category:categoryData,color:color,brand:Brand,currentPage,totalPages})
+    //    }
+        
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
 
 
 module.exports={
@@ -853,5 +896,6 @@ module.exports={
     filterByCategory,
     filterByColor,
     filterByBrand,
+    searchProduct
 
 }

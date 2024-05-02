@@ -64,39 +64,44 @@ user_route.get('/google/callback',passport.authenticate('google',{failureRedirec
 
 // user profile Management 
 user_route.get('/profileDetails', userAuth.isLogin, userController.userProfileLoad)
-user_route.post('/updateProfile',userController.updateProfile)
-user_route.post('/changePassword',userController.changePassword)
+user_route.post('/updateProfile',userAuth.isLogin,userController.updateProfile)
+user_route.post('/changePassword',userAuth.isLogin,userController.changePassword)
 
 // user Address Management
 user_route.get('/addressManagement', userAuth.isLogin, userController.addressManagementLoad)
-user_route.post('/addAddress',userController.saveAddress)
-user_route.post('/editAddress',userController.editAddress)
-user_route.get('/deleteAddress',userController.deleteAddress)
+user_route.post('/addAddress',userAuth.isLogin,userController.saveAddress)
+user_route.post('/editAddress',userAuth.isLogin,userController.editAddress)
+user_route.get('/deleteAddress',userAuth.isLogin,userController.deleteAddress)
 
 // user Cart Management
 user_route.get('/cart',userAuth.isLogin, cartAndWishlistController.cartLoad)
-user_route.get('/addTocart',cartAndWishlistController.addToCart)
-user_route.get('/removeFromCart',cartAndWishlistController.removeFromCart)
-user_route.post('/updateQuantity',cartAndWishlistController.updateQuantity)
+user_route.get('/addTocart',userAuth.isLogin,cartAndWishlistController.addToCart)
+user_route.get('/removeFromCart',userAuth.isLogin,cartAndWishlistController.removeFromCart)
+user_route.post('/updateQuantity',userAuth.isLogin,cartAndWishlistController.updateQuantity)
 
-// Product Filters
+// Product Filters , sort & search
 user_route.get('/filterByPrice',userController.filterByPrice)
 user_route.get('/filterByCategory',userController.filterByCategory)
 user_route.get('/filterByColor',userController.filterByColor)
 user_route.get('/filterByBrand',userController.filterByBrand)
+user_route.get('/searchProduct',userController.searchProduct)
 
-// checkout and order
+// checkout , order and Wallet
 user_route.get('/checkout',userAuth.isLogin,orderContoller.checkoutPageLoad)
 user_route.get('/orders', userAuth.isLogin,orderContoller.ordersPageLoad)
-user_route.post('/confirmOrder',userAuth.isLogin,orderContoller.confirmOrder)
+user_route.post('/createOrder',userAuth.isLogin,orderContoller.createOrder)
+user_route.post('/verifyPayment', userAuth.isLogin,orderContoller.verifyPayment);
+user_route.post('/getPaymentDetails', userAuth.isLogin,orderContoller.getPaymentDetails)
+user_route.get('/wallet',userAuth.isLogin,orderContoller.walletLoad)
+
 user_route.get('/orderDetails',userAuth.isLogin,orderContoller.orderDetailsLoad)
 user_route.get('/cancelOrder',userAuth.isLogin,orderContoller.cancellOrder)
-user_route.post('/returnOrder',userAuth.isLogin,orderContoller.returnOrder)
+user_route.post('/returnOrder',userAuth.isLogin,orderContoller.requestForReturn)
 
 // wishlist management
 user_route.get('/wishlist',userAuth.isLogin, cartAndWishlistController.wishlistLoad)
-user_route.get('/addToWishlist',cartAndWishlistController.addTowishlist)
-user_route.get('/removeFromWishlist',cartAndWishlistController.removeFromWishlist)
+user_route.get('/addToWishlist',userAuth.isLogin,cartAndWishlistController.addTowishlist)
+user_route.get('/removeFromWishlist',userAuth.isLogin,cartAndWishlistController.removeFromWishlist)
 
 
 

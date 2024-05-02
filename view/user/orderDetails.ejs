@@ -184,7 +184,7 @@
 		progress.classList.remove('red');
 
 		switch (status) {
-			case 'pending':
+			case 'order confirmed':
 				steps[0].classList.add('active');
 				progress.style.width = '33.3333%';
 				break;
@@ -199,6 +199,7 @@
 				break;
 			case 'cancelled':
 			case 'returned':
+			case 'Requested for Return':
 				progress.style.width = '100%';
 				progress.classList.add('red');
 				break;
@@ -227,6 +228,10 @@
 						break;
 					case 'returned':
 						statusElement.innerHTML ='The Product Returned';
+						statusElement.style.color = 'red';
+						break;
+					case 'Requested for Return':
+						statusElement.innerHTML ='Requested for Return';
 						statusElement.style.color = 'red';
 						break;
 				}

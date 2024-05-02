@@ -99,7 +99,7 @@
                 <div class="image-upload-container">
                     <div>
                         <div class="image-box" onclick="triggerInput('file-input-1')">
-                            <input type="file" id="file-input-1" name="productImage1" class="file-input" accept="image/*" style="display: none;" onchange="openCropper(event, 'preview-1')" required>
+                            <input type="file" id="file-input-1" name="productImage1" class="file-input" accept="image/*" style="display: none;" onchange="openCropper(event, 'preview-1')" >
                             <div class="image-preview" id="preview-1">
                                 <% if (product.image[0]) { %>
                                     <img src="/assets/categoryImg/<%= product.image[0] %>" style="height: 250px; width: 250px;" class="img-preview">
@@ -108,11 +108,11 @@
                                 <% } %>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-dark btn-block" onclick="removeImage('preview-1', 0)">Remove Image</button>
+                        <button type="button" class="btn btn-dark btn-block" onclick="removeImage('<%= product._id %>','preview-1', 0)">Remove Image</button>
                     </div>
                     <div>
                         <div class="image-box" onclick="triggerInput('file-input-2')">
-                            <input type="file" id="file-input-2" name="productImage2" class="file-input" accept="image/*" style="display: none;" onchange="openCropper(event, 'preview-2')" required>
+                            <input type="file" id="file-input-2" name="productImage2" class="file-input" accept="image/*" style="display: none;" onchange="openCropper(event, 'preview-2')" >
                             <div class="image-preview" id="preview-2">
                                 <% if (product.image[1]) { %>
                                     <img src="/assets/categoryImg/<%= product.image[1] %>" style="height: 250px; width: 250px;"  class="img-preview">
@@ -121,7 +121,7 @@
                                 <% } %>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-dark btn-block" onclick="removeImage('preview-2', 0)">Remove Image</button>
+                        <button type="button" class="btn btn-dark btn-block" onclick="removeImage('preview-2', 1)">Remove Image</button>
                     </div>
                     <div>
                         <div class="image-box" onclick="triggerInput('file-input-3')">
@@ -134,7 +134,7 @@
                                 <% } %>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-dark btn-block" onclick="removeImage('preview-3', 0)">Remove Image</button>
+                        <button type="button" class="btn btn-dark btn-block" onclick="removeImage('preview-3', 2)">Remove Image</button>
                     </div>
                     <div>
                         <div class="image-box" onclick="triggerInput('file-input-4')">
@@ -147,7 +147,7 @@
                                 <% } %>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-dark btn-block" onclick="removeImage('preview-4', 0)">Remove Image</button>
+                        <button type="button" class="btn btn-dark btn-block" onclick="removeImage('preview-4', 3)">Remove Image</button>
                     </div>
                 </div>
             
@@ -157,7 +157,6 @@
                     <button type="button" class="btn btn-success" onclick="cropImage()">Crop Image</button>
                     <button type="button" class="btn btn-danger" onclick="closeCropper()">Cancel</button>
                 </div>
-                
                 <!-- enddddd -->
                 <div class="text-center mt-4">
                     <button type="submit" class="btn btn-info btn-lg btn-block" onclick="validateForm()">Edit Product</button>
@@ -230,22 +229,24 @@
         }
 
         // remove image
-        function removeImage(previewId, imageIndex) {
-            console.log("hsdfakjhfdksajhkjh");
-    $.ajax({
-        url: '/admin/removeProductImage',
-        type: 'POST',
-        data: { productId: '<%= product._id %>', imageIndex: imageIndex },
-        success: function(result) {
-            // On success, update the UI
-            const preview = document.getElementById(previewId);
-            preview.innerHTML = '<i class="fa fa-image"></i>';
-        },
-        error: function(error) {
-            console.log('Error removing image:', error);
+        function removeImage(productId, previewId, imageIndex) {
+            $.ajax({
+                url: '/admin/removeProductImage',
+                type: 'POST',
+                data: JSON.stringify({ productId: productId, imageIndex: imageIndex }),
+                contentType: 'application/json; charset=utf-8',
+                success: function(result) {
+                    // On success, update the UI
+                    const preview = document.getElementById(previewId);
+                    preview.style.backgroundImage = 'none';
+                    preview.innerHTML = '<i class="fa fa-image"></i>';
+                },
+                error: function(error) {
+                    console.log('Error removing image:', error);
+                }
+            });
         }
-    });
-}
+
 </script>
 <script src="/js/adminFormValidation.js"></script>
 

@@ -168,18 +168,21 @@
                 <td>
                   <h5 class="status"><%= orders[i].orderStatus %></h5></td>
                 <td>
-                    <% if(orders[i].orderStatus === "pending" || orders[i].orderStatus === "delivered") { %> 
+                    <% if(orders[i].orderStatus === "order confirmed" || orders[i].orderStatus === "delivered") { %> 
 
                   <select class="order-status-dropdown" data-order-id="<%= orders[i]._id %>" onchange="updateOrderStatus(this)">
                     <% if(orders[i].orderStatus !== "delivered" ) { %>
-                    <option value="pending" <%= orders[i].orderStatus === 'pending' ? 'selected' : '' %> >Pending</option>
+                    <option value="order confirmed" <%= orders[i].orderStatus === 'order confirmed' ? 'selected' : '' %> >ordered</option>
                     <% }else{ %> 
-                      <option value="pending" <%= orders[i].orderStatus === 'pending' ? 'selected' : '' %> disabled>Pending</option>
+                      <option value="order confirmed" <%= orders[i].orderStatus === 'order confirmed' ? 'selected' : '' %> disabled>ordered</option>
                     <%} %>
                     <option value="delivered" <%= orders[i].orderStatus === 'delivered' ? 'selected' : '' %>>Delivered</option>
                     <option value="completed" <%= orders[i].orderStatus === 'completed' ? 'selected' : '' %>>Completed</option>
                   </select>
+                  <% }else if(orders[i].orderStatus === "Requested for Return") { %> 
+                    <button type="button" class="btn-info btn-lg" onclick="approveReturn('<%= orders[i]._id %>')">Approve</button>
                   <% } %>
+                  
                   <a href="/admin/orderDetails?orderId=<%= orders[i]._id %>"></h3><button class="btn btn-outline-info"><h3><i class="fa-regular fa-eye"></i></button></a>
                 </td>             
             </tr>
@@ -215,8 +218,11 @@
                 case 'completed':
                     h5.style.color = 'green';
                     break;
-                case 'pending':
+                case 'order confirmed':
                     h5.style.color = 'blue';
+                    break;
+                case 'Requested for Return':
+                    h5.style.color = 'red';
                     break;
                 default:
                     h5.style.color = 'black'; 
@@ -263,6 +269,51 @@
           .catch(error => {
               console.error('Error updating order status:', error);
           });
+      }
+
+      // approve return
+      function approveReturn(orderId) {
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You won't be able to revert this!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Yes Approve",
+          cancelButtonText: "No, cancel!",
+          reverseButtons: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetch(`/admin/approveReturn?orderId=${orderId}`, {
+              method: 'GET' 
+            })
+            .then(response => {
+              if (response.ok) {
+                Swal.fire({
+                  title: "Approved Return Request",
+                  text: "The Product Will be returned",
+                  icon: "success"
+                }).then(() => {
+                  window.location.reload();
+                });
+              } else {
+                Swal.fire({
+                  title: "Error",
+                  text: "An error occurred while Approving Request.",
+                  icon: "error"
+                });
+              }
+            })
+            .catch(error => {
+              
+              console.error("Error:", error);
+              Swal.fire({
+                title: "Error",
+                text: "An error occurred while Approving Request.",
+                icon: "error"
+              });
+            });
+          }
+        });
       }
     </script>
 

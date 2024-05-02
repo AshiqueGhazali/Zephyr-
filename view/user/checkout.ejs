@@ -175,14 +175,14 @@
                                                         <input type="radio" id="onlinePayment" name="PAYMENT" value="online Payment" onchange="handlePaymentSelection()">
                                                         <label for="onlinePayment">Online Payment</label>
                                                         <div class="mt-3 mb-3" style="display: none;" id="buttonProceed">
-                                                            <button type="button" class="btn btn-primary">PROCEED TO RAZORPAY</button>
+                                                            <button type="button" class="btn btn-primary confirmOrderBtn" >PROCEED TO RAZORPAY</button>
                                                         </div>
                                                     </div>
                                                     <div>
                                                         <input type="radio" id="cashOnDelivery" name="PAYMENT" value="cash On Delivery" onchange="handlePaymentSelection()">
                                                         <label for="cashOnDelivery">Cash On Delivery</label>
                                                         <div class="mt-3 mb-3" style="display: none;" id="buttonConform">
-                                                            <button type="button" class="btn btn-primary" id="confirmOrderBtn">CONFIRM ORDER</button>
+                                                            <button type="button" class="btn btn-primary confirmOrderBtn" id="confirmOrderBtn">CONFIRM ORDER</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -223,6 +223,8 @@
         </div>
     </section>
     <!--================End Checkout Area =================-->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 	<script>
         var lastCheckedIndex = null;
 
@@ -274,78 +276,138 @@
 
         // conform order functions
 
-    document.getElementById('confirmOrderBtn').addEventListener('click', function() {
-        const addressRadioButtons = document.querySelectorAll('input[name="address"]:checked');
-        const paymentRadioButtons = document.querySelectorAll('input[name="PAYMENT"]:checked');
-    
-    if (addressRadioButtons.length === 0 || paymentRadioButtons.length === 0) {
-        Swal.fire('Error', 'Please select both an address and a payment method.', 'error');
-        return;
-    }
-
-    const selectedAddressId = addressRadioButtons[0].value;
-    const selectedPaymentMethod = paymentRadioButtons[0].value;
-
-    
-    const swalWithBootstrapButtons = Swal.mixin({
-        customClass: {
-            confirmButton: "btn btn-success",
-            cancelButton: "btn btn-danger"
-        },
-        buttonsStyling: false
-    });
-    swalWithBootstrapButtons.fire({
-        title: 'Are you sure you want to place this order?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, place it!',
-        cancelButtonText: 'No, cancel!',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                confirmOrder(selectedAddressId, selectedPaymentMethod);
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
-                swalWithBootstrapButtons.fire(
-                    'Cancelled',
-                    'Your order is safe :)',
-                    'error'
-                );
+    document.querySelectorAll('.confirmOrderBtn').forEach(button => {
+        button.addEventListener('click', function() {
+            const addressRadioButtons = document.querySelectorAll('input[name="address"]:checked');
+            const paymentRadioButtons = document.querySelectorAll('input[name="PAYMENT"]:checked');
+            
+            if (addressRadioButtons.length === 0 || paymentRadioButtons.length === 0) {
+                Swal.fire('Error', 'Please select both an address and a payment method.', 'error');
+                return;
             }
+            
+            const selectedAddressId = addressRadioButtons[0].value;
+            const selectedPaymentMethod = paymentRadioButtons[0].value;
+            
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger"
+                },
+                buttonsStyling: false
+            });
+            swalWithBootstrapButtons.fire({
+                title: 'Are you sure you want to place this order?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, place it!',
+                cancelButtonText: 'No, cancel!',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    confirmOrder(selectedAddressId, selectedPaymentMethod);
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    swalWithBootstrapButtons.fire(
+                        'Cancelled',
+                        'Your order is safe :)',
+                        'error'
+                    );
+                }
+            });
         });
     });
 
-    function confirmOrder(addressId, paymentMethod) {
-    fetch('/confirmOrder', {
+// razorepay
+function confirmOrder(addressId, paymentMethod) {
+    fetch('/createOrder', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ addressId, paymentMethod })
     })
-    .then(response => {
-        if (response.ok) {
-            Swal.fire({
-                  title:"Order Placed",
-                  text: "Yur Order Conformed",
-                  icon: "success"
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (paymentMethod === "online Payment") {
+                var options = {
+                    "key": data.key_id,  
+                    "amount": data.amount,
+                    "currency": "INR",
+                    "name": "Zephyr",
+                    "description": "Transaction Description",
+                    "image": "https://example.com/your_logo",
+                    "order_id": data.razorpayOrderId,
+                    "handler": function (response){
+                        verifyPayment(response.razorpay_payment_id, data.orderId,response.razorpay_signature);
+                    },
+                    "prefill": {
+                        "name": "Customer Name",
+                        "email": "customer_email@example.com",
+                        "contact": "customer_phone"
+                    },
+                    "theme": {
+                        "color": "#192e68"
+                    }
+                };
+                var paymentGateway = new Razorpay(options);
+                paymentGateway.open();
+            } else {
+                Swal.fire({
+                    title: "Order Placed",
+                    text: "Your Order is Confirmed",
+                    icon: "success"
                 }).then(() => {
-                    window.location.href = response.url;  
+                    window.location.href = `/orderDetails?orderId=${data.orderId}`;
                 });
-        } else if (response.status === 403) {
-            response.json().then(data => {
-                Swal.fire('Sorry', data.message );
-            });
+            }
         } else {
-            throw new Error('Failed to complete order');
+            Swal.fire('Error', data.message, 'error');
         }
     })
     .catch(error => {
         console.error('Error:', error);
         Swal.fire('Error', 'Network Error. Try again.', 'error');
     });
+}
 
-   }
+function verifyPayment(paymentId, orderId, signature) {
+    fetch('/verifyPayment', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+            paymentId: paymentId,
+            orderId: orderId,
+            razorpaySignature: signature
+         })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                title: "Order Placed",
+                text: "Your Order is Confirmed",
+                icon: "success"
+            }).then(() => {
+                window.location.href = `/orderDetails?orderId=${orderId}`; 
+            });
+        } else {
+            Swal.fire('Error', 'Payment verification failed. Please try again.', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire('Error', 'Network Error. Try again.', 'error');
+    });
+}
+
+
+
+
+
     // add new address
 
     document.getElementById('addNewAddressBtn').addEventListener('click', function() {

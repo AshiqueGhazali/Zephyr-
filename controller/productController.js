@@ -126,16 +126,20 @@ const editProductLoad = async(req,res)=>{
     }
 }
 
-const deleteImage = async(req,res)=>{
+const deleteImage = async(req, res) => {
     try {
-        const id = req.query.id
-        const image = req.query.img
-        if(image){
-            await Products.findByIdAndUpdate({_id:id},{$pull:{image:image}})
-            return res.redirect('/admin/editProduct')
+        const { productId, imageIndex } = req.body;
+        const product = await Products.findById(productId);
+        if (product && product.image && product.image.length > imageIndex) {
+            product.image.splice(imageIndex, 1);
+            await product.save(); 
+            res.status(200).send({ message: 'Image removed successfully' });
+        } else {
+            res.status(404).send({ message: 'Product or image not found' });
         }
     } catch (error) {
         console.log(error.message);
+        res.status(500).send({ message: 'Server error' });
     }
 }
 
@@ -179,42 +183,56 @@ const deleteImage = async(req,res)=>{
 //         console.log(error.message);
 //     }
 // }
-const editProduct = async(req,res)=>{
+const editProduct = async (req, res) => {
     try {
-        
-        const images = []
-
-        const bodyImages =req.files
-        images.push(bodyImages.productImage1[0].filename);
-        images.push(bodyImages.productImage2[0].filename);
-        images.push(bodyImages.productImage3[0].filename);
-        images.push(bodyImages.productImage4[0].filename);
-
-        const update = await Products.findByIdAndUpdate({_id:req.body.id},{$set:{
-            productName:req.body.productName,
-            brand:req.body.brandName,
-            model:req.body.model,
-            category:req.body.category,
-            price:req.body.mrp,
-            discountPrice:req.body.discountPrice,
-            discount:req.body.discount,
-            dialColor:req.body.dialColor,
-            strapColor:req.body.strapColor,
-            inStock:req.body.inStock,
-            description:req.body.description
-        }})
-
-        if(files.length==0){
-            return res.redirect('/admin/productManagement')
+        // Retrieve the product from the database first
+        const product = await Products.findById(req.body.id);
+        if (!product) {
+            return res.status(404).send('Product not found.');
         }
 
-        await Products.updateOne({_id: req.body.id}, {$push:{image:{$each:images}}});
-        res.redirect('/admin/productManagement')
+        // Setup arrays to handle the incoming images
+        let images = [];
+
+        // Handling new images and replacing old ones
+        if (req.files) {
+            const bodyImages = req.files;
+            const fields = ['productImage1', 'productImage2', 'productImage3', 'productImage4'];
+            fields.forEach((field, index) => {
+                if (bodyImages[field] && bodyImages[field][0]) {
+                    // Replace the old image with the new one in the images array
+                    images[index] = bodyImages[field][0].filename;
+                } else if (product.image[index]) {
+                    // Retain the old image if no new image was uploaded for this index
+                    images[index] = product.image[index];
+                }
+            });
+        }
+
+        // Update product details
+        const update = await Products.findByIdAndUpdate(req.body.id, {
+            productName: req.body.productName,
+            brand: req.body.brandName,
+            model: req.body.model,
+            category: req.body.category,
+            price: req.body.mrp,
+            discountPrice: req.body.discountPrice,
+            discount: req.body.discount,
+            dialColor: req.body.dialColor,
+            strapColor: req.body.strapColor,
+            inStock: req.body.inStock,
+            description: req.body.description,
+            image: images  // Replace entire image array
+        });
+
+        res.redirect('/admin/productManagement');
 
     } catch (error) {
         console.log(error.message);
+        res.status(500).send('Server Error');
     }
-}
+};
+
 
 module.exports={
     productsLoad,

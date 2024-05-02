@@ -101,11 +101,13 @@
 							</div>
 							<div class="col-lg-2">
 								<p class="status" data-status="<%= orders[i].orderStatus %>"><i class="fa-solid fa-circle-dot"></i> </p>
-								<% if(orders[i].orderStatus === "pending") { %> 
+								<% if(orders[i].orderStatus === "order confirmed") { %> 
 									<button type="button" class="btn btn-danger" onclick="cancelOrder('<%= orders[i]._id %>')">cancel</button>
 								<% }else if(orders[i].orderStatus === "delivered"){ %> 
 									<button type="button" class="btn btn-danger" onclick="returnOrder('<%= orders[i]._id %>')">Return</button>
-								<% } %>
+								<% }else if(orders[i].orderStatus === "pending"){ %> 
+									<button type="button" class="btn btn-danger payAgainButton" data-order-id="<%= orders[i]._id %>">Pay Again</button>
+									<% } %>
 							</div>
 						</div> 
 					</div>
@@ -204,7 +206,7 @@
 				let iconHTML = '<i class="fa-solid fa-circle-dot"></i> ';
 
 				switch(status) {
-					case 'pending':
+					case 'order confirmed':
 						statusElement.innerHTML = iconHTML + 'On Delivery';
 						statusElement.style.color = 'blue';
 						break;
@@ -219,6 +221,14 @@
 						break;
 					case 'returned':
 						statusElement.innerHTML = iconHTML + 'The Product Returned';
+						statusElement.style.color = 'red';
+						break;
+					case 'Requested for Return':
+						statusElement.innerHTML = iconHTML + 'Requested for Return';
+						statusElement.style.color = 'red';
+					break;
+					case 'pending':
+						statusElement.innerHTML = iconHTML + 'Payment Incomplete';
 						statusElement.style.color = 'red';
 						break;
 				}
@@ -321,7 +331,101 @@
 			});
 		}
 
+
+		// contineu order
+
+		document.addEventListener("DOMContentLoaded", function() {
+			var payAgainButtons = document.querySelectorAll('.payAgainButton');
+			payAgainButtons.forEach(function(button) {
+				button.addEventListener('click', function() {
+					var orderId = this.getAttribute('data-order-id');
+					initiatePayment(orderId);
+				});
+			});
+		});
+
+		function initiatePayment(orderId) {
+			fetch('/getPaymentDetails', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ orderId: orderId })
+			})
+			.then(response => response.json())
+			.then(data => {
+				if (data.success) {
+					openRazorpay(data);
+				} else {
+					Swal.fire('Error', 'Failed to fetch payment details', 'error');
+				}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				Swal.fire('Error', 'Network Error. Try again.', 'error');
+			});
+		}
+
+		function openRazorpay(data) {
+			var options = {
+				"key": data.key_id,
+				"amount": data.amount,
+				"currency": "INR",
+				"name": "Zephyr",
+				"description": "Transaction Description",
+				"image": "https://example.com/your_logo",
+				"order_id": data.razorpayOrderId,
+				"handler": function (response) {
+					verifyPayment(response.razorpay_payment_id, data.orderId, response.razorpay_signature);
+				},
+				"prefill": {
+					"name": "Customer Name",
+					"email": "customer_email@example.com",
+					"contact": "customer_phone"
+				},
+				"theme": {
+					"color": "#192e68"
+				}
+			};
+			var rzp = new Razorpay(options);
+			rzp.open();
+		}
+
+		function verifyPayment(paymentId, orderId, signature) {
+			fetch('/verifyPayment', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					paymentId: paymentId,
+					orderId: orderId,
+					razorpaySignature: signature
+				})
+			})
+			.then(response => response.json())
+			.then(data => {
+				if (data.success) {
+					Swal.fire({
+						title: "Payment Successful",
+						text: "Your payment has been successfully processed.",
+						icon: "success"
+					}).then(() => {
+						window.location.href = `/orderDetails?orderId=${orderId}`;
+					});
+				} else {
+					Swal.fire('Error', 'Payment verification failed. Please try again.', 'error');
+				}
+			})
+			.catch(error => {
+				console.error('Error:', error);
+				Swal.fire('Error', 'Network Error. Try again.', 'error');
+			});
+		}
+
+
 	</script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 
 

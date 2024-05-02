@@ -98,4 +98,47 @@ body {
 }
 .image-box:hover .remove-icon {
       display: block;
-  }
+}
+
+
+
+.walletCard {
+  background-image: linear-gradient(to right, #1c2761, #0184bf);
+  color: white;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  height: 20em; 
+}
+
+.walletBody {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; 
+  padding: 20px;
+}
+
+.walletLogo {
+  font-size: 24px;
+}
+
+.WalletText, .WalletAmount {
+  margin-bottom: 0;
+  color: #ffff;
+}
+.WalletAmount{
+  font-weight: bolder;
+}
+
+.amount-section {
+  margin-top: 50px;
+}
+.title{
+  color: #ffff;
+  font-weight: bolder;
+  font-size: 2em;
+}
+.line {
+  background-color: #ffffff; 
+  height: 2px; 
+  border: none;
+}

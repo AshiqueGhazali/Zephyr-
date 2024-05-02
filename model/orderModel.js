@@ -64,6 +64,10 @@ const orderSchema = mongoose.Schema({
         type:String,
         required:true
     },
+    razorpayOrderId: {
+        type: String,
+        required: false
+    },
     orderDate: {
         type:Date,
         default:Date.now()
