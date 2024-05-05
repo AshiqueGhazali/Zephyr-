@@ -193,8 +193,16 @@ const addTowishlist = async(req,res)=>{
             await wishlist.save()
             res.status(200).json({message:"addedd to Wishlist"})
         } else {
-            await Wishlist.findOneAndUpdate({userId: userId},{$push:{wishlistItems: productId}})
-            res.status(200).json({message:"addedd to Wishlist"})
+            const index = wishlist.wishlistItems.indexOf(productId);
+            if (index > -1) {
+                wishlist.wishlistItems.splice(index, 1);
+                await wishlist.save();
+                return res.status(200).json({ message: "Product removed from wishlist" });
+            } else {
+                wishlist.wishlistItems.push(productId);
+                await wishlist.save();
+                return res.status(200).json({ message: "Product added to wishlist" });
+            }
         }
     } catch (error) {
         console.log(error.message);

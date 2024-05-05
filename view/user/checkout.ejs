@@ -69,11 +69,13 @@
             <% }) %>
             <% } %>
             <div class="cupon_area">
-                <!-- <div class="check_title">
+                <div class="check_title">
                     <h2>Have a coupon?</h2>
                 </div>
-                <input type="text" placeholder="Enter coupon code">
-                <a class="tp_btn" href="#">Apply Coupon</a> -->
+                <input type="text" name="coupenCode" placeholder="Enter coupon code" value="<%= coupenCode %>">
+                <input type="hidden" name="totalAmount" value="<%= totalPrice %>">
+                <button class="tp_btn" type="button" id="applyCouponBtn">Apply Coupon</button>
+                <button class="tp_btn" type="button" id="removeCouponBtn">Remove Coupon</button>
             </div>
             <div class="billing_details">
                 <div class="row">
@@ -212,7 +214,8 @@
                             <ul class="list list_2">
                                 <li><a href="#">Subtotal <span>₹ <%= totalPrice %></span></a></li>
                                 <li><a href="#">Shipping <span>₹ 60.00</span></a></li>
-                                <li><a href="#">Total <span>₹ <%= totalPrice + 60 %></span></a></li>
+                                <li><a href="#">coupen Discount <span>₹ <%= coupenDiscount %></span></a></li>
+                                <li><a href="#">Total <span>₹ <%= totalPrice + 60 - coupenDiscount %></span></a></li>
                             </ul>
                             
                             <% } %>
@@ -458,6 +461,72 @@ function verifyPayment(paymentId, orderId, signature) {
 			document.getElementById(`message${index}`).textContent = 'Failed to edit.';
 		});
 	}
+
+    // apply coupon
+
+    document.getElementById('applyCouponBtn').addEventListener('click', function() {
+        var couponCode = document.querySelector('input[name="coupenCode"]').value;
+        var totalAmount = document.querySelector('input[name="totalAmount"]').value;; 
+
+        fetch('/applyCoupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ couponCode, totalAmount })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                  title:"Coupen Applied",
+                  text:"Coupen Applied Successfully",
+                  icon: "success"
+                }).then(() => {
+                  window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                  title: "Failed!",
+                  text:  data.message,
+                  icon: "error"
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
+    // remove Coupen 
+
+    document.getElementById('removeCouponBtn').addEventListener('click', function() {
+
+        fetch('/removeCoupen', {
+            method: 'GET',
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                  title:"Coupen Removed",
+                  text:"Coupen Removed Successfully",
+                  icon: "success"
+                }).then(() => {
+                  window.location.reload();
+                });
+            } else {
+                Swal.fire({
+                  title: "Failed!",
+                  text:  data.message,
+                  icon: "error"
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
     </script>
 <script src="/js/validation.js"></script>
 

@@ -1,0 +1,106 @@
+<%- include('../layouts/adminHeader') %>
+         <link rel="stylesheet" href="/css/style3.css">
+
+    <body>
+
+        <nav class="navbar navbar-light bg-light">
+          <a class="navbar-brand" href="#">
+            <img src="/assets/img/logoZephyr.png"  class="d-inline-block align-top" alt="">
+          </a>
+          <a href="/admin/offerManagement"><button class="btn btn-secondary mr-3">Go Back</button></a>
+        </nav>
+        
+        <div class="container">
+          <div class="row justify-content-center form-container">
+            <div class="col-md-6">
+              <h2 class="text-center mb-4 text-info">ADD OFFER</h2>
+              <form action="/admin/addOffer" method="post" id="myForm" >
+                <div class="form-group">
+                  <label for="copenCode">Offer Name</label>
+                  <input type="text" class="form-control" id="offer"  name="offer" placeholder="Enter Offen Name" required>
+                </div>
+                <div class="form-group">
+                  <label for="offerType">Offer Type</label>
+                  <select class="form-control" name="offerType" id="offerType" aria-label="Default select" onchange="toggleVisibility(this.value)">
+                    <option value="" selected>Select Offer Type</option>
+                    <option value="Product Offer">Product Offer</option>
+                    <option value="Category Offer">Category Offer</option>
+                  </select>
+                </div>
+                <div class="form-group" id="productList" style="display: none;">
+                  <label for="Pname">Product Name</label>
+                  <select class="form-control" name="Pname" id="Pname" aria-label="Default select example" >
+                    <% for(let i=0; i< products.length; i++){ %> 
+                      <option value="<%= products[i].productName %>"><%= products[i].productName %></option>
+                 <% } %>
+                  </select>
+                </div>
+                <div class="form-groups" id="categoryList" style="display: none;">
+                  <label for="category">Category</label>
+                  <select name="category" class="form-control" id="category" >
+                      <% for(let i=0; i< categorys.length; i++){ %> 
+                          <option value="<%= categorys[i].name %>"><%= categorys[i].name %></option>
+                     <% } %>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="expiredDate">Expire Date</label>
+                    <input type="date" class="form-control" id="expiredDate" name="expiredate" placeholder="Enter expiredDate" required>
+                </div>
+                <div class="row">
+                    <div class="form-group col-lg-6">
+                      <label for="discount">Discount (%)</label>
+                      <input type="number" class="form-control" id="discount" name="discount" placeholder="Enter Discount" min="1" max="99" required>
+                    </div>
+                    <div class="form-group col-lg-6">
+                        <label for="maxRedimabelAmount">Maximum Redimabel Amount</label>
+                        <input type="number" class="form-control" id="maxRedimabelAmount" name="maxRedimabelAmount" placeholder="Enter Maximum Redimabel Amount" min="10" required>
+                    </div>
+                </div>
+                <div class="row">
+                  <div class="form-group col-lg-8 text-center mt-4">
+                    <button type="submit" class="btn btn-info btn-lg btn-block">Add Coupen</button>
+                  </div>
+                  <div class="form-group col-lg-4 text-center mt-4">
+                    <button type="button" class="btn btn-secondary btn-lg btn-block" onclick="clearForm()">Cancel</button>
+                  </div>
+              </div>
+              </form>
+              <% if(typeof message !== "undefined"){
+                %>
+                <p style="color: brown;"><%=message%></p> 
+                <%
+              }
+              %>
+            </div>
+          </div>
+        </div>
+      
+        <script>
+          function toggleVisibility(selectedValue) {
+              var offerType = document.getElementById('offerType').value;
+              var productList = document.getElementById('productList');
+              var categoryList = document.getElementById('categoryList');
+          
+              productList.style.display = 'none';
+              categoryList.style.display = 'none';
+
+              if (selectedValue === 'Product Offer') {
+                productList.style.display = 'block';
+              } else if (selectedValue === 'Category Offer') {
+                categoryList.style.display = 'block';
+              }
+          }
+
+          // function disableOfferType() {
+          //   var offerTypeSelect = document.getElementById('offerType');
+          //   offerTypeSelect.disabled = true; 
+          // }
+      </script>
+
+  <script src="/js/adminFormValidation.js"></script>
+
+       
+
+<%- include('../layouts/adminFooter') %>

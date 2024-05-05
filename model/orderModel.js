@@ -55,10 +55,14 @@ const orderSchema = mongoose.Schema({
             type:String,
             requred:true
         },
+        offerId: {
+            type: mongoose.SchemaTypes.ObjectId
+        },
         image:[{
             type:String,
             requred:true
         }]
+        
     }],
     paymentMethod :{
         type:String,
@@ -133,7 +137,11 @@ const orderSchema = mongoose.Schema({
     },
     totalAmount: {
         type: Number
-    }
+    },
+    coupenId: {
+        type: mongoose.SchemaTypes.ObjectId
+    },
+    
 })
 
 module.exports = mongoose.model('Order',orderSchema)

@@ -1,0 +1,61 @@
+<%- include('../layouts/adminHeader') %>
+         <link rel="stylesheet" href="/css/style3.css">
+
+    <body>
+
+        <nav class="navbar navbar-light bg-light">
+          <a class="navbar-brand" href="#">
+            <img src="/assets/img/logoZephyr.png"  class="d-inline-block align-top" alt="">
+          </a>
+          <a href="/admin/coupenManagement"><button class="btn btn-secondary mr-3">Go Back</button></a>
+        </nav>
+        
+        <div class="container">
+          <div class="row justify-content-center form-container">
+            <div class="col-md-6">
+              <h2 class="text-center mb-4 text-info">ADD COUPEN</h2>
+              <form action="/admin/addCoupen" method="post" id="myForm" >
+                <div class="form-group">
+                  <label for="copenCode">Coupen Code</label>
+                  <input type="text" class="form-control" id="copenCode"  name="coupenCode" placeholder="Enter Copen Code" required>
+                </div>
+                <div class="form-group">
+                  <label for="discount">Discount (%)</label>
+                  <input type="number" class="form-control" id="discount" name="discountPercentage" placeholder="Enter Discount" min="1" max="99" required>
+                </div>
+                <div class="form-group">
+                    <label for="expiredDate">Expire Date</label>
+                    <input type="date" class="form-control" id="expiredDate" name="expiredDate" placeholder="Enter expiredDate" required>
+                </div>
+                <div class="row">
+                    <div class="form-group col-lg-6">
+                        <label for="minmPrchsAmt">Minimum Parchase Amount </label>
+                        <input type="number" class="form-control" id="minmPrchsAmt" name="minPurchaseAmt" placeholder="Enter Minimum Parchase Amount" min="1" required>
+                    </div>
+                    <div class="form-group col-lg-6">
+                        <label for="maxRedimabelAmount">Maximum Redimabel Amount</label>
+                        <input type="number" class="form-control" id="maxRedimabelAmount" name="maxRedimabelAmount" placeholder="Enter Maximum Redimabel Amount" min="1" required>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-info btn-lg btn-block">Add Coupen</button>
+                </div>
+              </form>
+              <br>
+              <button type="button" class="btn btn-secondary btn-lg btn-block" onclick="clearForm()">Cancel</button>
+              <br>
+              <% if(typeof message !== "undefined"){
+                %>
+                <p style="color: brown;"><%=message%></p> 
+                <%
+              }
+              %>
+            </div>
+          </div>
+        </div>
+
+  <script src="/js/adminFormValidation.js"></script>
+
+       
+
+<%- include('../layouts/adminFooter') %>

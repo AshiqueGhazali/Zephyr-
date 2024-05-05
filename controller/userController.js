@@ -10,6 +10,7 @@ const Category = require('../model/categoryModel')
 const Review = require('../model/userReviewModel')
 const Address = require('../model/addressModel')
 const Cart = require('../model/cartModel')
+const Offer = require('../model/offerModel')
 const { default: mongoose } = require("mongoose");
 // const { sanitizeFilter } = require("mongoose")
 
@@ -475,12 +476,26 @@ const singleProductLoad = async(req,res)=>{
         const id =  req.query.id
         const productData = await Products.findOne({_id:id,isDeleted:false})
         const reviews = await Review.find({produtId:id})
+        let price = productData.discountPrice
+        let offer = null;
+
+        if(productData.offer.length > 0){
+            const offerIndex = productData.offer.length-1
+            const offerId = productData.offer[offerIndex]
+
+            offer = await Offer.findById(offerId)
+            price = price-(price*offer.discount)/100
+
+            if(price > offer.maxRedimabelAmount){
+                price = offer.maxRedimabelAmount
+            }
+        }
 
         if(req.session.userId){
             const userData = await User.findById({_id:req.session.userId})
-            res.render('singleProduct',{user:userData,product:productData,review:reviews})
+            res.render('singleProduct',{user:userData,product:productData,review:reviews,price,offer})
         }else{
-            res.render('singleProduct',{product:productData,review:reviews})
+            res.render('singleProduct',{product:productData,review:reviews,price,offer})
         }
            
     } catch (error) {

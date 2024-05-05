@@ -267,11 +267,10 @@
 										<h6>₹ <%= products[i].discountPrice %></h6>
 										<h6 class="l-through">₹ <%= products[i].price %></h6>
 									</div>
+									<% if(products[i].offer.length > 0){ %> 
+									<p class="text-success"><i class="fa-solid fa-tag" style="color: #308a00;"></i> Special Offer Available</p>
+									<% }else{ %> <p> <hr></p><% } %>
 									<div class="prd-bottom">
-										<!-- <a href="/addTocart?productId=<%=products[i]._id %>" class="social-info">
-											<span class="fa-solid fa-cart-shopping"></span>
-											<p class="hover-text">add to cart</p>
-										</a> -->
 										<a onclick="addToCart(event, '<%= products[i]._id %>')" href="javascript:void(0);" class="social-info">
 											<span class="fa-solid fa-cart-shopping"></span>
 											<p class="hover-text">add to cart</p>

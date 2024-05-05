@@ -81,9 +81,15 @@
 				<div class="col-lg-5 offset-lg-1">
 					<div class="s_product_text">
 						<h3><%= product.productName %></h3>
-						<h2 style="display: inline;">₹ <%= product.discountPrice %></h2>
+						<h2 style="display: inline;">₹ <%= price %></h2>
 						<h5 style="display: inline;" class=" ml-3"><del class="text-danger">₹ <%= product.price %></del></h5>
-						<h6 class="l-through text-success"><%= Math.abs(product.discount)%> % Discount</h6>
+						<!-- <h6 class="l-through text-success"><%= Math.abs(product.discount)%> % Discount</h6> -->
+						<hr>
+						<% if(product.offer.length > 0){ %> 
+							<h6 class="l-through text-success"><%= offer.offer %>, Extra <%= offer.discount %>% Discount</h6>
+						<% }else{ %>
+							<h6 class="l-through text-success"><%= Math.abs(product.discount)%> % Discount</h6>
+						<% } %>
 						<ul class="list">
 							<li><a class="active" href="#"><span>Category</span> : <%= product.category %></a></li>
 							<% if (product.inStock){ %> 

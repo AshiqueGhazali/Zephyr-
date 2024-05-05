@@ -8,6 +8,8 @@ const OrderModel = require('../model/orderModel')
 const Wallet = require('../model/walletModel')
 const Razorpay = require('razorpay')
 const crypto = require('crypto')
+const Coupen = require('../model/coupenModel')
+const Offer = require('../model/offerModel')
 
 
 // razorpay instance 
@@ -44,51 +46,119 @@ const checkoutPageLoad = async(req,res)=>{
             product = product.toObject()
             product.productId = product._id
             productData.push(product)
-            const totalPrice = product.discountPrice;
+            let totalPrice = product.discountPrice;
 
+            if(product.offer.length > 0){
+                const offerIndex = product.offer.length-1
+                const offerId = product.offer[offerIndex]
+
+                const offer = await Offer.findById(offerId)
+                totalPrice = totalPrice-(totalPrice*offer.discount)/100
+
+                if(totalPrice > offer.maxRedimabelAmount){
+                    totalPrice = offer.maxRedimabelAmount
+                }
+
+                req.session.offerId = offer._id
+            }
+
+           
+            let coupenDiscount = 0;
+            let coupenCode = null
             req.session.product = productData
-            req.session.totalAmount = totalPrice+60
+            if(req.session.coupen && req.session.coupenId ){
+                const coupen = await  Coupen.findById(req.session.coupenId)
+                const discountPercentage = req.session.coupen;
+                const maxDiscount = coupen.maxRedimabelAmount;
 
-            res.render('checkout',{user:userData,userAddress,productData,totalPrice})
+                let discount = (totalPrice * discountPercentage) / 100;
+
+                if (discount > maxDiscount) {
+                    discount = maxDiscount;
+                }
+
+                coupenDiscount = discount
+                coupenCode = coupen.coupenCode
+                req.session.totalAmount = totalPrice+60-discount
+            }else{
+                req.session.totalAmount = totalPrice+60
+            }
+            res.render('checkout',{user:userData,userAddress,productData,totalPrice,coupenDiscount,coupenCode})
         }else{
             const products = await Cart.aggregate([
-                {$match:{userId: new mongoose.Types.ObjectId(id)}},
-                {$unwind: '$cartItems'},
-                {$lookup: {
+                { $match: { userId: new mongoose.Types.ObjectId(id) } },
+                { $unwind: '$cartItems' },
+                { $lookup: {
                     from: 'products',
-                    localField: "cartItems.productId",
-                    foreignField: "_id",
-                    as: "productDetails",
+                    localField: 'cartItems.productId',
+                    foreignField: '_id',
+                    as: 'productDetails',
                 }},
-                {$project: {
-                    product: {$arrayElemAt: ["$productDetails", 0]},
-                    quantity: "$cartItems.quantity"
+                { $project: {
+                    product: { $arrayElemAt: ['$productDetails', 0] },
+                    quantity: '$cartItems.quantity'
                 }}
             ]);
-        
+
             let totalPrice = 0;
-            productData = products.map(item => {
-                const extendedPrice = item.product.discountPrice * item.quantity;
+            productData = products.map(async (item) => {
+                let productPrice = item.product.discountPrice;
+                let extendedPrice = productPrice * item.quantity;
+
+                if (item.product.offer && item.product.offer.length > 0) {
+                    const offerIndex = item.product.offer.length - 1;
+                    const offerId = item.product.offer[offerIndex];
+                    const offer = await Offer.findById(offerId);
+                    productPrice -= (productPrice * offer.discount) / 100;
+                    if (productPrice > offer.maxRedimabelAmount) {
+                        productPrice = offer.maxRedimabelAmount;
+                    }
+
+                    extendedPrice = productPrice * item.quantity; 
+                }
+
                 totalPrice += extendedPrice;
                 return {
-                    productId:item.product._id,
+                    productId: item.product._id,
                     productName: item.product.productName,
-                    discountPrice: item.product.discountPrice,
+                    discountPrice: productPrice,
                     brand: item.product.brand,
                     price: item.product.price,
+                    category:item.product.category,
                     discount: item.product.discount,
                     dialColor: item.product.dialColor,
                     strapColor: item.product.strapColor,
                     image: item.product.image,
                     inStock: item.product.inStock,
                     quantity: item.quantity,
+                    offer:item.product.offer,
                     extendedPrice: extendedPrice
                 };
             });
 
+            productData = await Promise.all(productData);
+           
+            let coupenDiscount = 0;
+            let coupenCode = null
             req.session.product = productData
-            req.session.totalAmount = totalPrice+60
-            res.render('checkout',{user:userData,userAddress,productData,totalPrice})
+            if(req.session.coupen && req.session.coupenId ){
+                const coupen = await  Coupen.findById(req.session.coupenId)
+                const discountPercentage = req.session.coupen;
+                const maxDiscount = coupen.maxRedimabelAmount;
+
+                let discount = (totalPrice * discountPercentage) / 100;
+
+                if (discount > maxDiscount) {
+                    discount = maxDiscount;
+                }
+
+                coupenDiscount = discount
+                coupenCode = coupen.coupenCode
+                req.session.totalAmount = totalPrice+60-discount
+            }else{
+                req.session.totalAmount = totalPrice+60
+            }
+            res.render('checkout',{user:userData,userAddress,productData,totalPrice,coupenDiscount,coupenCode})
         
         }
         
@@ -109,24 +179,46 @@ const createOrder = async (req, res) => {
 
         const userData = await User.findById(userId)
         const UserAddress = await Address.findById({_id:addressId})
-        const products = req.session.product
-        for(let i=0 ; i<products.length;i++){
-            if (products[i].inStock <= 0) {
-                return res.status(403).json({ message: "Product is Out of Stock!!" })
+        
+        // const products = req.session.product
+        // for(let i=0 ; i<products.length;i++){
+        //     if (products[i].inStock <= 0) {
+        //         return res.status(403).json({ message: "Product is Out of Stock!!" })
+        //     }
+        // }
+
+        const products = req.session.product;
+
+        for (let product of products) {
+            if (product.inStock <= 0) {
+                return res.status(403).json({ message: "Product is Out of Stock!!" });
             }
         }
+
+        const orderItems = products.map(product => {
+            const offerId = product.offer && product.offer.length > 0 ? product.offer[product.offer.length - 1] : null;
+            return {
+                ...product,
+                offerId: offerId // Extract the last offerId from the offer array
+            };
+        });
 
 
         const order = new OrderModel({
             userId : userId,
-            orderItems : req.session.product,
+            orderItems : orderItems,
             paymentMethod : paymentMethod,
             address : UserAddress,
             totalAmount : req.session.totalAmount
         })
 
-        
+        // if(req.session.offerId){
+        //     order.orderItems.offerId = req.session.offerId
+        // }
 
+        if(req.session.coupen&&req.session.coupenId){
+            order.coupenId = req.session.coupenId
+        }
         await order.save()
 
         if (paymentMethod === "online Payment") {

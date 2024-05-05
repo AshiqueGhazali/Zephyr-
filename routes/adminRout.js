@@ -8,6 +8,8 @@ const categoryController = require('../controller/categoryController')
 const upload = require('../middleware/multer')
 const productController = require('../controller/productController')
 const orderController = require('../controller/orderController')
+const coupenController = require('../controller/coupenController')
+const offerController = require('../controller/offerController')
 
 // importing auth
 const adminAuth = require('../middleware/adminAuth')
@@ -32,6 +34,8 @@ admin_Route.get('/login',adminAuth.isLogout ,adminController.loginLoad)
 admin_Route.post('/login', adminController.verifyLogin)
 admin_Route.get('/dashboard',adminAuth.isLogin,adminController.loadHome)
 admin_Route.get('/logout',adminController.logout)
+
+admin_Route.get('/salesReport',adminAuth.isLogin,adminController.salesReport)
 
 // user Management Routes
 admin_Route.get('/userManagement',adminAuth.isLogin,adminController.loadUserManagement)
@@ -67,6 +71,18 @@ admin_Route.get('/orderDetails',adminAuth.isLogin,orderController.ordelDetailsFo
 admin_Route.get('/adminCancelOrder',adminAuth.isLogin,orderController.cancellOrder)
 admin_Route.get('/approveReturn',adminAuth.isLogin,orderController.approveReturn)
 
+
+// coupen Management Routes
+admin_Route.get('/coupenManagement',adminAuth.isLogin,coupenController.coupenManagementLoad)
+admin_Route.get('/addCoupen',adminAuth.isLogin,coupenController.addCoupenLoad)
+admin_Route.post('/addCoupen',adminAuth.isLogin,coupenController.addCoupen)
+admin_Route.get('/coupenStatusChange',adminAuth.isLogin,coupenController.coupenStatusChange)
+
+// offer Management Rotes
+admin_Route.get('/offerManagement',adminAuth.isLogin,offerController.offerManagementLoad)
+admin_Route.get('/addOffer',adminAuth.isLogin,offerController.addOfferLoad)
+admin_Route.post('/addOffer',adminAuth.isLogin,offerController.addOffer)
+admin_Route.get('/offerStatusChange',adminAuth.isLogin,offerController.offerStatusChange)
 
 
 

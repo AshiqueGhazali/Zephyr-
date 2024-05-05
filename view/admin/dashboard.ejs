@@ -1,7 +1,17 @@
 <%- include('../layouts/adminHeader') %>
+<link rel="stylesheet" href="/css/cart/main.css">
+<link rel="stylesheet" href="/css/cart/responsive.css">
 
 
 <link rel="stylesheet" href="/css/adminStyle.css">
+
+<style>
+  .custom-size {
+    padding: 10px 20px; 
+    font-size: 18px; 
+    border-radius: 5px;
+  }
+</style>
 <body>
     <div class="container-scroller">
       <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
@@ -64,8 +74,14 @@
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/admin/coupenManagement">
-                <i class="fa-solid menu-icon fa-money-bill"></i>
+                <i class="fa-solid menu-icon fa-tags"></i>
                 <span class="menu-title">Coupen Management</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/offerManagement">
+                <i class="fa-solid menu-icon fa-tag"></i>
+                <span class="menu-title">Offer Management</span>
               </a>
             </li>
             <li class="nav-item">
@@ -135,8 +151,8 @@
                   <div class="col-md-6 mb-4 mb-lg-0 stretch-card transparent">
                     <div class="card card-light-blue">
                       <div class="card-body">
-                        <p class="mb-4">CATEGORIES</p>
-                        <p class="fs-30 mb-2"><%= categoryCount %></p>
+                        <p class="mb-4">Number of Orders</p>
+                        <p class="fs-30 mb-2"><%= orderCount %></p>
                         <p></p>
                       </div>
                     </div>
@@ -144,8 +160,8 @@
                   <div class="col-md-6 stretch-card transparent">
                     <div class="card card-light-danger">
                       <div class="card-body">
-                        <p class="mb-4">Number of Orders</p>
-                        <p class="fs-30 mb-2"><%= orderCount %></p>
+                        <p class="mb-4">Total Sales</p>
+                        <p class="fs-30 mb-2">₹ <%= totalSales %></p>
                         <p></p>
                       </div>
                     </div>
@@ -158,78 +174,102 @@
                 <div class="card">
                   <div class="card-body">
                    <div class="d-flex justify-content-between">
-                    <p class="card-title">Sales Report</p>
-                    <a href="#" class="text-info">View all</a>
+                    <p class="card-title">SALES REPORT</p>
+                      <div>
+                        <button class="btn btn-info dropdown-toggle custom-size" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select</button>
+                        <div class="dropdown-menu" >
+                          <a class="dropdown-item" href="#" data-target="Daily" data-interval="daily">Daily</a>
+                          <a class="dropdown-item" href="#" data-target="Weekly" data-interval="weekly">Weekly</a>
+                          <a class="dropdown-item" href="#" data-target="Yearly" data-interval="yearly">Yearly</a>
+                        </div>
+                        <button type="button" class="btn btn-secondary custom-size" data-toggle="modal" data-target="#basicModal" data-whatever="@mdo">Costom</button>
+                        <!-- modal -->
+                        <div class="modal fade" id="basicModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                              </div>
+                              <div class="modal-body">
+                                <h4 class="text-center" id="">Select Costom Date</h4>
+                                <form id="custom-date-form">
+                                  <div class="row justify-content-center">
+                                      <div class="form-group col-sm-4" style="padding: 0;">
+                                          <input type="date" class="form-control" id="start-date">
+                                      </div>
+                                      <div class="form-group col-sm-4" style="padding: 0; margin-left: 4px;" >
+                                          <input type="date" class="form-control" id="end-date">
+                                      </div>
+                                      <div class="form-group col-sm-2" >
+                                          <button type="submit" class="btn btn-info custom-size">Search</button>
+                                      </div>
+                                  </div>  
+                              </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- modal -->
+                        <button type="button" class="btn btn btn-outline-danger custom-size downloadPdfBtn" id="downloadPdfBtn"><i class="fa-solid fa-file-pdf"></i></button>
+                        <button type="button" class="btn btn btn-outline-success custom-size excelDownload" id="excelDownloadBtn"><i class="fa-solid fa-file-excel"></i></button>
+                      </div>
                    </div>
-                    <p class="font-weight-500">The total number of sessions within the date range. It is the period time a user is actively engaged with your website, page or app, etc</p>
-                    <div id="sales-legend" class="chartjs-legend mt-4 mb-2"></div>
-                    <canvas id="sales-chart"></canvas>
+                   <% if(salesReport && salesReport.length > 0){ %> 
+                    <div id="sales-legend" class="chartjs-legend mt-4 mb-2">
+                      <div class="cart-table-wrap">
+                        <table class="cart-table">
+                          <thead class="cart-table-head">
+                            <tr class="table-head-row">
+                              <th class="">Order Id </th>
+                              <th class="">Order Date</th>
+                              <th class="">User Name</th>
+                              <th class="">Address</th>
+                              <th class="">Phone</th>
+                              <th class="">Product Name</th>
+                              <th class="">Category </th>
+                              <th class="">Order Status</th>
+                              <th class="">Price</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <% for (let i =0 ; i < salesReport.length ; i++){ %>
+                              <tr class="table-body-row" >
+                                <td class="" data-label="Order Id"><%= salesReport[i]._id %></td>
+                                <td class="" data-label="Order Date"> <%= new Date(salesReport[i].orderDate ).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) %></td>
+                                <td class="" data-label="User Name"> <%= salesReport[i].address.Name %></td>
+                                <td class="" data-label="Address"> <%= `${salesReport[i].address.address},  ${salesReport[i].address.Locality},  ${salesReport[i].address.city},  ${salesReport[i].address.state}, PIN:${salesReport[i].address.PIN}` %></td>
+                                <td class="" data-label="Phone"> <%= salesReport[i].address.Mobile %> </td>
+                                <td class=" " data-label="Product Name">
+                                  <% for (let j =0 ; j < salesReport[i].orderItems.length ; j++ ){ %> 
+                                    <p><%= salesReport[i].orderItems[j].productName +"," %></p>
+                                  <% } %>
+                                </td>
+                                <td class="" data-label="Category">
+                                  <% for (let j =0 ; j < salesReport[i].orderItems.length ; j++ ){ %> 
+                                    <p><%= salesReport[i].orderItems[j].category +"," %></p>
+                                  <% } %>
+                                </td>
+                                <td class="" data-label="Status"><%= salesReport[i].orderStatus %></td>
+                                <td class="" data-label="Total Amount">₹<%= salesReport[i].totalAmount %></td>
+                              </tr>
+                            <% } %>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <% }else{ %> 
+                      <h3>NO Found</h3>
+                    <% } %>
+                    
                   </div>
                 </div>
               </div>
             </div>
             
-            <div class="row">
-              <div class="col-md-12 stretch-card grid-margin">
-                <div class="card">
-                  <div class="card-body">
-                    <p class="card-title">Notifications</p>
-                    <ul class="icon-data-list">
-                      <li>
-                        <div class="d-flex">
-                          <img src="images/faces/face1.jpg" alt="user">
-                          <div>
-                            <p class="text-info mb-1">Isabella Becker</p>
-                            <p class="mb-0">Sales dashboard have been created</p>
-                            <small>9:30 am</small>
-                          </div>
-                        </div>
-                      </li>
-                      <li>
-                        <div class="d-flex">
-                          <img src="images/faces/face2.jpg" alt="user">
-                          <div>
-                            <p class="text-info mb-1">Adam Warren</p>
-                            <p class="mb-0">You have done a great job #TW111</p>
-                            <small>10:30 am</small>
-                          </div>
-                        </div>
-                      </li>
-                      <li>
-                        <div class="d-flex">
-                        <img src="images/faces/face3.jpg" alt="user">
-                       <div>
-                        <p class="text-info mb-1">Leonard Thornton</p>
-                        <p class="mb-0">Sales dashboard have been created</p>
-                        <small>11:30 am</small>
-                       </div>
-                        </div>
-                      </li>
-                      <li>
-                        <div class="d-flex">
-                          <img src="images/faces/face4.jpg" alt="user">
-                          <div>
-                            <p class="text-info mb-1">George Morrison</p>
-                            <p class="mb-0">Sales dashboard have been created</p>
-                            <small>8:50 am</small>
-                          </div>
-                        </div>
-                      </li>
-                      <li>
-                        <div class="d-flex">
-                          <img src="images/faces/face5.jpg" alt="user">
-                          <div>
-                          <p class="text-info mb-1">Ryan Cortez</p>
-                          <p class="mb-0">Herbs are fun and easy to grow.</p>
-                          <small>9:00 am</small>
-                          </div>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
+          
           </div>
           
 
@@ -242,6 +282,11 @@
       </div>   
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script> -->
+
 
     <script>
       var currentDate = new Date();
@@ -250,6 +295,83 @@
       var formattedDate = currentDate.toLocaleDateString('en-US', options);
 
       document.getElementById('currentDate').textContent = formattedDate;
+
+      // drop down selection
+      $(document).ready(function(){
+        $('.dropdown-item').click(function(e){
+          e.preventDefault();  
+          var selectedText = $(this).attr('data-target'); 
+          $('#dropdownMenuButton').text(selectedText); 
+          $('#dropdownMenuButton').dropdown('toggle');
+        });
+      });
+
+      // changing sales report
+      document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', function(event) {
+          event.preventDefault();
+          const interval = this.getAttribute('data-interval');
+          fetchSalesData(interval);
+        });
+      });
+
+      // costom date
+      document.getElementById('custom-date-form').addEventListener('submit', function(event) {
+          event.preventDefault();
+          const startDate = document.getElementById('start-date').value;
+          const endDate = document.getElementById('end-date').value;
+          fetchSalesDataByDate(startDate, endDate);
+      });
+
+      function fetchSalesDataByDate(startDate, endDate) {
+        fetch(`/admin/salesReport?startDate=${startDate}&endDate=${endDate}`)
+          .then(response => response.json())
+          .then(data => {
+              updateSalesTable(data.salesReport);
+          })
+          .catch(error => console.error('Error:', error));
+      }
+
+      function fetchSalesData(interval) {
+        fetch(`/admin/salesReport?interval=${interval}`)
+          .then(response => response.json())
+          .then(data => {
+            updateSalesTable(data.salesReport);
+          })
+          .catch(error => console.error('Error:', error));
+      }
+
+      function updateSalesTable(salesReport) {
+        const tbody = document.querySelector('.cart-table tbody');
+        tbody.innerHTML = ''; 
+        salesReport.forEach(report => {
+          const row = `
+            <tr class="table-body-row">
+              <td data-label="Order Id">${report._id}</td>
+              <td data-label="Order Date">${new Date(report.orderDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</td>
+              <td data-label="User Name">${report.address.Name}</td>
+              <td data-label="Address">${report.address.address}, ${report.address.Locality}, ${report.address.city}, ${report.address.state}, PIN:${report.address.PIN}</td>
+              <td data-label="Phone">${report.address.Mobile}</td>
+              <td data-label="Product Name">${report.orderItems.map(item => `<p>${item.productName},</p>`).join('')}</td>
+              <td data-label="Category">${report.orderItems.map(item => `<p>${item.category},</p>`).join('')}</td>
+              <td data-label="Status">${report.orderStatus}</td>
+              <td data-label="Total Amount">₹${report.totalAmount}</td>
+            </tr>
+          `;
+          tbody.innerHTML += row; 
+        });
+      }
+
+      // for pdf download
+      // document.querySelector('.downloadPdfBtn').addEventListener('click', function() {
+      //     const { jsPDF } = window.jspdf;
+      //     const doc = new jsPDF();
+
+      //     doc.autoTable({ html: '.cart-table' });
+      //     doc.save('table-data.pdf');
+      // });
+
+
   </script>
 
     <%- include('../layouts/adminFooter') %>

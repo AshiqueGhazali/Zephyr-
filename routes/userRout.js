@@ -27,6 +27,7 @@ user_route.use(passport.session())
 const userController = require("../controller/userController")
 const orderContoller = require("../controller/orderController")
 const cartAndWishlistController = require("../controller/cartAndWishlistController")
+const coupenController = require('../controller/coupenController')
 
 
 user_route.set('view engine', 'ejs')
@@ -103,7 +104,10 @@ user_route.get('/wishlist',userAuth.isLogin, cartAndWishlistController.wishlistL
 user_route.get('/addToWishlist',userAuth.isLogin,cartAndWishlistController.addTowishlist)
 user_route.get('/removeFromWishlist',userAuth.isLogin,cartAndWishlistController.removeFromWishlist)
 
-
+// coupen Management 
+user_route.get('/coupens',userAuth.isLogin,coupenController.listCoupensInUserSide)
+user_route.post('/applyCoupon',userAuth.isLogin,coupenController.applyCoupon)
+user_route.get('/removeCoupen',userAuth.isLogin,coupenController.removeCoupen)
 
 
 
