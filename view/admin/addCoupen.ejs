@@ -13,10 +13,10 @@
         <div class="container">
           <div class="row justify-content-center form-container">
             <div class="col-md-6">
-              <h2 class="text-center mb-4 text-info">ADD COUPEN</h2>
-              <form action="/admin/addCoupen" method="post" id="myForm" >
+              <h2 class="text-center mb-4 text-info">ADD COUPON</h2>
+              <form action="/admin/addCoupen" method="post" id="myForm">
                 <div class="form-group">
-                  <label for="copenCode">Coupen Code</label>
+                  <label for="copenCode">Coupon Code</label>
                   <input type="text" class="form-control" id="copenCode"  name="coupenCode" placeholder="Enter Copen Code" required>
                 </div>
                 <div class="form-group">
@@ -38,12 +38,13 @@
                     </div>
                 </div>
                 <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-info btn-lg btn-block">Add Coupen</button>
+                    <button type="submit" class="btn btn-info btn-lg btn-block" onclick="validateCoupenForm(event)">Add Coupen</button>
                 </div>
               </form>
               <br>
               <button type="button" class="btn btn-secondary btn-lg btn-block" onclick="clearForm()">Cancel</button>
               <br>
+              <p id="message"></p>
               <% if(typeof message !== "undefined"){
                 %>
                 <p style="color: brown;"><%=message%></p> 
@@ -53,6 +54,37 @@
             </div>
           </div>
         </div>
+
+
+        <script>
+          function validateCoupenForm(event) {
+            event.preventDefault();
+
+              const form = document.getElementById('myForm');
+              const message = document.getElementById('message');
+      
+              let couponCode = document.getElementById('copenCode').value.trim();  
+              let codeRegex = /^[A-Za-z0-9]{5,10}$/;
+              if (!codeRegex.test(couponCode)) {
+                  message.textContent = "Coupon code must be 5-10 characters long and contain only letters and numbers.";
+                  message.style.color = "red";
+                  return;
+              }
+      
+              let today = new Date();
+              today.setHours(0, 0, 0, 0); 
+              let expiredDate = new Date(document.getElementById('expiredDate').value);
+              if (expiredDate <= today) {
+                  message.textContent = "The expiration date must be a future date.";
+                  message.style.color = "red";
+                  return;
+              }
+      
+              document.getElementById("myForm").submit();
+          };
+      </script>
+      
+      
 
   <script src="/js/adminFormValidation.js"></script>
 

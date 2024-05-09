@@ -187,6 +187,13 @@
                                                             <button type="button" class="btn btn-primary confirmOrderBtn" id="confirmOrderBtn">CONFIRM ORDER</button>
                                                         </div>
                                                     </div>
+                                                    <div>
+                                                        <input type="radio" id="wallet" name="PAYMENT" value="Wallet" onchange="handlePaymentSelection()">
+                                                        <label for="wallet">Use Wallet</label>
+                                                        <div class="mt-3 mb-3" style="display: none;" id="WalletButtonConform">
+                                                            <button type="button" class="btn btn-primary confirmOrderBtn" id="confirmOrderWallet">CONFIRM ORDER</button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -251,15 +258,25 @@
         function handlePaymentSelection() {
         const onlinePaymentRadio = document.getElementById('onlinePayment');
         const cashOnDeliveryRadio = document.getElementById('cashOnDelivery');
+        const walletRadio = document.getElementById('wallet');
+
         const buttonProceed = document.getElementById('buttonProceed');
         const buttonConform = document.getElementById('buttonConform');
+        const WalletButtonConform = document.getElementById('WalletButtonConform');
+
 
         if (onlinePaymentRadio.checked) {
             buttonProceed.style.display = 'block';
             buttonConform.style.display = 'none';
+            WalletButtonConform.style.display = 'none';
         } else if (cashOnDeliveryRadio.checked) {
             buttonProceed.style.display = 'none';
             buttonConform.style.display = 'block';
+            WalletButtonConform.style.display = 'none';
+        }else if(walletRadio.checked) {
+            WalletButtonConform.style.display = 'block';
+            buttonProceed.style.display = 'none';
+            buttonConform.style.display = 'none';
         }
 
         }
@@ -366,7 +383,7 @@ function confirmOrder(addressId, paymentMethod) {
                 });
             }
         } else {
-            Swal.fire('Error', data.message, 'error');
+            Swal.fire('Sorry', data.message, 'warning');
         }
     })
     .catch(error => {
@@ -406,9 +423,6 @@ function verifyPayment(paymentId, orderId, signature) {
         Swal.fire('Error', 'Network Error. Try again.', 'error');
     });
 }
-
-
-
 
 
     // add new address

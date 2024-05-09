@@ -8,63 +8,73 @@ const { default: mongoose, model } = require("mongoose");
 
 // user Cart Management ################## 
 
-const cartLoad = async (req,res)=>{
+const cartLoad = async (req, res, next) => {
     try {
         const userId = req.session.userId
-        const userData = await User.findById({_id:userId})
+        const userData = await User.findById({ _id: userId })
         const userCart = await Cart.aggregate([
-            {$match:{userId:new mongoose.Types.ObjectId(userId)}},
-            {$unwind:'$cartItems'},
-            {$lookup:{
-                from:'products',
-                localField: "cartItems.productId",
-                foreignField: "_id",
-                as: "productDetails",
-            }}
+            { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+            { $unwind: '$cartItems' },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: "cartItems.productId",
+                    foreignField: "_id",
+                    as: "productDetails",
+                }
+            }
         ])
 
-        
-        
+
+
         const totalPriceResult = await Cart.aggregate([
             { $match: { userId: new mongoose.Types.ObjectId(userId) } },
             { $unwind: '$cartItems' },
-            { $lookup: {
-                from: 'products',
-                localField: 'cartItems.productId',
-                foreignField: '_id',
-                as: 'productDetails'
-            } },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'cartItems.productId',
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
+            },
             { $unwind: '$productDetails' },
-            { $project: {
-                _id: 0,
-                totalPrice: { $multiply: ['$productDetails.discountPrice', '$cartItems.quantity'] }
-            } },
-            { $group: {
-                _id: null,
-                totalPrice: { $sum: '$totalPrice' }
-            } }
+            {
+                $project: {
+                    _id: 0,
+                    totalPrice: { $multiply: ['$productDetails.discountPrice', '$cartItems.quantity'] }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalPrice: { $sum: '$totalPrice' }
+                }
+            }
         ]);
-        
-        const totalPrice = totalPriceResult.length > 0 ? totalPriceResult[0].totalPrice : 0;
-        
 
-        
+        const totalPrice = totalPriceResult.length > 0 ? totalPriceResult[0].totalPrice : 0;
+
+
+
         if (userCart.length === 0) {
-            return res.render('cart', {user: userData, userCart: [], message: 'Your cart is empty.'});
+            return res.render('cart', { user: userData, userCart: [], message: 'Your cart is empty.' });
         }
 
-        res.render('cart', {user: userData, userCart: userCart,totalPrice});
+        res.render('cart', { user: userData, userCart: userCart, totalPrice });
     } catch (error) {
         console.log(error.message);
+        next(error)
     }
 }
 
-const addToCart = async(req,res)=>{
+const addToCart = async (req, res, next) => {
     try {
         const productId = req.query.productId
         const userId = req.session.userId
 
-        if(typeof userId == 'undefined'){
+
+        if (!userId) {
             return res.status(401).json({ redirectUrl: '/login' });
         }
 
@@ -83,23 +93,23 @@ const addToCart = async(req,res)=>{
             }
         }
         await cart.save()
-        res.status(200).json({message:"addedd to cart"})
+        res.status(200).json({ message: "addedd to cart" })
 
     } catch (error) {
         console.log(error.message);
-        res.status(500).json({ message: "Failed to add to cart" });
+        next(error);
 
     }
 }
 
-const removeFromCart = async (req,res)=>{
+const removeFromCart = async (req, res, next) => {
     try {
         const userID = req.session.userId;
         const productId = req.query.productId;
 
         const cartData = await Cart.findOne({ userId: userID });
         const index = cartData.cartItems.findIndex((value) => {
-        return value.productId.toString() === productId;
+            return value.productId.toString() === productId;
         });
 
         cartData.cartItems.splice(index, 1);
@@ -107,10 +117,11 @@ const removeFromCart = async (req,res)=>{
         res.redirect("/cart");
     } catch (error) {
         console.log(error.message);
+        next(error)
     }
 }
 
-const updateQuantity = async(req,res)=>{
+const updateQuantity = async (req, res) => {
     try {
         const userId = req.session.userId;
         const productId = req.query.productId;
@@ -122,7 +133,7 @@ const updateQuantity = async(req,res)=>{
 
         if (index !== -1) {
             cart.cartItems[index].quantity += change;
-            
+
             if (cart.cartItems[index].quantity <= 0) {
                 cart.cartItems.splice(index, 1);
             }
@@ -139,14 +150,14 @@ const updateQuantity = async(req,res)=>{
 
 // user Cart Management ################## 
 
-const wishlistLoad = async(req,res)=>{
+const wishlistLoad = async (req, res, next) => {
     try {
         const userId = req.session.userId
-        const userData = await User.findById({_id:userId})
+        const userData = await User.findById({ _id: userId })
 
         const userWishlist = await Wishlist.aggregate([
             { $match: { userId: new mongoose.Types.ObjectId(userId) } },
-            {$unwind:'$wishlistItems'},
+            { $unwind: '$wishlistItems' },
             {
                 $lookup: {
                     from: "products",
@@ -164,34 +175,34 @@ const wishlistLoad = async(req,res)=>{
         ])
 
         if (userWishlist.length === 0) {
-            return res.render('wishlist', {user: userData, userWishlist: [], message: 'Your Wishlist is empty.'});
+            return res.render('wishlist', { user: userData, userWishlist: [] });
         }
-        
-        res.render('wishlist',{user:userData,userWishlist:userWishlist})
+
+        res.render('wishlist', { user: userData, userWishlist: userWishlist })
     } catch (error) {
         console.log(error.message);
-        res.status(500).json({ error: 'Internal server error' });
+        next(error)
 
     }
 }
 
-const addTowishlist = async(req,res)=>{
+const addTowishlist = async (req, res, next) => {
     try {
         const productId = req.query.productId
         const userId = req.session.userId
 
-        if(typeof userId == 'undefined'){
+        if (typeof userId == 'undefined') {
             return res.status(401).json({ redirectUrl: '/login' });
         }
 
-        let wishlist = await Wishlist.findOne({userId:userId})
+        let wishlist = await Wishlist.findOne({ userId: userId })
         if (!wishlist) {
             wishlist = new Wishlist({
                 userId: userId,
                 wishlistItems: productId
             });
             await wishlist.save()
-            res.status(200).json({message:"addedd to Wishlist"})
+            res.status(200).json({ message: "addedd to Wishlist" })
         } else {
             const index = wishlist.wishlistItems.indexOf(productId);
             if (index > -1) {
@@ -206,18 +217,18 @@ const addTowishlist = async(req,res)=>{
         }
     } catch (error) {
         console.log(error.message);
-        res.status(500).json({ error: 'Internal server error' });
+        next(error)
     }
 }
 
-const removeFromWishlist = async (req,res)=>{
+const removeFromWishlist = async (req, res, next) => {
     try {
         const userID = req.session.userId;
         const productId = req.query.productId;
 
-        const wishlist = await Wishlist.findOne({ userId: userID }); 
+        const wishlist = await Wishlist.findOne({ userId: userID });
         const index = wishlist.wishlistItems.findIndex((value) => {
-        return value.toString() === productId;
+            return value.toString() === productId;
         });
 
         wishlist.wishlistItems.splice(index, 1);
@@ -225,10 +236,11 @@ const removeFromWishlist = async (req,res)=>{
         res.redirect("/wishlist");
     } catch (error) {
         console.log(error.message);
+        next(error)
     }
 }
 
-module.exports ={
+module.exports = {
     cartLoad,
     addToCart,
     removeFromCart,

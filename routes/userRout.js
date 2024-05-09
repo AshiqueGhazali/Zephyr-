@@ -1,20 +1,18 @@
 const express = require("express")
 const session = require("express-session")
 const user_route = express()
+// const errorMiddleware = require('../middleware/errorHandlingMiddleware.js')
+
 
 // google authhh
 const {OAuth2Client} = require('google-auth-library');
-const CLIENT_ID = '741679351395-pmrtpgsp9g21mql2b8bbrr4edc1gon3d.apps.googleusercontent.com'
+const CLIENT_ID = process.env.GOOGLE_CLINT_ID
 const client = new OAuth2Client(CLIENT_ID);
 
 // middleware for session handling
 const userAuth = require('../middleware/userAuth');
 
-user_route.use(session({
-  secret: process.env.AUTH_SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true,
-}));
+
 
 // for google auth
 const passport = require('passport')
@@ -24,18 +22,13 @@ user_route.use(passport.initialize())
 user_route.use(passport.session())
 
 
+
 const userController = require("../controller/userController")
 const orderContoller = require("../controller/orderController")
 const cartAndWishlistController = require("../controller/cartAndWishlistController")
 const coupenController = require('../controller/coupenController')
 
-
-user_route.set('view engine', 'ejs')
 user_route.set('views', './view/user')
-
-user_route.use(express.json())
-user_route.use(express.urlencoded({ extended: true }))
-
 
 
 user_route.get("/", userController.loadHome)
@@ -76,7 +69,7 @@ user_route.get('/deleteAddress',userAuth.isLogin,userController.deleteAddress)
 
 // user Cart Management
 user_route.get('/cart',userAuth.isLogin, cartAndWishlistController.cartLoad)
-user_route.get('/addTocart',userAuth.isLogin,cartAndWishlistController.addToCart)
+user_route.get('/addTocart',cartAndWishlistController.addToCart)
 user_route.get('/removeFromCart',userAuth.isLogin,cartAndWishlistController.removeFromCart)
 user_route.post('/updateQuantity',userAuth.isLogin,cartAndWishlistController.updateQuantity)
 
@@ -101,7 +94,7 @@ user_route.post('/returnOrder',userAuth.isLogin,orderContoller.requestForReturn)
 
 // wishlist management
 user_route.get('/wishlist',userAuth.isLogin, cartAndWishlistController.wishlistLoad)
-user_route.get('/addToWishlist',userAuth.isLogin,cartAndWishlistController.addTowishlist)
+user_route.get('/addToWishlist',cartAndWishlistController.addTowishlist)
 user_route.get('/removeFromWishlist',userAuth.isLogin,cartAndWishlistController.removeFromWishlist)
 
 // coupen Management 

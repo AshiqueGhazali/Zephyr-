@@ -184,3 +184,28 @@ function removeImage(imageElement) {
 
         return isValid; 
     }
+
+
+    // validate date 
+    function validDate(event) {
+        event.preventDefault(); 
+
+        var startDate = document.getElementById('start-date').value;
+        var endDate = document.getElementById('end-date').value;
+        var currentDate = new Date().toISOString().split('T')[0]; 
+
+        var errorMessage = '';
+        if (startDate > currentDate || endDate > currentDate) {
+            errorMessage = 'Dates cannot be in the future.';
+        } else if (startDate > endDate) {
+            errorMessage = 'Start date cannot be later than end date.';
+        }
+
+        if (errorMessage) {
+            document.getElementById('error-message').style.display = 'block';
+            document.getElementById('error-message').textContent = errorMessage;
+        } else {
+            document.getElementById('error-message').style.display = 'none';
+        }
+                
+      }

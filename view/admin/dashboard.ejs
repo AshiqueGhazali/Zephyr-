@@ -4,6 +4,9 @@
 
 
 <link rel="stylesheet" href="/css/adminStyle.css">
+<link rel="stylesheet" href="/css/dashboardChart.css">
+
+
 
 <style>
   .custom-size {
@@ -12,6 +15,9 @@
     border-radius: 5px;
   }
 </style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
 <body>
     <div class="container-scroller">
       <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
@@ -75,7 +81,7 @@
             <li class="nav-item">
               <a class="nav-link" href="/admin/coupenManagement">
                 <i class="fa-solid menu-icon fa-tags"></i>
-                <span class="menu-title">Coupen Management</span>
+                <span class="menu-title">Coupon Management</span>
               </a>
             </li>
             <li class="nav-item">
@@ -118,14 +124,18 @@
                 </div>
               </div>
             </div>
+
             <div class="row">
-              <div class="col-md-6 grid-margin stretch-card">
-                <div class="card tale-bg">
-                  <div class="card-people mt-auto">
-                    <img src="/assets/img/login.png" alt="people">
-                  </div>
+              <!--  -->
+              <div class="col-md-6 grid-margin">
+                <div class="card ">
+                  <!-- <div class="card-body"> -->
+                    <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+                  <!-- </div> -->
                 </div>
               </div>
+              <!--  -->
+
               <div class="col-md-6 grid-margin transparent">
                 <div class="row">
                   <div class="col-md-6 mb-4 stretch-card transparent">
@@ -168,7 +178,25 @@
                   </div>
                 </div>
               </div>
+
+              <!--  -->
+              <div class="col-md-6 grid-margin">
+                <div class="card ">
+                  <!-- <div class="card-body"> -->
+                    <canvas id="categoryChart" style="width:100%;max-width:600px"></canvas>
+                  <!-- </div> -->
+                </div>
+              </div>
+              <div class="col-md-6 grid-margin">
+                <div class="card ">
+                  <!-- <div class="card-body"> -->
+                    <canvas id="perDayChart" style="width:100%;max-width:600px"></canvas>
+                  <!-- </div> -->
+                </div>
+              </div>
+              <!--  -->
             </div>
+
             <div class="row">
               <div class="col-md-12 grid-margin stretch-card">
                 <div class="card">
@@ -207,14 +235,15 @@
                                       </div>
                                   </div>  
                               </form>
+                              <div id="error-message" class="alert alert-danger" style="display:none;"></div>
                               </div>
                             </div>
                           </div>
                         </div>
 
                         <!-- modal -->
-                        <button type="button" class="btn btn btn-outline-danger custom-size downloadPdfBtn" id="downloadPdfBtn"><i class="fa-solid fa-file-pdf"></i></button>
-                        <button type="button" class="btn btn btn-outline-success custom-size excelDownload" id="excelDownloadBtn"><i class="fa-solid fa-file-excel"></i></button>
+                        <button type="button" class="btn btn btn-outline-danger custom-size downloadPdfBtn" id="downloadPdfBtn" onclick="downloadPDF()"><i class="fa-solid fa-file-pdf"></i></button>
+                        <button type="button" class="btn btn btn-outline-success custom-size excelDownload" id="excelDownloadBtn" onclick="downloadExcel()"><i class="fa-solid fa-file-excel"></i></button>
                       </div>
                    </div>
                    <% if(salesReport && salesReport.length > 0){ %> 
@@ -284,9 +313,6 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script> -->
-
 
     <script>
       var currentDate = new Date();
@@ -318,6 +344,7 @@
       // costom date
       document.getElementById('custom-date-form').addEventListener('submit', function(event) {
           event.preventDefault();
+          validDate(event)
           const startDate = document.getElementById('start-date').value;
           const endDate = document.getElementById('end-date').value;
           fetchSalesDataByDate(startDate, endDate);
@@ -363,15 +390,182 @@
       }
 
       // for pdf download
-      // document.querySelector('.downloadPdfBtn').addEventListener('click', function() {
-      //     const { jsPDF } = window.jspdf;
-      //     const doc = new jsPDF();
+      function downloadPDF() {
+        const tableRows = document.querySelectorAll('.cart-table tbody tr');
+        const data = Array.from(tableRows).map(row => {
+            const cells = row.querySelectorAll('td');
+            return {
+                orderId: cells[0].textContent.trim(),
+                orderDate: cells[1].textContent.trim(),
+                userName: cells[2].textContent.trim(),
+                address: cells[3].textContent.trim(),
+                phone: cells[4].textContent.trim(),
+                productName: cells[5].textContent.trim(),
+                category: cells[6].textContent.trim(),
+                status: cells[7].textContent.trim(),
+                totalAmount: cells[8].textContent.trim(),
+            };
+        });
 
-      //     doc.autoTable({ html: '.cart-table' });
-      //     doc.save('table-data.pdf');
-      // });
+        fetch('/admin/downloadPdf', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ data: data }),
+        })
+        .then(response => response.blob())
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'sales-report.pdf';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(error => console.error('Error downloading PDF:', error));
+    }
 
+
+    // excel download
+    function downloadExcel() {
+      const tableRows = document.querySelectorAll('.cart-table tbody tr');
+      const data = Array.from(tableRows).map(row => {
+          const cells = row.querySelectorAll('td');
+          return {
+              orderId: cells[0].textContent.trim(),
+              orderDate: cells[1].textContent.trim(),
+              userName: cells[2].textContent.trim(),
+              address: cells[3].textContent.trim(),
+              phone: cells[4].textContent.trim(),
+              productName: cells[5].textContent.trim(),
+              category: cells[6].textContent.trim(),
+              status: cells[7].textContent.trim(),
+              totalAmount: cells[8].textContent.trim(),
+          };
+      });
+
+      fetch('/admin/downloadExcel', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ data: data }),
+      })
+      .then(response => response.blob())
+      .then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.style.display = 'none';
+          a.href = url;
+          a.download = 'sales-report.xlsx';
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+      })
+      .catch(error => console.error('Error downloading Excel:', error));
+     }
 
   </script>
+
+  <!-- charts -->
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      fetchOrderStatusCounts();
+
+      function fetchOrderStatusCounts() {
+          fetch('/admin/orderStatuses')
+              .then(response => response.json())
+              .then(data => updatePieChart(data.status, data.category, data.perDay))
+              .catch(error => console.error('Error:', error));
+      }
+
+      function updatePieChart(orderStatusData, categoryData, perDay) {
+          const xValues = orderStatusData.map(item => item._id);
+          const yValues = orderStatusData.map(item => item.count);
+          const barColors = ["#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796"];
+
+          new Chart("myChart", {
+              type: "doughnut",
+              data: {
+                  labels: xValues,
+                  datasets: [{
+                      backgroundColor: barColors.slice(0, xValues.length),
+                      data: yValues
+                  }]
+              },
+              options: {
+                  responsive: true,
+                  plugins: {
+                      legend: {
+                          position: 'right'
+                      },
+                      tooltip: {
+                          enabled: true
+                      }
+                  }
+              }
+          });
+
+          // chart two
+          const XV = categoryData.map(item => item._id);
+          const YV = categoryData.map(item => item.count);
+          const CL = ["red", "green", "blue", "orange", "yellow", "brown"];
+
+          new Chart("categoryChart", {
+              type: "bar",
+              data: {
+                  labels: XV,
+                  datasets: [{
+                      backgroundColor: CL.slice(0, XV.length),
+                      data: YV
+                  }]
+              },
+              options: {
+                  responsive: true,
+                  plugins: {
+                      legend: {
+                          position: 'right'
+                      },
+                      tooltip: {
+                          enabled: true
+                      }
+                  }
+              }
+          });
+
+          // chart 3
+          const Dates = perDay.map(item => {
+            const date = new Date(item._id); 
+            return date.toLocaleDateString('en-US', {
+              year: 'numeric', month: 'short', day: '2-digit' });
+          });
+          const count = perDay.map(item => item.count);
+          const colour = ["red", "green", "blue", "orange", "yellow", "brown"];
+
+          new Chart("perDayChart", {
+            type: "line",
+            data: {
+              labels: Dates,
+              datasets: [{
+                data: count,
+                borderColor: "red",
+                fill: false
+              }]
+            },
+            options: {
+              legend: {display: false}
+            }
+          });
+
+
+        }
+    });
+    </script>
+
+<!-- <script src="/js/adminFormValidation.js"></script> -->
 
     <%- include('../layouts/adminFooter') %>
