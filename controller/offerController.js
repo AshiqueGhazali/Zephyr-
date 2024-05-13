@@ -31,35 +31,41 @@ const addOffer = async (req, res, next) => {
         const categorys = await Category.find({ isDeleted: false })
         const products = await Products.find({ isDeleted: false })
 
-        if (offerType == '') {
-            return res.render('addOffer', { categorys, products, message: "please select any offer Type" })
+        if (!offer || offer[0]==' ') {
+            return res.status(403).json({message:"Enter Proper Offer Details"})
+        }else if(offerType == ''){
+            return res.status(403).json({message:"please select any offer Type"})
+        }else if( !expiredate || !discount || !maxRedimabelAmount){
+            return res.status(403).json({message:"Expiredate and discount an maximum RedumabelAmount must want"})
+        }else{
+
+            let newOffer = new Offer({
+                offer: offer,
+                offerType: offerType,
+                expiredate: expiredate,
+                discount: discount,
+                maxRedimabelAmount: maxRedimabelAmount
+            })
+    
+            if (offerType === 'Product Offer') {
+                newOffer.Pname = Pname
+                await newOffer.save()
+                const offerId = newOffer._id
+                const product = await Products.findOneAndUpdate({ productName: Pname }, { $push: { offer: offerId } })
+            } else if (offerType === 'Category Offer') {
+                newOffer.category = category
+                await newOffer.save()
+    
+                const offerId = newOffer._id
+                const product = await Products.updateMany({ category: category }, { $push: { offer: offerId } })
+            }
+    
+    
+            res.status(200).json({success:true})
+    
         }
 
-        let newOffer = new Offer({
-            offer: offer,
-            offerType: offerType,
-            expiredate: expiredate,
-            discount: discount,
-            maxRedimabelAmount: maxRedimabelAmount
-        })
-
-        if (offerType === 'Product Offer') {
-            newOffer.Pname = Pname
-            await newOffer.save()
-            const offerId = newOffer._id
-            const product = await Products.findOneAndUpdate({ productName: Pname }, { $push: { offer: offerId } })
-        } else if (offerType === 'Category Offer') {
-            newOffer.category = category
-            await newOffer.save()
-
-            const offerId = newOffer._id
-            const product = await Products.updateMany({ category: category }, { $push: { offer: offerId } })
-        }
-
-
-        res.redirect('/admin/offerManagement')
-
-
+        
 
     } catch (error) {
         console.log(error.message);

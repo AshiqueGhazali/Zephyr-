@@ -26,7 +26,7 @@
                 <div class="form-group">
                   <label for="image">Image Upload</label>
                   <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="image" name="categoryImage" onchange="updateLabelImg(this)">
+                    <input type="file" class="custom-file-input" id="image" name="categoryImage" accept="image/png, image/jpeg, image/webp" onchange="updateLabelImg(this)">
                     <label class="custom-file-label" for="image">Choose file</label>
                   </div>
                 </div>
@@ -35,12 +35,13 @@
                   <label class="form-check-label" for="isAvailable">Is Available</label>
                 </div>
                 <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-info btn-lg btn-block">Add Category</button>
+                    <button type="submit" class="btn btn-info btn-lg btn-block" >Add Category</button>
                 </div>
               </form>
               <br>
               <button type="button" class="btn btn-secondary btn-lg btn-block" onclick="clearForm()">Cancel</button>
               <br>
+              <div id="validationMessages" class="alert alert-danger" role="alert" style="display: none;"></div><br>
               <% if(typeof message !== "undefined"){
                 %>
                 <p style="color: brown;"><%=message%></p> 
@@ -50,6 +51,43 @@
             </div>
           </div>
         </div>
+        <SCript>
+  
+          document.getElementById('myForm').addEventListener('submit', function(event) {
+                  event.preventDefault();
+                  if(!categoryFormValidation()){
+                    return;
+                  }
+                  const form = document.getElementById('myForm');
+                    const formData = new FormData(form);
+        
+                    fetch('/admin/addCategory', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                      if (data.success) {
+                          Swal.fire({
+                              title: "New Categoru Added",
+                              text: "New Category Added Successfully",
+                              icon: "success"
+                          }).then(() => {
+                              window.location.href = `/admin/categoryManagement`; 
+                          });
+                      } else {
+                        const validationMessage = document.getElementById('validationMessages')
+                        validationMessage.style.display = 'block'
+                        validationMessage.innerHTML = `${data.message}`
+                      }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error Adding Category');
+                    });
+              });
+        
+        </SCript>
 
   <script src="/js/adminFormValidation.js"></script>
 

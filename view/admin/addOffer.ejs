@@ -46,27 +46,28 @@
 
                 <div class="form-group">
                     <label for="expiredDate">Expire Date</label>
-                    <input type="date" class="form-control" id="expiredDate" name="expiredate" placeholder="Enter expiredDate" required>
+                    <input type="date" class="form-control" id="expiredDate" name="expiredate" placeholder="Enter expiredDate" >
                 </div>
                 <div class="row">
                     <div class="form-group col-lg-6">
                       <label for="discount">Discount (%)</label>
-                      <input type="number" class="form-control" id="discount" name="discount" placeholder="Enter Discount" min="1" max="99" required>
+                      <input type="number" class="form-control" id="discount" name="discount" placeholder="Enter Discount" min="1" max="99" >
                     </div>
                     <div class="form-group col-lg-6">
                         <label for="maxRedimabelAmount">Maximum Redimabel Amount</label>
-                        <input type="number" class="form-control" id="maxRedimabelAmount" name="maxRedimabelAmount" placeholder="Enter Maximum Redimabel Amount" min="10" required>
+                        <input type="number" class="form-control" id="maxRedimabelAmount" name="maxRedimabelAmount" placeholder="Enter Maximum Redimabel Amount" min="10" >
                     </div>
                 </div>
                 <div class="row">
                   <div class="form-group col-lg-8 text-center mt-4">
-                    <button type="submit" class="btn btn-info btn-lg btn-block">Add Coupen</button>
+                    <button type="submit" class="btn btn-info btn-lg btn-block">Add Offer</button>
                   </div>
                   <div class="form-group col-lg-4 text-center mt-4">
                     <button type="button" class="btn btn-secondary btn-lg btn-block" onclick="clearForm()">Cancel</button>
                   </div>
               </div>
               </form>
+              <div id="validationMessages" class="alert alert-danger" role="alert" style="display: none;"></div><br>
               <% if(typeof message !== "undefined"){
                 %>
                 <p style="color: brown;"><%=message%></p> 
@@ -93,10 +94,72 @@
               }
           }
 
-          // function disableOfferType() {
-          //   var offerTypeSelect = document.getElementById('offerType');
-          //   offerTypeSelect.disabled = true; 
-          // }
+
+          document.getElementById('myForm').addEventListener('submit', function(event) {
+          event.preventDefault();
+          if(!offerFormValidation()){
+            return;
+          }
+          const form = document.getElementById('myForm');
+            const formData = new FormData(form);
+            const jsonObject = {};
+            formData.forEach((value, key) => {
+              jsonObject[key] = value;
+            });
+
+            fetch('/admin/addOffer', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonObject)
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                  Swal.fire({
+                      title: "New Offer Added",
+                      text: "New Offer Added Successfully",
+                      icon: "success"
+                  }).then(() => {
+                      window.location.href = `/admin/offerManagement`; 
+                  });
+              } else {
+                const validationMessage = document.getElementById('validationMessages')
+                validationMessage.style.display = 'block'
+                validationMessage.innerHTML = `${data.message}`
+              }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error Adding Offe');
+            });
+      });
+
+
+          
+    function offerFormValidation(){
+        const validationMessage = document.getElementById('validationMessages')
+        var expiredDate = document.getElementById('expiredDate').value;
+        var discount = document.getElementById('discount').value
+
+        var currentDate = new Date().toISOString().split('T')[0]; 
+
+            
+            if (expiredDate < currentDate) {
+                validationMessage.style.display = 'block'
+                validationMessage.innerHTML += 'Dates cannot be in the future.';
+                return false;
+            }else if(discount > 99 || discount < 5){
+                validationMessage.style.display = 'block'
+                validationMessage.innerHTML += 'Discount must be greater than 5 and less than 99';
+                return false;
+            }
+
+            return true 
+
+    }
+
       </script>
 
   <script src="/js/adminFormValidation.js"></script>

@@ -126,16 +126,11 @@
             </div>
 
             <div class="row">
-              <!--  -->
               <div class="col-md-6 grid-margin">
                 <div class="card ">
-                  <!-- <div class="card-body"> -->
                     <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
-                  <!-- </div> -->
                 </div>
               </div>
-              <!--  -->
-
               <div class="col-md-6 grid-margin transparent">
                 <div class="row">
                   <div class="col-md-6 mb-4 stretch-card transparent">
@@ -182,22 +177,105 @@
               <!--  -->
               <div class="col-md-6 grid-margin">
                 <div class="card ">
-                  <!-- <div class="card-body"> -->
                     <canvas id="categoryChart" style="width:100%;max-width:600px"></canvas>
-                  <!-- </div> -->
                 </div>
               </div>
               <div class="col-md-6 grid-margin">
                 <div class="card ">
-                  <!-- <div class="card-body"> -->
                     <canvas id="perDayChart" style="width:100%;max-width:600px"></canvas>
-                  <!-- </div> -->
                 </div>
               </div>
               <!--  -->
+              <div class="col-md-12 grid-margin">
+                <div class="card ">
+                  <div class="card-header">
+                    <div class="row">
+                      <div class="col-6">
+                        <h5>TOP SELLING</h5>
+                      </div>
+                      <div class="col-6 text-right">
+                        <div class="btn-group" role="group">
+                          <button type="button" class="btn btn-secondary custom-size" onclick="showTable('category')">Category</button>
+                          <button type="button" class="btn btn-dark custom-size" onclick="showTable('product')">Product</button>
+                          <button type="button" class="btn btn-secondary custom-size" onclick="showTable('brand')">Brand</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                    <!-- <canvas id="" style="width:100%;max-width:600px"></canvas> -->
+                    <% if(topCategories.length > 0){ %>
+                      <% let i = 1 %>
+                      <table class="table mt-50" id="categoryTable">
+                        <thead class="thead-dark">
+                          <tr>
+                            <th scope="col">SL</th>
+                            <th scope="col">CATEGORY NAME</th>
+                            <th scope="col">COUNT</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% topCategories.forEach(item=>{ %>
+                            <tr>
+                              <th scope="row"><%= i %></th>
+                              <td><%= item._id %></td>
+                              <td><%= item.count %></td>
+                            </tr>
+                            <% i++ %>
+                          <% }) %>
+                        </tbody>
+                      </table>
+                    <% } %>
+
+                    <% if(topProduct.length > 0){ %>
+                      <% let j = 1 %>
+                    <table class="table mt-50" id="productTable" style="display: none;">
+                      <thead class="thead-dark">
+                        <tr>
+                          <th scope="col">SL</th>
+                          <th scope="col">PRODUCT NAME</th>
+                          <th scope="col">COUNT</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% topProduct.forEach(item=>{ %>
+                          <tr>
+                            <th scope="row"><%= j %></th>
+                            <td><%= item._id %></td>
+                            <td><%= item.count %></td>
+                          </tr>
+                          <% j++ %>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                    <% } %>
+
+                    <% if(topBrand.length > 0){ %> 
+                      <% let k = 1 %>
+                    <table class="table mt-50" id="brandTable" style="display: none;">
+                      <thead class="thead-dark">
+                        <tr>
+                          <th scope="col">SL</th>
+                          <th scope="col">BRAND NAME</th>
+                          <th scope="col">COUNT</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% topBrand.forEach(item=>{ %>
+                          <tr>
+                            <th scope="row"><%= k %></th>
+                            <td><%= item._id %></td>
+                            <td><%= item.count %></td>
+                          </tr>
+                          <% k++ %>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                    <% } %>
+                </div>
+              </div>
             </div>
 
-            <div class="row">
+            <div class="row" id="salesReport">
               <div class="col-md-12 grid-margin stretch-card">
                 <div class="card">
                   <div class="card-body">
@@ -242,7 +320,7 @@
                         </div>
 
                         <!-- modal -->
-                        <button type="button" class="btn btn btn-outline-danger custom-size downloadPdfBtn" id="downloadPdfBtn" onclick="downloadPDF()"><i class="fa-solid fa-file-pdf"></i></button>
+                        <button type="button" class="btn btn btn-outline-danger custom-size downloadPdfBtn" id="downloadPdfBtn" onclick="downloadPDF('salesReport')"><i class="fa-solid fa-file-pdf"></i></button>
                         <button type="button" class="btn btn btn-outline-success custom-size excelDownload" id="excelDownloadBtn" onclick="downloadExcel()"><i class="fa-solid fa-file-excel"></i></button>
                       </div>
                    </div>
@@ -344,7 +422,9 @@
       // costom date
       document.getElementById('custom-date-form').addEventListener('submit', function(event) {
           event.preventDefault();
-          validDate(event)
+          if(!validDate(event)){
+            return;
+          }
           const startDate = document.getElementById('start-date').value;
           const endDate = document.getElementById('end-date').value;
           fetchSalesDataByDate(startDate, endDate);
@@ -355,6 +435,8 @@
           .then(response => response.json())
           .then(data => {
               updateSalesTable(data.salesReport);
+          }).then(()=>{ 
+            $('#basicModal').modal('hide');
           })
           .catch(error => console.error('Error:', error));
       }
@@ -367,66 +449,6 @@
           })
           .catch(error => console.error('Error:', error));
       }
-
-      function updateSalesTable(salesReport) {
-        const tbody = document.querySelector('.cart-table tbody');
-        tbody.innerHTML = ''; 
-        salesReport.forEach(report => {
-          const row = `
-            <tr class="table-body-row">
-              <td data-label="Order Id">${report._id}</td>
-              <td data-label="Order Date">${new Date(report.orderDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</td>
-              <td data-label="User Name">${report.address.Name}</td>
-              <td data-label="Address">${report.address.address}, ${report.address.Locality}, ${report.address.city}, ${report.address.state}, PIN:${report.address.PIN}</td>
-              <td data-label="Phone">${report.address.Mobile}</td>
-              <td data-label="Product Name">${report.orderItems.map(item => `<p>${item.productName},</p>`).join('')}</td>
-              <td data-label="Category">${report.orderItems.map(item => `<p>${item.category},</p>`).join('')}</td>
-              <td data-label="Status">${report.orderStatus}</td>
-              <td data-label="Total Amount">₹${report.totalAmount}</td>
-            </tr>
-          `;
-          tbody.innerHTML += row; 
-        });
-      }
-
-      // for pdf download
-      function downloadPDF() {
-        const tableRows = document.querySelectorAll('.cart-table tbody tr');
-        const data = Array.from(tableRows).map(row => {
-            const cells = row.querySelectorAll('td');
-            return {
-                orderId: cells[0].textContent.trim(),
-                orderDate: cells[1].textContent.trim(),
-                userName: cells[2].textContent.trim(),
-                address: cells[3].textContent.trim(),
-                phone: cells[4].textContent.trim(),
-                productName: cells[5].textContent.trim(),
-                category: cells[6].textContent.trim(),
-                status: cells[7].textContent.trim(),
-                totalAmount: cells[8].textContent.trim(),
-            };
-        });
-
-        fetch('/admin/downloadPdf', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ data: data }),
-        })
-        .then(response => response.blob())
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'sales-report.pdf';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-        })
-        .catch(error => console.error('Error downloading PDF:', error));
-    }
 
 
     // excel download
@@ -471,9 +493,9 @@
   </script>
 
   <!-- charts -->
-
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      showTable('category');
       fetchOrderStatusCounts();
 
       function fetchOrderStatusCounts() {
@@ -482,90 +504,17 @@
               .then(data => updatePieChart(data.status, data.category, data.perDay))
               .catch(error => console.error('Error:', error));
       }
-
-      function updatePieChart(orderStatusData, categoryData, perDay) {
-          const xValues = orderStatusData.map(item => item._id);
-          const yValues = orderStatusData.map(item => item.count);
-          const barColors = ["#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796"];
-
-          new Chart("myChart", {
-              type: "doughnut",
-              data: {
-                  labels: xValues,
-                  datasets: [{
-                      backgroundColor: barColors.slice(0, xValues.length),
-                      data: yValues
-                  }]
-              },
-              options: {
-                  responsive: true,
-                  plugins: {
-                      legend: {
-                          position: 'right'
-                      },
-                      tooltip: {
-                          enabled: true
-                      }
-                  }
-              }
-          });
-
-          // chart two
-          const XV = categoryData.map(item => item._id);
-          const YV = categoryData.map(item => item.count);
-          const CL = ["red", "green", "blue", "orange", "yellow", "brown"];
-
-          new Chart("categoryChart", {
-              type: "bar",
-              data: {
-                  labels: XV,
-                  datasets: [{
-                      backgroundColor: CL.slice(0, XV.length),
-                      data: YV
-                  }]
-              },
-              options: {
-                  responsive: true,
-                  plugins: {
-                      legend: {
-                          position: 'right'
-                      },
-                      tooltip: {
-                          enabled: true
-                      }
-                  }
-              }
-          });
-
-          // chart 3
-          const Dates = perDay.map(item => {
-            const date = new Date(item._id); 
-            return date.toLocaleDateString('en-US', {
-              year: 'numeric', month: 'short', day: '2-digit' });
-          });
-          const count = perDay.map(item => item.count);
-          const colour = ["red", "green", "blue", "orange", "yellow", "brown"];
-
-          new Chart("perDayChart", {
-            type: "line",
-            data: {
-              labels: Dates,
-              datasets: [{
-                data: count,
-                borderColor: "red",
-                fill: false
-              }]
-            },
-            options: {
-              legend: {display: false}
-            }
-          });
-
-
-        }
     });
     </script>
+   
+    
+<!-- CDN for Pdf download -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.3.2/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<!-- CDN for Pdf download -->
 
-<!-- <script src="/js/adminFormValidation.js"></script> -->
+
+   
+<script src="/js/adminDashboardFunctions.js"></script>
 
     <%- include('../layouts/adminFooter') %>

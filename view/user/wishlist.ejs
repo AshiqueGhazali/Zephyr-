@@ -98,7 +98,7 @@
 											<td class="product-image"><a href="/singleProduct?id=<%= wishlstItems.productDetails[0]._id %>"><img src="/assets/categoryImg/<%= wishlstItems.productDetails[0].image[0] %>" alt=""></a></td>
 											<td class="product-name"><a href="/singleProduct?id=<%= wishlstItems.productDetails[0]._id %>" style="color: black;"><%= wishlstItems.productDetails[0].productName %></a></td>
 											<td class="product-price">₹ <%= wishlstItems.productDetails[0].discountPrice %></td>
-											<td class="product-total "><div class="total-show" ><button type="button" class="btn btn-outline-dark" onclick="addToCart(event, '<%= wishlstItems.productDetails[0]._id %>')">Add To Cart</button>
+											<td class="product-total "><div class="total-show" ><button type="button" class="genric-btn primary radius" onclick="addToCart(event, '<%= wishlstItems.productDetails[0]._id %>')">Add To Cart</button>
 											</div></td>
 										</tr>
 								    <% }); %>

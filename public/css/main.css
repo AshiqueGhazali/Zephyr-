@@ -327,19 +327,19 @@ h1, h2, h3, h4, h5, h6 {
       border: 1px solid transparent; }
   .genric-btn.danger {
     color: #fff;
-    background: #1c255f;
+    background: #f44a40;
     border: 1px solid transparent; }
     .genric-btn.danger:hover {
-      color: #1c255f;
-      border: 1px solid #1c255f;
+      color: #f44a40;
+      border: 1px solid #f44a40;
       background: #fff; }
   .genric-btn.danger-border {
-    color: #1c255f;
-    border: 1px solid #1c255f;
+    color: #f44a40;
+    border: 1px solid #f44a40;
     background: #fff; }
     .genric-btn.danger-border:hover {
       color: #fff;
-      background: #1c255f;
+      background: #f44a40;
       border: 1px solid transparent; }
   .genric-btn.link {
     color: #222222;

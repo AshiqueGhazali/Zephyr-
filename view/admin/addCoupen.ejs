@@ -14,37 +14,37 @@
           <div class="row justify-content-center form-container">
             <div class="col-md-6">
               <h2 class="text-center mb-4 text-info">ADD COUPON</h2>
-              <form action="/admin/addCoupen" method="post" id="myForm">
+              <form action="/admin/addCoupon" method="post" id="myForm">
                 <div class="form-group">
                   <label for="copenCode">Coupon Code</label>
-                  <input type="text" class="form-control" id="copenCode"  name="coupenCode" placeholder="Enter Copen Code" required>
+                  <input type="text" class="form-control" id="copenCode"  name="coupenCode" placeholder="Enter Copen Code">
                 </div>
                 <div class="form-group">
                   <label for="discount">Discount (%)</label>
-                  <input type="number" class="form-control" id="discount" name="discountPercentage" placeholder="Enter Discount" min="1" max="99" required>
+                  <input type="number" class="form-control" id="discount" name="discountPercentage" placeholder="Enter Discount" min="1" max="99" >
                 </div>
                 <div class="form-group">
                     <label for="expiredDate">Expire Date</label>
-                    <input type="date" class="form-control" id="expiredDate" name="expiredDate" placeholder="Enter expiredDate" required>
+                    <input type="date" class="form-control" id="expiredDate" name="expiredDate" placeholder="Enter expiredDate" >
                 </div>
                 <div class="row">
                     <div class="form-group col-lg-6">
                         <label for="minmPrchsAmt">Minimum Parchase Amount </label>
-                        <input type="number" class="form-control" id="minmPrchsAmt" name="minPurchaseAmt" placeholder="Enter Minimum Parchase Amount" min="1" required>
+                        <input type="number" class="form-control" id="minmPrchsAmt" name="minPurchaseAmt" placeholder="Enter Minimum Parchase Amount" min="1" >
                     </div>
                     <div class="form-group col-lg-6">
                         <label for="maxRedimabelAmount">Maximum Redimabel Amount</label>
-                        <input type="number" class="form-control" id="maxRedimabelAmount" name="maxRedimabelAmount" placeholder="Enter Maximum Redimabel Amount" min="1" required>
+                        <input type="number" class="form-control" id="maxRedimabelAmount" name="maxRedimabelAmount" placeholder="Enter Maximum Redimabel Amount" min="1" >
                     </div>
                 </div>
                 <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-info btn-lg btn-block" onclick="validateCoupenForm(event)">Add Coupen</button>
+                    <button type="submit" class="btn btn-info btn-lg btn-block" >Add Coupen</button>
                 </div>
               </form>
               <br>
               <button type="button" class="btn btn-secondary btn-lg btn-block" onclick="clearForm()">Cancel</button>
               <br>
-              <p id="message"></p>
+              <div id="validationMessages" class="alert alert-danger" role="alert" style="display: none;"></div><br>
               <% if(typeof message !== "undefined"){
                 %>
                 <p style="color: brown;"><%=message%></p> 
@@ -57,31 +57,48 @@
 
 
         <script>
-          function validateCoupenForm(event) {
-            event.preventDefault();
+          document.getElementById('myForm').addEventListener('submit', function(event) {
+          event.preventDefault();
+          if(!validateCoupenForm()){
+            return;
+          }
+          const form = document.getElementById('myForm');
+            const formData = new FormData(form);
+            const jsonObject = {};
+            formData.forEach((value, key) => {
+              jsonObject[key] = value;
+            });
 
-              const form = document.getElementById('myForm');
-              const message = document.getElementById('message');
-      
-              let couponCode = document.getElementById('copenCode').value.trim();  
-              let codeRegex = /^[A-Za-z0-9]{5,10}$/;
-              if (!codeRegex.test(couponCode)) {
-                  message.textContent = "Coupon code must be 5-10 characters long and contain only letters and numbers.";
-                  message.style.color = "red";
-                  return;
+            fetch('/admin/addCoupon', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonObject)
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                  Swal.fire({
+                      title: "New Coupon Added",
+                      text: "New Coupon Added Successfully",
+                      icon: "success"
+                  }).then(() => {
+                      window.location.href = `/admin/coupenManagement`; 
+                  });
+              } else {
+                const validationMessage = document.getElementById('validationMessages')
+                validationMessage.style.display = 'block'
+                validationMessage.innerHTML = `${data.message}`
               }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error Adding Coupen');
+            });
+      });
       
-              let today = new Date();
-              today.setHours(0, 0, 0, 0); 
-              let expiredDate = new Date(document.getElementById('expiredDate').value);
-              if (expiredDate <= today) {
-                  message.textContent = "The expiration date must be a future date.";
-                  message.style.color = "red";
-                  return;
-              }
-      
-              document.getElementById("myForm").submit();
-          };
+        
       </script>
       
       

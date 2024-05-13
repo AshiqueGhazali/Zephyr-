@@ -11,6 +11,10 @@ const crypto = require('crypto')
 const Coupen = require('../model/coupenModel')
 const Offer = require('../model/offerModel')
 
+const { Table } = require('pdfkit-table')
+const PDFDocument = require('pdfkit');
+const orderModel = require("../model/orderModel")
+
 
 // razorpay instance 
 
@@ -196,11 +200,11 @@ const createOrder = async (req, res, next) => {
             }
         }
 
-        if(paymentMethod==='cash On Delivery' && req.session.totalAmount > 1000){
+        if (paymentMethod === 'cash On Delivery' && req.session.totalAmount > 1000) {
             return res.status(403).json({ message: "Cash On Delivery only Availble for Product below ₹1000!!" });
         }
 
-        if(paymentMethod==='Wallet' && wallet.walletAmount < req.session.totalAmount){
+        if (paymentMethod === 'Wallet' && wallet.walletAmount < req.session.totalAmount) {
             return res.status(403).json({ message: "Uh-oh, your wallet's on a diet!" });
         }
 
@@ -249,7 +253,7 @@ const createOrder = async (req, res, next) => {
             await order.save()
 
             // wallet changes >>
-            if(paymentMethod==='Wallet' ){
+            if (paymentMethod === 'Wallet') {
                 await Wallet.findOneAndUpdate(
                     { userId: userId },
                     {
@@ -573,6 +577,43 @@ const approveReturn = async (req, res, next) => {
 
     }
 }
+function generateInvoiceNumber() {
+    return Math.floor(Math.random() * 1000000) + 1;
+}
+
+const downloadInvoice = async (req, res, next) => {
+    try {
+        const id = req.query.id
+        
+        const invoiceNumber = generateInvoiceNumber();
+
+
+        const order = await OrderModel.findOne({ _id: id })
+        // console.log(order);
+        const d = order.orderItems
+        const products = d.map((values) => {
+            return {
+                quantity: values.quantity,
+                category: values.category,
+                brand: values.brand,
+                description: values.productName,
+                'tax-rate': 0,
+                price: values.discountPrice
+            }
+        })
+       
+        res.json(
+            {
+                order,
+                products,
+                invoiceNumber
+            }
+        );
+    } catch (error) {
+        console.log(error.message);
+        next(error)
+    }
+}
 
 
 const walletLoad = async (req, res, next) => {
@@ -606,5 +647,6 @@ module.exports = {
     approveReturn,
     verifyPayment,
     getPaymentDetails,
-    walletLoad
+    walletLoad,
+    downloadInvoice
 }

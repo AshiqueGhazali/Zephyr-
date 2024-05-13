@@ -87,6 +87,7 @@ user_route.post('/createOrder',userAuth.isLogin,orderContoller.createOrder)
 user_route.post('/verifyPayment', userAuth.isLogin,orderContoller.verifyPayment);
 user_route.post('/getPaymentDetails', userAuth.isLogin,orderContoller.getPaymentDetails)
 user_route.get('/wallet',userAuth.isLogin,orderContoller.walletLoad)
+user_route.post('/downloadInvoice',userAuth.isLogin, orderContoller.downloadInvoice)
 
 user_route.get('/orderDetails',userAuth.isLogin,orderContoller.orderDetailsLoad)
 user_route.get('/cancelOrder',userAuth.isLogin,orderContoller.cancellOrder)

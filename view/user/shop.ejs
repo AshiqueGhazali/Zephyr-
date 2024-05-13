@@ -139,8 +139,9 @@
 					</div>
 				</div>
 				<section class="lattest-product-area pb-40 category-list">
-					<div class="row">
+					
 						<% if (products.length > 0){ %> 
+						<div class="row">
 
 						<% for(let i = 0 ; i< products.length && i < 9 ; i++){ %>
 							<div class="col-xxl-3 col-xl-3 col-lg-3 col-md-4 col-sm-6 col-xs-6 col-6">
@@ -217,7 +218,7 @@
 
 	<!-- Start related-product Area -->
 	<br><br>
-	<% if(products.length > 0){ %>
+	<% if(allProduct.length > 0){ %>
 		<section class="related-product-area section_gap_bottom">
 			<div class="container">
 				<div class="row justify-content-center">
@@ -232,16 +233,16 @@
 				<div class="row">
 					<div class="col-lg-12">
 						<div class="row">
-							<% for(let i = 0 ; i< 9 && i< products.length ; i++){ %>
-								<% if(products[i].offer.length > 0){ %> 
+							<% for(let i = 0 ; i< 9 && i< allProduct.length ; i++){ %>
+								<% if(allProduct[i].offer.length > 0){ %> 
 									<div class="col-lg-4 col-md-4 col-sm-6 mb-20">
 										<div class="single-related-product d-flex">
-											<a href="/singleProduct?id=<%= products[i]._id %>"><img src="/assets/categoryImg/<%= products[i].image[0] %>" width="80px" height="80px" style="border-radius: 7px;" alt=""></a>
+											<a href="/singleProduct?id=<%= allProduct[i]._id %>"><img src="/assets/categoryImg/<%= allProduct[i].image[0] %>" width="80px" height="80px" style="border-radius: 7px;" alt=""></a>
 											<div class="desc">
-												<a href="/singleProduct?id=<%= products[i]._id %>" class="title"><%= products[i].productName %></a>
+												<a href="/singleProduct?id=<%= allProduct[i]._id %>" class="title"><%= allProduct[i].productName %></a>
 												<div class="price">
-													<h6>₹ <%= products[i].discountPrice %></h6>
-													<h6 class="l-through">₹ <%= products[i].price %></h6>
+													<h6>₹ <%= allProduct[i].discountPrice %></h6>
+													<h6 class="l-through">₹ <%= allProduct[i].price %></h6>
 												</div>
 											</div>
 										</div>

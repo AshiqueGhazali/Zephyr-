@@ -63,7 +63,7 @@ function removeImage(imageElement) {
 
 
 
-
+//! discount calculation in add and edit Product >>
 
     function calculateDiscount() {
         var OriginalPriceInput = document.getElementById('mrp').value;
@@ -97,7 +97,7 @@ function removeImage(imageElement) {
         }
       }
 
-    
+// ! Product form validation >>
     function validateForm() {
         var productName = document.getElementById('productName').value;
         var brandName = document.getElementById('brandName').value;
@@ -107,105 +107,139 @@ function removeImage(imageElement) {
         var inStock = document.getElementById('inStock').value;
         var mrp = document.getElementById('mrp').value;
         var discountPrice = document.getElementById('discountPrice').value;
-        var validationMessages = document.getElementById('validationMessages');
+        const validationMessage = document.getElementById('validationMessages')
         
-        
-        
-        validationMessages.innerHTML = '';
-
-        var isValid = true;
 
         
-        if (productName.trim() === '') {
-            validationMessages.innerHTML += '<p>Please Enter Valid Product Name</p>';
-            isValid = false;
-            return isValid
+        if (!productName || productName[0]==' ') {
+            validationMessage.style.display = 'block'
+            validationMessage.innerHTML = 'Please Enter Valid Product Name';
+            return false
         }else if (!/^[a-zA-Z\s]*$/.test(productName)) {
-            validationMessages.innerHTML += '<p>Product Name can only contain letters and spaces</p>';
-            isValid = false;
-            return isValid
+            validationMessage.style.display = 'block'
+            validationMessage.innerHTML = 'Product Name can only contain letters and spaces';
+            return false
         }
 
         
-        if (brandName.trim() === '') {
-            validationMessages.innerHTML += '<p>Please Enter Valid Brand Name</p>';
-            isValid = false
-            return isValid
+        if (!brandName || brandName[0]==' ') {
+            validationMessage.style.display = 'block'
+            validationMessage.innerHTML = 'Please Enter Valid Brand Name';
+            return false
         }
 
         
-        if (model.trim() === '') {
-            validationMessages.innerHTML += '<p>Please Enter Valid Model</p>';
-            isValid = false
-            return isValid
+        if (!model || model[0]==' ') {
+            validationMessage.style.display = 'block'
+            validationMessage.innerHTML = 'Please Enter Valid Model';
+            return false
         }
 
         
-        if (dialColor.trim() === '') {
-            validationMessages.innerHTML += '<p>Enter Valid Dial Color</p>';
-            isValid = false
-            return isValid
+        if (!dialColor || dialColor[0]==' ') {
+            validationMessage.style.display = 'block'
+            validationMessage.innerHTML = 'Enter Valid Dial Color';
+            return false
         }
 
         
-        if (strapColor.trim() === '') {
-            validationMessages.innerHTML += '<p>Enter Valid Strap Color</p>';
-            isValid = false
-            return isValid
+        if (!strapColor || strapColor[0]==' ') {
+            validationMessage.style.display = 'block'
+            validationMessage.innerHTML = 'Enter Valid Strap Color';
+            return false
         }
 
         
-        if (inStock.trim() === ''||parseInt(inStock) < 0) {
-            validationMessages.innerHTML += '<p>Enter Quantity of Products</p>';
-            isValid = false;
-            return isValid
+        if (!inStock ||parseInt(inStock) < 0) {
+            validationMessage.innerHTML = 'Enter Quantity of Products';
+            return false
         }
 
         
         if (!mrp.trim().match(/^\d+$/)) {
-            validationMessages.innerHTML += '<p>Enter Original Price</p>';
-            isValid = false;
-            return isValid;
+            validationMessage.style.display = 'block'
+            validationMessage.innerHTML = 'Enter Original Price';
+            return false;
         }
 
         
         if (!discountPrice.trim().match(/^\d+$/)) {
-            validationMessages.innerHTML += '<p>Enter Discount Price</p>';
-            isValid = false;
-            return isValid;
+            validationMessage.style.display = 'block'
+            validationMessage.innerHTML = 'Enter Discount Price';
+            return false;
         }
 
         if (parseInt(mrp) < parseInt(discountPrice)) {
-            validationMessages.innerHTML += '<p>MRP cannot be less than Discount Price</p>';
-            isValid = false;
-            return isValid
+            validationMessage.style.display = 'block'
+            validationMessage.innerHTML = 'MRP cannot be less than Discount Price</p>';
+            return false
         }
 
 
-        return isValid; 
+        return true; 
     }
 
 
-    // validate date 
-    function validDate(event) {
-        event.preventDefault(); 
+// ! Category form validation >>
 
-        var startDate = document.getElementById('start-date').value;
-        var endDate = document.getElementById('end-date').value;
-        var currentDate = new Date().toISOString().split('T')[0]; 
+    function categoryFormValidation(){
+        var categoryName = document.getElementById('categoryName').value;
+        const validationMessage = document.getElementById('validationMessages')
 
-        var errorMessage = '';
-        if (startDate > currentDate || endDate > currentDate) {
-            errorMessage = 'Dates cannot be in the future.';
-        } else if (startDate > endDate) {
-            errorMessage = 'Start date cannot be later than end date.';
+            
+            if (categoryName.trim() === '') {
+                validationMessage.style.display = 'block'
+                validationMessage.innerHTML = 'Please Enter Valid Category Name';
+                return false;
+            }else if (!/^[a-zA-Z\s]*$/.test(categoryName)) {
+                validationMessage.style.display = 'block'
+                validationMessage.innerHTML = 'Category Name can only contain letters and spaces';
+                return false;
+            }
+
+
+            return true 
+
+    }
+
+
+//! coupen form validation >>
+    function validateCoupenForm() {
+        var message = document.getElementById('validationMessages');
+        var discount = document.getElementById('discount').value;
+        var minmPrchsAmt = document.getElementById('minmPrchsAmt').value;
+        var maxRedimabelAmount = document.getElementById('maxRedimabelAmount').value;
+
+
+        let couponCode = document.getElementById('copenCode').value.trim();  
+        let codeRegex = /^[A-Za-z0-9]{5,10}$/;
+        if (!codeRegex.test(couponCode) || couponCode[0]==' ') {
+            message.style.display = 'block'
+            message.textContent = "Coupon code must be 5-10 characters long and contain only letters and numbers.";
+            return false;
+        }
+        if (!discount) {
+            message.style.display = 'block'
+            message.textContent = "Enter discount";
+            return false;
+        }else if(!minmPrchsAmt || minmPrchsAmt < 1 ){
+            message.style.display = 'block'
+            message.textContent = "Enter minimum purchase Amount ";
+            return false;
+        }else if(!maxRedimabelAmount || maxRedimabelAmount < 100){
+            message.style.display = 'block'
+            message.textContent = "Maximum Redible Amount must want greater than 100";
+            return false;
         }
 
-        if (errorMessage) {
-            document.getElementById('error-message').style.display = 'block';
-            document.getElementById('error-message').textContent = errorMessage;
-        } else {
-            document.getElementById('error-message').style.display = 'none';
+        let today = new Date();
+        today.setHours(0, 0, 0, 0); 
+        let expiredDate = new Date(document.getElementById('expiredDate').value);
+        if (expiredDate <= today || !expiredDate) {
+            message.style.display = 'block'
+            message.textContent = "The expiration date must be a future date.";
+            return false;
         }
-                
-      }
+
+        return true
+    };

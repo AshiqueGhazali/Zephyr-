@@ -91,31 +91,28 @@
                     <label for="categoryName">Description</label>
                     <input type="text" class="form-control" id="description"  name="description" placeholder="Enter Discription">
                 </div>
-                <!-- <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="image" name="productImage" onchange="updateLabel(this)" multiple>
-                    <label class="custom-file-label" for="image">Choose files</label>
-                </div> -->
+                
                 <div class="image-upload-container">
                     <div class="image-box" onclick="triggerInput('file-input-1')">
-                        <input type="file" id="file-input-1" name="productImage1" class="file-input" accept="image/*" style="display: none;" onchange="openCropper(event, 'preview-1')" required>
+                        <input type="file" id="file-input-1" name="productImage1" class="file-input" accept="image/png, image/jpeg, image/webp"  style="display: none;" onchange="openCropper(event, 'preview-1')" required>
                         <div class="image-preview" id="preview-1">
                             <i class="fa fa-image"></i>
                         </div>
                     </div>
                     <div class="image-box" onclick="triggerInput('file-input-2')">
-                        <input type="file" id="file-input-2" name="productImage2" class="file-input" accept="image/*" style="display: none;" onchange="openCropper(event, 'preview-2')" required>
+                        <input type="file" id="file-input-2" name="productImage2" class="file-input" accept="image/png, image/jpeg, image/webp" style="display: none;" onchange="openCropper(event, 'preview-2')" required>
                         <div class="image-preview" id="preview-2">
                             <i class="fa fa-image"></i>
                         </div>
                     </div>
                     <div class="image-box" onclick="triggerInput('file-input-3')">
-                        <input type="file" id="file-input-3" name="productImage3" class="file-input" accept="image/*" style="display: none;" onchange="openCropper(event, 'preview-3')">
+                        <input type="file" id="file-input-3" name="productImage3" class="file-input" accept="image/png, image/jpeg, image/webp" style="display: none;" onchange="openCropper(event, 'preview-3')">
                         <div class="image-preview" id="preview-3">
                             <i class="fa fa-image"></i>
                         </div>
                     </div>
                     <div class="image-box" onclick="triggerInput('file-input-4')">
-                        <input type="file" id="file-input-4" name="productImage4" class="file-input" accept="image/*" style="display: none;" onchange="openCropper(event, 'preview-4')">
+                        <input type="file" id="file-input-4" name="productImage4" class="file-input" accept="image/png, image/jpeg, image/webp" style="display: none;" onchange="openCropper(event, 'preview-4')">
                         <div class="image-preview" id="preview-4">
                             <i class="fa fa-image"></i>
                         </div>
@@ -131,13 +128,13 @@
                 
                 <!-- enddddd -->
                 <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-info btn-lg btn-block" onclick="validateForm()">Add Product</button>
+                    <button type="submit" class="btn btn-info btn-lg btn-block" id="add">Add Product</button>
                 </div>
               </form>
               <br>
               <button type="button" class="btn btn-secondary btn-lg btn-block" onclick="clearForm()">Cancel</button>
               <br>
-              <div id="validationMessages" class="text-danger"></div><br>
+              <div id="validationMessages" class="alert alert-danger" role="alert" style="display: none;"></div><br>
               <% if(typeof message !== "undefined"){
                 %>
                 <p style="color: brown;"><%=message%></p> 
@@ -202,30 +199,40 @@
 
 
         // add product 
-        function addProduct (event){
-            event.preventDefault();
-            const form = document.getElementById('myForm');
-            const formData = new FormData(form);
-
-            fetch('/admin/addProduct', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Product added successfully');
-                    window.location.href = '/admin/productManagement';
-
-                } else {
-                    alert('Failed to add product');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error adding product');
-            });
-        }
+        document.getElementById('add').addEventListener('click', function(event) {
+                  event.preventDefault();
+                  if(!validateForm()){
+                    return;
+                  }
+                  const form = document.getElementById('myForm');
+                    const formData = new FormData(form);
+        
+                    fetch('/admin/addProduct', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                      if (data.success) {
+                          Swal.fire({
+                              title: "New Product Added",
+                              text: "New Product Added Successfully",
+                              icon: "success"
+                          }).then(() => {
+                              window.location.href = `/admin/productManagement`; 
+                          });
+                      } else {
+                        const validationMessage = document.getElementById('validationMessages')
+                        validationMessage.style.display = 'block'
+                        validationMessage.innerHTML = `${data.message}`
+                      }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error Adding Product');
+                    });
+              });
+        
 
        
 

@@ -10,6 +10,7 @@ const productController = require('../controller/productController')
 const orderController = require('../controller/orderController')
 const coupenController = require('../controller/coupenController')
 const offerController = require('../controller/offerController')
+const bannerController = require('../controller/bannerController')
 
 // importing auth
 const adminAuth = require('../middleware/adminAuth')
@@ -27,7 +28,6 @@ admin_Route.get('/orderStatuses', adminAuth.isLogin, adminController.orderStatus
 admin_Route.get('/logout', adminController.logout)
 
 admin_Route.get('/salesReport', adminAuth.isLogin, adminController.salesReport)
-admin_Route.post('/downloadPdf', adminAuth.isLogin, adminController.downloadPdf)
 admin_Route.post('/downloadExcel', adminAuth.isLogin, adminController.downloadExcel)
 
 
@@ -69,7 +69,7 @@ admin_Route.get('/approveReturn', adminAuth.isLogin, orderController.approveRetu
 // coupen Management Routes
 admin_Route.get('/coupenManagement', adminAuth.isLogin, coupenController.coupenManagementLoad)
 admin_Route.get('/addCoupen', adminAuth.isLogin, coupenController.addCoupenLoad)
-admin_Route.post('/addCoupen', adminAuth.isLogin, coupenController.addCoupen)
+admin_Route.post('/addCoupon', adminAuth.isLogin, coupenController.addCoupen)
 admin_Route.get('/coupenStatusChange', adminAuth.isLogin, coupenController.coupenStatusChange)
 
 // offer Management Rotes
@@ -77,4 +77,14 @@ admin_Route.get('/offerManagement', adminAuth.isLogin, offerController.offerMana
 admin_Route.get('/addOffer', adminAuth.isLogin, offerController.addOfferLoad)
 admin_Route.post('/addOffer', adminAuth.isLogin, offerController.addOffer)
 admin_Route.get('/offerStatusChange', adminAuth.isLogin, offerController.offerStatusChange)
+
+
+// Banner Management Routes
+admin_Route.get('/bannerManagement', adminAuth.isLogin, bannerController.bannerManagemntLoad)
+admin_Route.get('/addBanner', adminAuth.isLogin, bannerController.addBannerPageLoad)
+admin_Route.post('/addBanner', adminAuth.isLogin, upload.upload.single('bannerImage'), bannerController.addBanner)
+admin_Route.get('/listAndUnlistBanner', adminAuth.isLogin, bannerController.listAndUnlistBanner)
+admin_Route.delete('/deleteBanner', adminAuth.isLogin, bannerController.deleteBanner)
+admin_Route.get('/editBanner', adminAuth.isLogin, bannerController.editBannerLoad)
+admin_Route.post('/editBanner', adminAuth.isLogin, upload.upload.single('bannerImage'), bannerController.editBanner)
 

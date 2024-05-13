@@ -106,11 +106,11 @@
 							<div class="col-lg-2">
 								<p class="status" data-status="<%= orders[i].orderStatus %>"><i class="fa-solid fa-circle-dot"></i> </p>
 								<% if(orders[i].orderStatus === "order confirmed") { %> 
-									<button type="button" class="btn btn-danger" onclick="cancelOrder('<%= orders[i]._id %>')">cancel</button>
+									<button type="button" class="genric-btn danger radius" onclick="cancelOrder('<%= orders[i]._id %>')">cancel</button>
 								<% }else if(orders[i].orderStatus === "delivered"){ %> 
-									<button type="button" class="btn btn-danger" onclick="returnOrder('<%= orders[i]._id %>')">Return</button>
+									<button type="button" class="genric-btn danger radius" onclick="returnOrder('<%= orders[i]._id %>')">Return</button>
 								<% }else if(orders[i].orderStatus === "pending"){ %> 
-									<button type="button" class="btn btn-danger payAgainButton" data-order-id="<%= orders[i]._id %>">Pay Again</button>
+									<button type="button" class="genric-btn primary radius payAgainButton" data-order-id="<%= orders[i]._id %>">Pay Again</button>
 									<% } %>
 							</div>
 						</div> 

@@ -92,7 +92,7 @@
                                                         <input type="radio" id="address<%= i %>" class="addressSelector" name="address" value="<%= userAddress[i]._id %>" onchange="toggleButtonVisibility('<%= i %>')">
                                                         <label for="address<%= i %>"><%= userAddress[i].Name %> <%= userAddress[i].Mobile %></label>
                                                     </h5>
-                                                    <button id="button<%= i %>" class="btn btn-primary" style="display: none;" onclick="showPaymentMethods('address<%= i %>')">DELIVER HERE</button>
+                                                    <button id="button<%= i %>" class="genric-btn primary radius " style="display: none;" onclick="showPaymentMethods('address<%= i %>')">DELIVER HERE</button>
                                                 </div>
                                                 <p class="card-text"><%= userAddress[i].address %>, <%= userAddress[i].Locality %> Subdistrict, <%= userAddress[i].city %> District, <%= userAddress[i].state %></p>
                                             </div>
@@ -103,7 +103,7 @@
 
                        <!-- add new address -->
                        <div class="col-md-12 mb-3">
-                       <button type="button" class="btn btn-secondary btn-lg btn-block" id="addNewAddressBtn"><span class="fa-solid fa-plus ml-2 mr-3"></span> ADD NEW ADDRESS</button>
+                       <button type="button" class="genric-btn primary radius btn-lg btn-block" id="addNewAddressBtn"><span class="fa-solid fa-plus ml-2 mr-3"></span> ADD NEW ADDRESS</button>
 
 						
 						<div id="newAddressForm" style="display: none; background-color: #f6faff;" class="card">
@@ -149,8 +149,8 @@
 										</div>
 										<div class="col-lg-12 mb-3"">
 											<!-- AddAddressFormSubmit() -->
-											<button type="submit" class="btn btn-success mr-2" onclick="AddAddressFormSubmit()">SAVE ADDRESS</button>
-											<button type="button" class="btn btn-danger" onclick="clearForm()">Cancel</button>
+											<button type="submit" class="genric-btn success radius mr-2" onclick="AddAddressFormSubmit()">SAVE ADDRESS</button>
+											<button type="button" class="genric-btn danger radius" onclick="clearForm()">Cancel</button>
 											<p id="message" style="color: #ffff;"></p>
 											<% if(typeof message !== "undefined"){
 										    %>
@@ -177,21 +177,21 @@
                                                         <input type="radio" id="onlinePayment" name="PAYMENT" value="online Payment" onchange="handlePaymentSelection()">
                                                         <label for="onlinePayment">Online Payment</label>
                                                         <div class="mt-3 mb-3" style="display: none;" id="buttonProceed">
-                                                            <button type="button" class="btn btn-primary confirmOrderBtn" >PROCEED TO RAZORPAY</button>
+                                                            <button type="button" class="genric-btn primary radius confirmOrderBtn" >PROCEED TO RAZORPAY</button>
                                                         </div>
                                                     </div>
                                                     <div>
                                                         <input type="radio" id="cashOnDelivery" name="PAYMENT" value="cash On Delivery" onchange="handlePaymentSelection()">
                                                         <label for="cashOnDelivery">Cash On Delivery</label>
                                                         <div class="mt-3 mb-3" style="display: none;" id="buttonConform">
-                                                            <button type="button" class="btn btn-primary confirmOrderBtn" id="confirmOrderBtn">CONFIRM ORDER</button>
+                                                            <button type="button" class="genric-btn primary radius confirmOrderBtn" id="confirmOrderBtn">CONFIRM ORDER</button>
                                                         </div>
                                                     </div>
                                                     <div>
                                                         <input type="radio" id="wallet" name="PAYMENT" value="Wallet" onchange="handlePaymentSelection()">
                                                         <label for="wallet">Use Wallet</label>
                                                         <div class="mt-3 mb-3" style="display: none;" id="WalletButtonConform">
-                                                            <button type="button" class="btn btn-primary confirmOrderBtn" id="confirmOrderWallet">CONFIRM ORDER</button>
+                                                            <button type="button" class="genric-btn primary radius confirmOrderBtn" id="confirmOrderWallet">CONFIRM ORDER</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -314,7 +314,7 @@
                     confirmButton: "btn btn-success",
                     cancelButton: "btn btn-danger"
                 },
-                buttonsStyling: false
+                buttonsStyling: true
             });
             swalWithBootstrapButtons.fire({
                 title: 'Are you sure you want to place this order?',

@@ -62,7 +62,7 @@ const addProduct = async (req, res, next) => {
 
         await product.save()
 
-        res.redirect('/admin/productManagement')
+        res.status(200).json({success:true})
     } catch (error) {
         console.log(error.message);
         next(error)
@@ -185,7 +185,8 @@ const editProduct = async (req, res, next) => {
             image: images
         });
 
-        res.redirect('/admin/productManagement');
+        // res.redirect('/admin/productManagement');
+        res.status(200).json({success:true})
 
     } catch (error) {
         console.log(error.message);

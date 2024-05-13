@@ -48,9 +48,21 @@ const loadHome = async (req, res, next) => {
         const result = await Orders.aggregate([{ $match: { orderStatus: "completed" } }, { $group: { _id: null, totalSales: { $sum: "$totalAmount" } } }])
         const totalSales = result[0].totalSales
 
+        const topCategories = await Orders.aggregate([{ $unwind: "$orderItems" },
+        { $group: { _id: '$orderItems.category', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }
+        ]);
+
+        const topProduct = await Orders.aggregate([{ $unwind: "$orderItems" },
+        { $group: { _id: '$orderItems.productName', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }
+        ]);
+
+        const topBrand = await Orders.aggregate([{ $unwind: "$orderItems" },
+        { $group: { _id: '$orderItems.brand', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }
+        ]);
+
         const salesReport = await Orders.find()
 
-        res.render('dashboard', { userCount, productCount, orderCount, totalSales, salesReport })
+        res.render('dashboard', { userCount, productCount, orderCount, totalSales, salesReport, topCategories, topProduct, topBrand })
     } catch (error) {
         console.log(error.message);
         next(error)
@@ -62,13 +74,21 @@ const orderStatuses = async (req, res, next) => {
         const orderCounts = await Orders.aggregate([
             { $group: { _id: '$orderStatus', count: { $sum: 1 } } }
         ]);
-        const categoryCounts = await Orders.aggregate([{ $unwind: "$orderItems" },
-        { $group: { _id: '$orderItems.category', count: { $sum: 1 } } }
-        ]);
+
         const dailyOrders = await Orders.aggregate([
-            { $group: { _id: '$orderDate', count: { $sum: 1 } } }
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$orderDate" } },
+                    count: { $sum: 1 }
+                }
+            }, { $sort: { "_id": 1 } }
         ]);
-        res.json({ status: orderCounts, category: categoryCounts, perDay: dailyOrders });
+
+        const topCategories = await Orders.aggregate([{ $unwind: "$orderItems" },
+        { $group: { _id: '$orderItems.category', count: { $sum: 1 } } }, { $sort: { count: -1 } }, { $limit: 10 }
+        ]);
+
+        res.json({ status: orderCounts, perDay: dailyOrders, category: topCategories});
 
     } catch (error) {
         console.log(error.message);
@@ -127,55 +147,6 @@ const salesReport = async (req, res, next) => {
         next(error)
     }
 }
-
-const downloadPdf = async (req, res) => {
-    try {
-        const data = req.body.data;
-
-        const doc = new PDFDocument();
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename="salesReport.pdf"`);
-
-        console.log("hiiiiiiiiiiiii");
-
-        const table = new PDFTable(doc, { bottomMargin: 30 });
-        console.log("hloooo");
-
-        doc.pipe(res);
-
-        await table.addTable([
-            { key: 'orderId', label: 'Order Id', align: 'left', width: 70 },
-            { key: 'orderDate', label: 'Order Date', align: 'left', width: 70 },
-            { key: 'userName', label: 'User Name', align: 'left', width: 70 },
-            { key: 'address', label: 'Address', align: 'left', width: 100 },
-            { key: 'phone', label: 'Phone', align: 'left', width: 50 },
-            { key: 'productName', label: 'Product Name', align: 'left', width: 70 },
-            { key: 'category', label: 'Category', align: 'left', width: 70 },
-            { key: 'status', label: 'Order Status', align: 'left', width: 70 },
-            { key: 'price', label: 'Price', align: 'right', width: 50 }
-        ], data, {
-            border: null,
-            width: "auto",
-            striped: true,
-            stripedColors: ["#f6f6f6", "#ffffff"],
-            cellsPadding: 10,
-            marginLeft: 30,
-            marginRight: 30,
-            headAlign: 'center',
-            prepareHeader: () => doc.font('Helvetica-Bold').fontSize(12),
-            prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
-                doc.font('Helvetica').fontSize(10);
-            },
-        });
-
-
-        doc.end();
-    } catch (error) {
-        console.error("Error generating PDF: ", error);
-        res.status(500).send("Failed to generate PDF");
-    }
-}
-
 
 
 const downloadExcel = async (req, res) => {
@@ -294,6 +265,5 @@ module.exports = {
     logout,
     blockAndUnblockUser,
     salesReport,
-    downloadPdf,
     downloadExcel
 }

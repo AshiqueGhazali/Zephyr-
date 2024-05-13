@@ -6,8 +6,18 @@ const User = require('../model/userModel')
 
 const coupenManagementLoad = async (req, res, next) => {
     try {
-        const coupens = await Coupen.find()
-        res.render('coupenManagement', { coupens: coupens })
+        // const coupens = await Coupen.find()
+
+        const currentPage = parseInt(req.query.page)
+        const couponPerPage = 10
+        const skip = (currentPage - 1) * couponPerPage;
+
+        const coupens = await Coupen.find().skip(skip).limit(couponPerPage)
+
+        const totalProduct = await Coupen.countDocuments()
+        const totalPages = Math.ceil(totalProduct / couponPerPage)
+
+        res.render('coupenManagement', { coupens: coupens , currentPage, totalPages })
     } catch (error) {
         console.log(error.message);
         next(error)
@@ -30,7 +40,10 @@ const addCoupen = async (req, res, next) => {
 
         const isExist = await Coupen.findOne({ coupenCode: coupenCode })
         if (isExist) {
-            return res.render('addCoupen', { message: "This CODE is already exist, please enter another one" })
+            return res.status(403).json({ message: "This CODE is already exist, please enter another one" })
+        } else if (coupenCode[0] == ' ') {
+            return res.status(403).json({ message: "Enter Proper Coupen Code" })
+
         }
 
 
@@ -43,7 +56,7 @@ const addCoupen = async (req, res, next) => {
         })
 
         await coupen.save()
-        res.redirect('/admin/coupenManagement')
+        res.status(200).json({ success: true })
 
     } catch (error) {
         console.log(error.message);

@@ -11,6 +11,7 @@ const Review = require('../model/userReviewModel')
 const Address = require('../model/addressModel')
 const Cart = require('../model/cartModel')
 const Offer = require('../model/offerModel')
+const Banner = require('../model/bannerModel')
 const { default: mongoose } = require("mongoose");
 // const { sanitizeFilter } = require("mongoose")
 
@@ -224,12 +225,13 @@ const loadHome = async (req, res) => {
         let userId = req.session.userId ? req.session.userId : '';
         const productData = await Products.find({ isDeleted: false }).sort({ createdAt: -1 })
         const categoryData = await Category.find({ isDeleted: false })
+        const banners = await Banner.find({ status: true })
         if (req.session.userId) {
             const userData = await User.findById({ _id: userId });
-            res.render('home', { user: userData, products: productData, category: categoryData })
+            res.render('home', { user: userData, products: productData, category: categoryData, banners })
         }
         else {
-            res.render('home', { products: productData, category: categoryData })
+            res.render('home', { products: productData, category: categoryData, banners })
         }
     } catch (error) {
         console.log(error.message);
@@ -239,26 +241,26 @@ const loadShop = async (req, res) => {
     try {
         let userId = req.session.userId
 
-        // pagination setting
         const currentPage = parseInt(req.query.page)
         const productPerPage = 28
         const skip = (currentPage - 1) * productPerPage;
 
         const totalProduct = await User.countDocuments()
         const totalPages = Math.ceil(totalProduct / productPerPage)
-        //pagination end
 
 
         const productData = await Products.find({ isDeleted: false }).skip(skip).limit(productPerPage)
         const categoryData = await Category.find({ isDeleted: false })
         const color = await Products.distinct('strapColor')
         const Brand = await Products.distinct('brand')
+        const allProduct = await Products.find({ isDeleted: false })
+
 
         if (req.session.userId) {
             const userData = await User.findById({ _id: userId })
-            res.render('shop', { user: userData, products: productData, category: categoryData, color: color, brand: Brand, currentPage, totalPages })
+            res.render('shop', { user: userData, products: productData, category: categoryData, color: color, brand: Brand, currentPage, totalPages, allProduct })
         } else {
-            res.render('shop', { products: productData, category: categoryData, color: color, brand: Brand, currentPage, totalPages })
+            res.render('shop', { products: productData, category: categoryData, color: color, brand: Brand, currentPage, totalPages, allProduct })
         }
 
     } catch (error) {
@@ -281,7 +283,7 @@ const registerLoad = async (req, res) => {
         console.log(error.message);
     }
 }
-const insertUser = async (req, res) => {
+const insertUser = async (req, res, next) => {
     try {
         if (req.body.email) {
             const isExistingUser = await User.findOne({ email: req.body.email })
@@ -312,6 +314,7 @@ const insertUser = async (req, res) => {
 
     } catch (error) {
         console.log(error.message);
+        next(error)
     }
 }
 
@@ -391,7 +394,7 @@ const forgotPasswordPage = async (req, res, next) => {
     }
 }
 
-const verifyEmail = async (req, res) => {
+const verifyEmail = async (req, res, next) => {
     try {
         const email = req.body.email;
         const isUser = await User.findOne({ email: email })
@@ -411,6 +414,7 @@ const verifyEmail = async (req, res) => {
 
     } catch (error) {
         console.log(error.message);
+        next(error)
     }
 }
 
@@ -446,7 +450,7 @@ const forgotOtpVerify = async (req, res) => {
     }
 }
 
-const resetPassword = async (req, res) => {
+const resetPassword = async (req, res, next) => {
     try {
         const userId = req.session.forgotUserId
         const { newPassword, cnfmPassword } = req.body
@@ -460,7 +464,8 @@ const resetPassword = async (req, res) => {
         const updatePassword = await User.findByIdAndUpdate({ _id: userId }, { $set: { password: spassword } })
         res.render('login')
     } catch (error) {
-
+        console.log(error.message);
+        next(error)
     }
 }
 
@@ -507,7 +512,7 @@ const singleProductLoad = async (req, res, next) => {
 }
 
 
-const saveReview = async (req, res) => {
+const saveReview = async (req, res, next) => {
     try {
 
         const review = new Review({
@@ -522,6 +527,7 @@ const saveReview = async (req, res) => {
 
     } catch (error) {
         console.log(error.message);
+        next(error)
     }
 }
 
@@ -576,7 +582,7 @@ const userProfileLoad = async (req, res, next) => {
 }
 
 
-const updateProfile = async (req, res,next) => {
+const updateProfile = async (req, res, next) => {
     try {
         const userId = req.session.userId;
         const userData = await User.findByIdAndUpdate(
@@ -702,6 +708,8 @@ const filterByPrice = async (req, res, next) => {
         const categoryData = await Category.find({ isDeleted: false })
         const color = await Products.distinct('strapColor')
         const Brand = await Products.distinct('brand')
+        const allProduct = await Products.find({isDeleted: false })
+
 
         // sorting
         let products;
@@ -720,9 +728,9 @@ const filterByPrice = async (req, res, next) => {
 
         if (req.session.userId) {
             const userData = await User.findById({ _id: userId })
-            res.render('shop', { user: userData, products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages })
+            res.render('shop', { user: userData, products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages,allProduct })
         } else {
-            res.render('shop', { products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages })
+            res.render('shop', { products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages,allProduct })
         }
 
     } catch (error) {
@@ -731,7 +739,7 @@ const filterByPrice = async (req, res, next) => {
     }
 }
 
-const filterByCategory = async (req, res,next) => {
+const filterByCategory = async (req, res, next) => {
     try {
 
         let userId = req.session.userId
@@ -748,6 +756,8 @@ const filterByCategory = async (req, res,next) => {
         const categoryData = await Category.find({ isDeleted: false })
         const color = await Products.distinct('strapColor')
         const Brand = await Products.distinct('brand')
+        const allProduct = await Products.find({ isDeleted: false })
+
 
         const sortBy = req.query.sortBy;
 
@@ -759,9 +769,9 @@ const filterByCategory = async (req, res,next) => {
 
         if (req.session.userId) {
             const userData = await User.findById({ _id: userId })
-            res.render('shop', { user: userData, products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages })
+            res.render('shop', { user: userData, products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages, allProduct })
         } else {
-            res.render('shop', { products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages })
+            res.render('shop', { products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages, allProduct })
         }
 
     } catch (error) {
@@ -787,6 +797,8 @@ const filterByColor = async (req, res, next) => {
         const categoryData = await Category.find({ isDeleted: false })
         const color = await Products.distinct('strapColor')
         const Brand = await Products.distinct('brand')
+        const allProduct = await Products.find({ isDeleted: false })
+
 
         const sortBy = req.query.sortBy;
 
@@ -798,9 +810,9 @@ const filterByColor = async (req, res, next) => {
 
         if (req.session.userId) {
             const userData = await User.findById({ _id: userId })
-            res.render('shop', { user: userData, products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages })
+            res.render('shop', { user: userData, products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages, allProduct })
         } else {
-            res.render('shop', { products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages })
+            res.render('shop', { products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages, allProduct })
         }
 
     } catch (error) {
@@ -826,6 +838,9 @@ const filterByBrand = async (req, res, next) => {
         const categoryData = await Category.find({ isDeleted: false })
         const color = await Products.distinct('strapColor')
         const Brand = await Products.distinct('brand')
+        const allProduct = await Products.find({ isDeleted: false })
+
+
 
         const sortBy = req.query.sortBy;
 
@@ -837,9 +852,9 @@ const filterByBrand = async (req, res, next) => {
 
         if (req.session.userId) {
             const userData = await User.findById({ _id: userId })
-            res.render('shop', { user: userData, products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages })
+            res.render('shop', { user: userData, products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages, allProduct })
         } else {
-            res.render('shop', { products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages })
+            res.render('shop', { products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages, allProduct })
         }
 
     } catch (error) {
@@ -871,20 +886,26 @@ const searchProduct = async (req, res) => {
         const categoryData = await Category.find({ isDeleted: false })
         const color = await Products.distinct('strapColor')
         const Brand = await Products.distinct('brand')
+        const allProduct = await Products.find({ isDeleted: false })
 
         if (req.query.search) {
-            productData = await Products.find({ $and: [{ isDeleted: false }, { productName: { $regex: req.query.search, $options: 'i' } }] }).skip(skip).limit(productPerPage)
-            res.render('shop', { user: userData, products: productData, category: categoryData, color: color, brand: Brand, currentPage, totalPages })
+            productData = await Products.find({
+                $and: [
+                    { isDeleted: false },
+                    {
+                        $or: [
+                            { productName: { $regex: req.query.search, $options: 'i' } },
+                            { category: { $regex: req.query.search, $options: 'i' } },
+                            { brand: { $regex: req.query.search, $options: 'i' } }
+                        ]
+                    }
+                ]
+            }).skip(skip).limit(productPerPage);
+            res.render('shop', { user: userData, products: productData, category: categoryData, color: color, brand: Brand, currentPage, totalPages, allProduct })
         } else {
-            res.render('shop', { user: userData, products: productData, category: categoryData, color: color, brand: Brand, currentPage, totalPages })
+            res.render('shop', { user: userData, products: productData, category: categoryData, color: color, brand: Brand, currentPage, totalPages, allProduct })
 
         }
-
-        //    if(req.session.userId){
-        //        res.render('shop',{user:userData,products:productData,category:categoryData,color:color,brand:Brand,currentPage,totalPages})
-        //    }else{
-        //        res.render('shop',{products:productData,category:categoryData,color:color,brand:Brand,currentPage,totalPages})
-        //    }
 
     } catch (error) {
         console.log(error.message);

@@ -75,7 +75,7 @@
 			</div>
 		</div>
 		<br><br><br><br>
-		<div class="container">
+		<div class="container" id="loading-container">
 			<div class="row order_d_inner mt-10">
 				<div class="col-lg-6">
 					<div class="details_item">
@@ -165,11 +165,25 @@
 
 						</tbody>
 					</table>
+						<!-- <a href="/downloadInvoice?productId=<%= orders._id %>" type="button" class="genric-btn primary radius btn-lg btn-block mt-4" ><i class="fa-solid fa-download"></i> Download Invoice</a> -->
+						<button type="button" class="genric-btn primary radius btn-lg btn-block mt-4" onclick="downloadInvoice('<%= orders._id %>')"><i class="fa-solid fa-download"></i> Download Invoice</button>
+
 				</div>
 			</div>
 		</div>
 	</section>
 	
+
+	<!-- script for invoice -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/easyinvoice/dist/easyinvoice.min.js"></script>
+	<!-- script for invoice -->
+
+
    <script>
 	document.addEventListener('DOMContentLoaded', function() {
 		var status = document.getElementById('orderStatus').value;
@@ -185,6 +199,10 @@
 
 		switch (status) {
 			case 'order confirmed':
+				steps[0].classList.add('active');
+				progress.style.width = '33.3333%';
+				break;
+			case 'pending':
 				steps[0].classList.add('active');
 				progress.style.width = '33.3333%';
 				break;
@@ -237,6 +255,88 @@
 				}
 			});
 		});
+
+		// download invoice >>
+		function downloadInvoice(id) {
+            const Orderid = id;
+            console.log('kk', Orderid);
+
+            // Show loading spinner
+            const spinner = new Spinner().spin(document.getElementById('loading-container'));
+
+            $.ajax({
+                url: `/downloadInvoice?id=${Orderid}`,
+                type: 'POST',
+                success: function (response) {
+                    console.log('hiiii', response);
+                    showInvoice(response);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Request failed:', status, error);
+                },
+                complete: function () {
+                    // Hide loading spinner when the request is complete
+                    spinner.stop();
+                }
+            });
+        }
+
+
+
+        function showInvoice(values) {
+           const date = new Date(values.order.orderDate) 
+		   const orderDate = date.toLocaleDateString('en-US', {
+        year: 'numeric', month: 'short', day: '2-digit' })
+
+            var data = {
+                "customize": {
+                    //  "template": fs.readFileSync('template.html', 'base64') // Must be base64 encoded html 
+                },
+                "images": {
+                    // The logo on top of your invoice
+                    "logo": "https://public.budgetinvoice.com/img/logo_en_original.png",
+                    // The invoice background
+                    "background": "https://public.budgetinvoice.com/img/watermark-draft.jpg"
+                },
+                // Your own data
+                "sender": {
+                    "company": "Zephyr",
+                    "address": "Sample Street 123",
+                    "zip": "1234 AB",
+                    "city": "Sampletown",
+                    "country": "Samplecountry"
+                },
+                // Your recipient
+                "client": {
+					"company": values.order.address.Name,
+                    "address": values.order.address.address,
+                    "zip": `PIN : ${values.order.address.PIN}`,
+                    "city": values.order.address.city,
+                    "country": values.order.address.state,
+                },
+                "information": {
+                    "number": values.invoiceNumber,
+                    "date": orderDate
+                },
+                
+                "products": values.products,
+               
+                "settings": {
+                    "currency": "USD", 
+                },
+                "translate": {
+                },
+            };
+
+            easyinvoice.createInvoice(data, function (result) {
+                console.log('PDF base64 string: ', result.pdf);
+
+                easyinvoice.download('invoice.pdf')
+            });
+
+        }
+
+		
    </script>
 
 <%- include('../layouts/footer') %>

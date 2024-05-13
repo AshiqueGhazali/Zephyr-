@@ -62,18 +62,18 @@
 	<div class="product_image_area">
 		<div class="container">
 			<div class="row s_product_inner">
-				<div class="col-lg-6">
+				<div class="col-lg-6" >
 					<div class="s_Product_carousel">
-						<div class="single-prd-item">
+						<div class="single-prd-item" onclick="zoomImage(event)" >
 							<img class="img-fluid" src="/assets/categoryImg/<%= product.image[0] %>" alt="">
 						</div>
-						<div class="single-prd-item">
+						<div class="single-prd-item" onclick="zoomImage(event)">
 							<img class="img-fluid" src="/assets/categoryImg/<%= product.image[1] %>" alt="">
 						</div>
-						<div class="single-prd-item">
+						<div class="single-prd-item" onclick="zoomImage(event)">
 							<img class="img-fluid" src="/assets/categoryImg/<%= product.image[2] %>" alt="">
 						</div>
-						<div class="single-prd-item">
+						<div class="single-prd-item" onclick="zoomImage(event)">
 							<img class="img-fluid" src="/assets/categoryImg/<%= product.image[3] %>" alt="">
 						</div>
 					</div>
@@ -315,6 +315,37 @@
 <!--================End Product Description Area =================-->
 
 <%- include('../layouts/footerPage') %>
+
+<script>
+    function zoomImage(event) {
+        var container = event.currentTarget;
+        var image = container.querySelector('img');
+
+        var zoomFactor = 2;
+
+        image.style.transform = 'scale(' + zoomFactor + ')';
+        image.style.transition = 'transform 0.5s ease';
+
+        container.style.cursor = 'zoom-out';
+
+        container.addEventListener('click', resetZoom);
+
+        event.preventDefault();
+    }
+
+    function resetZoom(event) {
+        var container = event.currentTarget;
+        var image = container.querySelector('img');
+
+        image.style.transform = 'scale(1)';
+        container.style.cursor = 'zoom-in';
+
+        container.removeEventListener('click', resetZoom);
+
+        event.preventDefault();
+    }
+</script>
+
 
 
 	<script src="/js/helperFunctions.js"></script>

@@ -33,20 +33,22 @@ const addCategoryPageLoad = async (req, res, next) => {
 const addCategory = async (req, res, next) => {
     try {
         const { category, description, isAvailable } = req.body
+        const image = req.file
 
-        if (category == '' || description == '') {
-            res.render('addCategory', { message: "please enter category detailes" })
-            return;
+        if (category[0] == ' ' || description[0] == ' '|| !image) {
+            // res.render('addCategory', { message: "please enter category detailes" })
+            return res.status(403).json({ message: "please enter category detailes!!" });
         }
 
         const categoryName = category.toLowerCase()
         const CategoryData = await Category.findOne({ name: categoryName })
 
         if (CategoryData) {
-            res.render('addCategory', { message: "This category is alredy added" })
-            return;
+            // res.render('addCategory', { message: "This category is alredy added" })
+            // return;
+            return res.status(403).json({ message: "This category is alredy added!!" });
+
         }
-        const image = req.file
         const imagePath = image ? image.filename : ''
 
         const newCategory = new Category({
@@ -57,7 +59,8 @@ const addCategory = async (req, res, next) => {
         })
 
         await newCategory.save()
-        res.redirect('/admin/categoryManagement')
+        // res.redirect('/admin/categoryManagement')
+        res.status(200).json({success:true})
     } catch (error) {
         console.log(error.message);
         next(error)
@@ -118,7 +121,7 @@ const editCategoryLoad = async (req, res, next) => {
 }
 const editCategory = async (req, res, next) => {
     try {
-        const { category, description, isAvailable } = req.body
+        const { id, category, description, isAvailable } = req.body
         const objectId = new mongoose.Types.ObjectId(req.body.id);
 
 
@@ -127,19 +130,25 @@ const editCategory = async (req, res, next) => {
         const isCategory = await Category.aggregate([{ $match: { _id: { $ne: objectId }, name: categoryName } }])
 
         if (isCategory.length > 0) {
-            res.render('addCategory', { message: "This category is alredy added" })
-            return;
+            return res.status(403).json({ message: "This category is alredy added!!" });
+
         }
 
-        if (category == '' || description == '') {
-            res.render('addCategory', { message: "please enter category detailes" })
-            return;
+        if (category[0] == ' ' || description[0] == ' ' || !description) {
+            return res.status(403).json({ message: "please enter category detailes!!" });
+ 
         }
-        // console.log(req.body);
         const image = req.file
-        const imagePath = image ? image.filename : ''
+        let imagePath = ''
 
-        const categoryData = await Category.findByIdAndUpdate({ _id: req.body.id }, {
+        if (image) {
+            imagePath = image.filename;
+        } else {
+            const existingBanner = await Category.findById(id);
+            imagePath = existingBanner.bannerImage;
+        }
+
+        const categoryData = await Category.findByIdAndUpdate({ _id: id }, {
             $set: {
                 name: category,
                 description: description,
@@ -147,8 +156,9 @@ const editCategory = async (req, res, next) => {
                 imageUrl: imagePath
             }
         })
-        res.redirect('/admin/categoryManagement')
 
+
+        return res.status(200).json({success:true})
 
     } catch (error) {
         console.log(error.message);
