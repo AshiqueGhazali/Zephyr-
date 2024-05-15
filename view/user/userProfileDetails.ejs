@@ -102,27 +102,27 @@
 				<div class="row" style="background-color: #ffffff; margin-bottom: 10%;">
 					<div class="form-group col-lg-12 pt-3 d-flex justify-content-between align-items-center">
 						<h3 class="mb-4 text-secondary">Personal Information</h3>
-						<button type="button" class="btn btn-red " onclick="toggleProfileEdit()">Edit Profile</button>
+						<button type="button" class="genric-btn primary " onclick="toggleProfileEdit()">Edit Profile</button>
 					</div>
 					<div class="form-group col-lg-6">
 						<label for="fName">First Name</label>
-						<input type="text" class="form-control" id="fName"  name="fName" placeholder="<%= user.Fname %>" readonly>
+						<input type="text" class="form-control"  placeholder="<%= user.Fname %>" readonly>
 					</div>
 					<div class="form-group col-lg-6">
 						<label for="lName">Last Name</label>
-						<input type="text" class="form-control" id="lName"  name="lName" placeholder="<%= user.Lname %>" readonly>
+						<input type="text" class="form-control" name="lName" placeholder="<%= user.Lname %>" readonly>
 					</div>
 					<div class="form-group col-lg-12">
 						<label for="username">Username</label>
-						<input type="text" class="form-control" id="username" name="username" placeholder="<%= user.username %>" readonly>
+						<input type="text" class="form-control" name="username" placeholder="<%= user.username %>" readonly>
 					</div>
 					<div class="form-group col-lg-12">
 						<label for="email">Email</label>
-						<input type="text" class="form-control" id="email" name="email" placeholder="<%= user.email %>" readonly>
+						<input type="text" class="form-control" iname="email" placeholder="<%= user.email %>" readonly>
 					</div>
 					<div class="form-group col-lg-12 pb-5">
 						<label for="phone">Phone</label>
-						<input type="text" class="form-control" id="phone" name="phone" placeholder="<%= user.phone %>" readonly>
+						<input type="text" class="form-control"  name="phone" placeholder="<%= user.phone %>" readonly>
 					</div>
 				</div>
 			</div>
@@ -131,13 +131,13 @@
 					<div class="col-lg-12" id="editProfile">
 						<div class="form-group col-lg-12 pt-3 d-flex justify-content-between align-items-center">
 						<h3 class="mb-2 text-secondary pt-3">Update Profile</h3>
-						<button type="button" class="btn btn-red " onclick="toggleProfileEdit()">Cancel</button>
+						<button type="button" class="genric-btn primary " onclick="toggleProfileEdit()">Cancel</button>
 						</div>
 						<form id="myForm" onsubmit="updateUserProfile('<%= user._id %>', event)">
 							<div class="row mt-3">
 								<div class="col-lg-6 mt-3">
 									<label for="fName">First Name</label>
-									<input type="text" class="form-control" id="fName" name="firstName" value="<%= user.Fname %>" required>
+									<input type="text" class="form-control" id="fName" name="firstName" value="<%= user.Fname %>">
 								</div> 
 								<div class="col-lg-6 mt-3">
 									<label for="lName">Last Name</label>
@@ -159,17 +159,17 @@
 							<div class="row mt-2">
 								<div class="col">
 									<label for="phone">Phone</label>
-                                	<input type="text" class="form-control" id="phone" name="phone" value="<%= user.phone %>" required>
+                                	<input type="text" class="form-control" id="phone" name="phone" value="<%= user.phone %>">
 									<input type="hidden" name="id" value="<%= user._id %>">
 								</div>
 							</div>
 							<div class="row mt-4">
 								<div class="col">
-									<button type="submit" class="btn btn-blue btn-lg btn-block">Update</button>
+									<button type="submit" class="genric-btn primary  btn-block">Update</button>
 								</div>
 								<div class="col">
-									<button type="button" class="btn btn-red btn-lg" onclick="clearForm()">Clear</button>
-									<button type="button" class="btn btn-red btn-lg" onclick="togglePasswordChange()">Change Password</button>
+									<button type="button" class="genric-btn danger " onclick="clearForm()">Clear</button>
+									<button type="button" class="genric-btn danger " onclick="togglePasswordChange()">Change Password</button>
 								</div>
 							</div>
                         </form>
@@ -187,7 +187,7 @@
 					<div class="col-lg-12" style="display: none;" id="changePassword">
 						<div class="form-group col-lg-12 pt-3 d-flex justify-content-between align-items-center">
 						<h3 class="mb-2 text-secondary pt-3">Change Password</h3>
-						<button type="button" class="btn btn-red " onclick="toggleProfileEdit()">Cancel</button>
+						<button type="button" class="genric-btn primary" onclick="toggleProfileEdit()">Cancel</button>
 						</div>
 						<form id="myForm" onsubmit="changePassword(event)">
 							<div class="row mt-3">
@@ -215,11 +215,12 @@
 							</div>
 							<div class="row mt-2">
 								<div class="col">
-									<button type="submit" class="btn btn-blue btn-lg btn-block">Change Password</button>
+									<button type="submit" class="genric-btn primary radius btn-block">Change Password</button>
 								</div>
 							</div>
                         </form>
                         <br>
+						<div class="alert alert-info" id="passwordMsg" role="alert" style="display: none;"></div>
                         <% if(typeof message !== "undefined"){
                             %>
                             <p style="color: brown;"><%=message%></p> 
@@ -270,6 +271,10 @@
 		function updateUserProfile(userId,event) {
 			event.preventDefault();  
 
+			if(!updateProfileValidation()){
+				return;
+			}
+
 			Swal.fire({
 				title: "Do you want to save the changes?",
 				showDenyButton: true,
@@ -298,7 +303,8 @@
 				}
 			}).then((result) => {
 				if (result.isConfirmed) {
-					Swal.fire("Saved!", "", "success").then(() => {
+					Swal.fire("Saved!", "", "success")
+					.then(() => {
 						window.location.reload(); 
 					});
 				} else if (result.isDenied) {
@@ -309,6 +315,10 @@
 
 		function changePassword(event) {
 			event.preventDefault(); 
+
+			if(!updatePasswordValidation()){
+				return
+			}
 			const form = document.getElementById('myForm');
 			const formData = new FormData(event.target);
 
@@ -316,21 +326,14 @@
 			const newPassword = formData.get('newPassword');
 			const confirmPassword = formData.get('confmPassword');
 
-			if (newPassword !== confirmPassword) {
-				Swal.fire({
-					icon: 'error',
-					title: 'Passwords do not match',
-					text: 'Please make sure your new passwords match.',
-				});
-				return;
-			}
+			
 
 			const swalWithBootstrapButtons = Swal.mixin({
 				customClass: {
 					confirmButton: "btn btn-success",
 					cancelButton: "btn btn-danger"
 				},
-				buttonsStyling: false
+				buttonsStyling: true
 			});
 
 			swalWithBootstrapButtons.fire({
@@ -366,11 +369,9 @@
 					})
 					.catch(error => {
 						error.json().then(err => {
-							swalWithBootstrapButtons.fire({
-								title: "Failed!",
-								text: err.message || "There was a problem changing your password.",
-								icon: "error"
-							});
+							let message = document.getElementById("passwordMsg")
+							message.style.display = "block" ;
+							message.textContent = err.message;
 						});
 					});
 				} else if (result.dismiss === Swal.DismissReason.cancel) {
@@ -383,8 +384,6 @@
 			});
 		}
 
-
-	
 	</script>
 
 	<script src="/js/adminFormValidation.js"></script>

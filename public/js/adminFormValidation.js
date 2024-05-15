@@ -243,3 +243,23 @@ function removeImage(imageElement) {
 
         return true
     };
+
+
+//! baanner validation
+     function validateBanner(){
+        const head = document.getElementById('header').value;
+        const subHeader = document.getElementById('subHeader').value;
+        const message = document.getElementById('responseMessage')
+
+        if(head[0]===' ' || !head){
+            message.style.display = 'block'
+            message.innerText = 'Please Enter Valid Header'
+            return false
+        }else if(subHeader[0]===' ' || !subHeader){
+            message.style.display = 'block'
+            message.innerText = 'Please Enter Valid SubHeader'
+            return false
+        }
+        return true
+
+    }

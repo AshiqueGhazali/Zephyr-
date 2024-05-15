@@ -108,7 +108,7 @@
 						
 						<div id="newAddressForm" style="display: none; background-color: #f6faff;" class="card">
 							<div class="card-body">
-								<form id="myForm" >
+								<form id="myForm" action="/addAddress" method="post">
 									<div class="form-group row">
 										<div class="col-lg-6 mb-3">
 											<input type="text" class="form-control" id="name" name="Name" placeholder="Name">
@@ -149,7 +149,7 @@
 										</div>
 										<div class="col-lg-12 mb-3"">
 											<!-- AddAddressFormSubmit() -->
-											<button type="submit" class="genric-btn primary radius  mr-2" onclick="AddAddressFormSubmit()">SAVE ADDRESS</button>
+											<button type="submit" class="genric-btn primary radius  mr-2">SAVE ADDRESS</button>
 											<button type="button" class="genric-btn danger radius " onclick="clearForm()">Cancel</button>
 											<p id="message" style="color: #ffff;"></p>
 											<% if(typeof message !== "undefined"){
@@ -178,30 +178,30 @@
 										<!-- edit form -->
 										<div id="editAddress<%= i %>" style="display: none; background-color: #f6faff;" class="card">
 											<div class="card-body">
-												<form id="editAddressForm<%= i %>" >
+												<form id="editAddressForm<%= i %>" action="/editAddress" method="post" onsubmit="submitEditForm(event, '<%= i %>')">
 													<div class="form-group row">
 														<div class="col-lg-6 mb-3">
-															<input type="text" class="form-control" id="name" name="Name" value="<%= address[i].Name %>">
+															<input type="text" class="form-control" id="name<%= i %>" name="Name" value="<%= address[i].Name %>">
 														</div>
 														<div class="col-lg-6 mb-3"">
-															<input type="text" class="form-control" id="phone" name="Mobile" value="<%= address[i].Mobile %>">
+															<input type="text" class="form-control" id="phone<%= i %>" name="Mobile" value="<%= address[i].Mobile %>">
 														</div>
 														<div class="col-lg-6 mb-3"">
-															<input type="text" class="form-control" id="pincode" name="PIN" value="<%= address[i].PIN %>">
+															<input type="text" class="form-control" id="pincode<%= i %>" name="PIN" value="<%= address[i].PIN %>">
 														</div>
 														<div class="col-lg-6 mb-3"">
-															<input type="text" class="form-control" id="locality" name="Locality" value="<%= address[i].Locality %>">
+															<input type="text" class="form-control" id="locality<%= i %>" name="Locality" value="<%= address[i].Locality %>">
 														</div>
 														<div class="col-lg-12 mb-3"">
-															<input type="text" class="form-control" id="address" rows="3" name="address" value="<%= address[i].address %>"></textarea>										</div>
+															<input type="text" class="form-control" id="address<%= i %>" rows="3" name="address" value="<%= address[i].address %>"></textarea>										</div>
 														<div class="col-lg-6 mb-3"">
-															<input type="text" class="form-control" id="city" name="city" value="<%= address[i].city %>">
+															<input type="text" class="form-control" id="city<%= i %>" name="city" value="<%= address[i].city %>">
 														</div>
 														<div class="col-lg-6 mb-3"">
-															<input type="text" class="form-control" id="state" name="state" value="<%= address[i].state %>">
+															<input type="text" class="form-control" id="state<%= i %>" name="state" value="<%= address[i].state %>">
 														</div>
 														<div class="col-lg-6 mb-3"">
-															<input type="text" class="form-control" id="landmark" name="landmark" value="<%= address[i].landmark %>">
+															<input type="text" class="form-control" id="landmark<%= i %>" name="landmark" value="<%= address[i].landmark %>">
 														</div>
 														<div class="col-lg-6 mb-3"">
 															<input type="text" class="form-control" id="phone2" name="alternatePhone" value="<%= address[i].alternatePhone %>">
@@ -209,15 +209,15 @@
 														<div class="col-lg-6 mb-3"">
 															<label for="name" class="">Address Type</label>
 															<div class="form-check">
-																<input class="form-check-input" type="radio" name="addressType" id="home" value="1" <%= address[i].is_Home ? 'checked' : '' %>>
+																<input class="form-check-input" type="radio" name="addressType" id="home<%= i %>" value="1" <%= address[i].is_Home ? 'checked' : '' %>>
 																  <label class="form-check-label" for="home"> Home</label>
 																
-																<input class="form-check-input ml-4" type="radio" name="addressType" id="work" value="1" <%= address[i].is_Work ? 'checked' : '' %>>
+																<input class="form-check-input ml-4" type="radio" name="addressType" id="work<%= i %>" value="1" <%= address[i].is_Work ? 'checked' : '' %>>
 																  <label class="form-check-label ml-5" for="Work"> Work</label>
 															</div>
 														</div>
 														<div class="col-lg-12 mb-3"">
-															<button type="submit" class="genric-btn primary radius  mr-2" onclick="submitEditForm('<%= i %>')">SAVE EDITS</button>
+															<button type="submit" class="genric-btn primary radius  mr-2">SAVE EDITS</button>
 															<button type="button" class="genric-btn danger radius" onclick="clearForm1('<%= i %>')">Cancel</button>
 															<p id="message<%= i %>" style="color: #ffff;"></p>
 															<% if(typeof message !== "undefined"){
@@ -285,8 +285,13 @@
 
 
 	// edit address
-	function submitEditForm(index) {
-		// addressValidation(event, `editAddressForm${index}`, `message${index}`)
+	function submitEditForm(event, index) {
+		event.preventDefault()
+
+		if(!addressValidation(index)){
+			return
+		}
+		console.log("hioashakdsfksdfkjehk");
 		const form = document.getElementById(`editAddressForm${index}`);
 		const formData = new FormData(form);
 		const url = '/editAddress'; 
@@ -296,8 +301,8 @@
 			jsonObject[key] = value;
 		});
 
-		jsonObject.is_Home = document.getElementById('home').checked;
-		jsonObject.is_Work = document.getElementById('work').checked;
+		jsonObject.is_Home = document.getElementById(`home${index}`).checked;
+		jsonObject.is_Work = document.getElementById(`work${index}`).checked;
 
 		fetch(url, {
 			method: 'POST',
@@ -306,64 +311,71 @@
 			},
 			body: JSON.stringify(jsonObject)
 		})
-		.then(response => {
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
-			}
-			return response.json();
-		})
-		.then(data => {
-			document.getElementById(`message${index}`).textContent = 'Edit successful!';
-			setTimeout(() => {
-				window.location.reload(); 
-			}, 1000);
-		})
-		.catch(error => {
-			console.error('There was a problem with the fetch operation:', error);
-			document.getElementById(`message${index}`).textContent = 'Failed to edit.';
-		});
-	}
+		.then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        title: "Address Edited",
+                        text: "Address Edited successfully!",
+                        icon: "success"
+                    }).then(() => {
+						window.location.reload();; 
+                    });
+                } else {
+					let message = document.getElementById(`message${index}`);
+					message.style.color = "red";
+					message.innerText = `${data.message}`
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        };
 
 	// add address form submition 
-	function AddAddressFormSubmit() {
-		addressValidation(event, 'myForm', 'message')
-		const form = document.getElementById(`myForm`);
-		const formData = new FormData(form);
-		const url = '/addAddress'; 
+	document.getElementById('myForm').addEventListener('submit', function(event) {
+          event.preventDefault();
+		  const index= ''
+          if(!addressValidation(index)){
+            return;
+          }
+          const form = document.getElementById('myForm');
+            const formData = new FormData(form);
+            const jsonObject = {};
+            formData.forEach((value, key) => {
+              jsonObject[key] = value;
+            });
 
-		const jsonObject = {};
-		formData.forEach((value, key) => {
-			jsonObject[key] = value;
-		});
+			jsonObject.is_Home = document.getElementById('home').checked;
+			jsonObject.is_Work = document.getElementById('work').checked;
 
-		jsonObject.is_Home = document.getElementById('home').checked;
-		jsonObject.is_Work = document.getElementById('work').checked;
-
-		fetch(url, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(jsonObject)
-		})
-		.then(response => {
-			if (!response.ok) {
-				throw new Error('Network response was not ok');
-			}
-			return response.json();
-		})
-		.then(data => {
-			document.getElementById(`message${index}`).textContent = 'Address Addedd successfully!';
-			setTimeout(() => {
-				window.location.reload(); 
-			}, 1000);
-		})
-		.catch(error => {
-			console.error('There was a problem with the fetch operation:', error);
-			document.getElementById(`message${index}`).textContent = 'Failed to edit.';
-		});
-	}
-
+            fetch('/addAddress', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(jsonObject)
+            })
+			.then(response => response.json())
+                    .then(data => {
+                      if (data.success) {
+                          Swal.fire({
+                              title: "New Address Added",
+                              text: "New Address Addedd successfully!",
+                              icon: "success"
+                          }).then(() => {
+							window.location.reload();; 
+                          });
+                      } else {
+						let message = document.getElementById('message');
+						message.style.color = "red";
+						message.innerText = `${data.message}`
+                      }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            });
 	</script>
 
 <script src="/js/adminFormValidation.js"></script>

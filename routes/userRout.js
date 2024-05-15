@@ -79,6 +79,7 @@ user_route.get('/filterByCategory',userController.filterByCategory)
 user_route.get('/filterByColor',userController.filterByColor)
 user_route.get('/filterByBrand',userController.filterByBrand)
 user_route.get('/searchProduct',userController.searchProduct)
+user_route.get('/productFilter',userController.productFilter)
 
 // checkout , order and Wallet
 user_route.get('/checkout',userAuth.isLogin,orderContoller.checkoutPageLoad)

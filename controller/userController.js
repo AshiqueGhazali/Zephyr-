@@ -13,6 +13,7 @@ const Cart = require('../model/cartModel')
 const Offer = require('../model/offerModel')
 const Banner = require('../model/bannerModel')
 const { default: mongoose } = require("mongoose");
+const { json } = require("express")
 // const { sanitizeFilter } = require("mongoose")
 
 // otp verification function
@@ -457,12 +458,14 @@ const resetPassword = async (req, res, next) => {
 
 
         if (newPassword != cnfmPassword) {
-            return res.render('resetPassword', { message: "Password dosn't Match" })
+            // return res.render('resetPassword', { message: "Password dosn't Match" })
+            return res.status(403), json({ message: "Password dosn't Match" })
         }
 
         const spassword = await securePassword(newPassword)
         const updatePassword = await User.findByIdAndUpdate({ _id: userId }, { $set: { password: spassword } })
-        res.render('login')
+        // res.render('login')
+        res.status(200).json({ success: true })
     } catch (error) {
         console.log(error.message);
         next(error)
@@ -615,7 +618,7 @@ const changePassword = async (req, res, next) => {
 
         const passwordIsValid = await bcrypt.compare(currentPassword, user.password);
         if (!passwordIsValid) {
-            return res.status(401).json({ message: "Current password is incorrect." });
+            return res.status(403).json({ message: "Current password is incorrect." });
         }
 
         const hashedPassword = await securePassword(newPassword)
@@ -650,13 +653,17 @@ const saveAddress = async (req, res) => {
         const user = await User.findById(id)
         const email = user.email
 
+        if (!req.body.is_Home && !req.body.is_Work) {
+            return res.status(403).json({ message: "please select address type" })
+        }
+
         let userAddress = new Address(req.body)
         userAddress.user_id = id
         userAddress.email = email
 
         await userAddress.save()
         // res.redirect('/addressManagement')
-        res.json({ message: "Address Saved successfully!" });
+        res.status(200).json({ success: true });
 
     } catch (error) {
         console.log(error.message);
@@ -668,7 +675,8 @@ const editAddress = async (req, res, next) => {
         const id = req.session.userId;
         const edit = await Address.updateOne({ user_id: id }, { $set: req.body });
 
-        res.json({ message: "Address updated successfully!" });
+        // res.json({ message: "Address updated successfully!" });
+        res.status(200).json({ success: true })
     } catch (error) {
         console.error(error.message);
         next(error);
@@ -708,7 +716,7 @@ const filterByPrice = async (req, res, next) => {
         const categoryData = await Category.find({ isDeleted: false })
         const color = await Products.distinct('strapColor')
         const Brand = await Products.distinct('brand')
-        const allProduct = await Products.find({isDeleted: false })
+        const allProduct = await Products.find({ isDeleted: false })
 
 
         // sorting
@@ -728,9 +736,9 @@ const filterByPrice = async (req, res, next) => {
 
         if (req.session.userId) {
             const userData = await User.findById({ _id: userId })
-            res.render('shop', { user: userData, products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages,allProduct })
+            res.render('shop', { user: userData, products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages, allProduct })
         } else {
-            res.render('shop', { products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages,allProduct })
+            res.render('shop', { products: products, category: categoryData, color: color, brand: Brand, currentPage, totalPages, allProduct })
         }
 
     } catch (error) {
@@ -913,6 +921,54 @@ const searchProduct = async (req, res) => {
 }
 
 
+const productFilter = async (req, res, next) => {
+    try {
+        const price = req.query.sortByPrice
+        const category = req.query.sortByCategory
+        const color = req.query.sortByColor
+        const brand = req.query.sortByBrand
+
+        let query = { isDeleted: false };
+        let sort;
+
+        if (price !== 'allPrice') {
+            switch (price) {
+                case 'lowToHigh':
+                    sort = { discountPrice: 1 };
+                    break;
+                case 'highToLow':
+                    sort = { discountPrice: -1 };
+                    break;
+                case 'newestFirst':
+                    sort = { createdAt: -1 };
+                    break;
+                default:
+                    sort = { discountPrice: -1 }
+            }
+        }
+
+        if (category !== 'allCategories') {
+            query = { ...query, category: category };
+        }
+
+        if (color !== 'allColors') {
+            query = { ...query, strapColor: color };
+        }
+
+        if (brand !== 'allBrands') {
+            query = { ...query, brand: brand };
+        }
+
+        const products = await Products.find(query).sort(sort)
+        res.status(200).json({ products });
+
+    } catch (error) {
+        console.log(error.message);
+        next(error)
+    }
+}
+
+
 
 module.exports = {
     loadHome,
@@ -942,6 +998,7 @@ module.exports = {
     filterByCategory,
     filterByColor,
     filterByBrand,
-    searchProduct
+    searchProduct,
+    productFilter
 
 }

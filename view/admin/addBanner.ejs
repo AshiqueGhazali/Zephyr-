@@ -43,7 +43,8 @@
                         <button type="button" class="btn btn-secondary btn-lg btn-block" onclick="clearForm()">Cancel</button>
                     </div>
                 </form>
-                    <p style="color: brown;" id="responseMessage"></p> 
+                <div id="responseMessage" class="alert alert-danger col-lg-8" role="alert" style="display: none;"></div><br>
+
                 </div>
             </div>
           </div>
@@ -82,41 +83,28 @@
                 method: 'POST',
                 body: formData,
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw response;
-                }
-                return response.json(); 
-            })
-            .then(data => {
-                window.location.href = '/admin/bannerManagement';
-            })
-            .catch(err => {
-                err.json().then(errorMessage => {
-                    document.getElementById('responseMessage').innerText = errorMessage.message;
-                })
-                .catch(() => {
-                    document.getElementById('responseMessage').innerText = 'Error submitting form';
-                });
+            .then(response => response.json())
+                    .then(data => {
+                      if (data.success) {
+                          Swal.fire({
+                              title: "New Banner Added",
+                              text: "New Banner Added Successfully",
+                              icon: "success"
+                          }).then(() => {
+                              window.location.href = `/admin/bannerManagement`; 
+                          });
+                      } else {
+                        const validationMessage = document.getElementById('responseMessage')
+                        validationMessage.style.display = 'block'
+                        validationMessage.innerHTML = `${data.message}`
+                      }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error Adding Banner');
+                    });
             });
-        });
 
-        // baanner validation
-        function validateBanner(){
-            const head = document.getElementById('header').value;
-            const subHeader = document.getElementById('subHeader').value;
-            const message = document.getElementById('responseMessage')
-
-            if(head[0]===' '){
-                message.innerText = 'Please Enter Valid Header'
-                return false
-            }else if(subHeader[0]===' '){
-                message.innerText = 'Please Enter Valid SubHeader'
-                return false
-            }
-            return true
-
-        }
       </script>
 
   <script src="/js/adminFormValidation.js"></script>

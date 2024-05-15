@@ -165,9 +165,9 @@
 
 						</tbody>
 					</table>
-						<!-- <a href="/downloadInvoice?productId=<%= orders._id %>" type="button" class="genric-btn primary radius btn-lg btn-block mt-4" ><i class="fa-solid fa-download"></i> Download Invoice</a> -->
+					<% if(orders.orderStatus === 'completed' || orders.orderStatus === 'delivered' ){ %> 
 						<button type="button" class="genric-btn primary radius btn-lg btn-block mt-4" onclick="downloadInvoice('<%= orders._id %>')"><i class="fa-solid fa-download"></i> Download Invoice</button>
-
+					<% } %>
 				</div>
 			</div>
 		</div>
@@ -229,32 +229,32 @@
 
 	// status change
 
-	document.addEventListener("DOMContentLoaded", function() {
-			const statuses = document.querySelectorAll('.status');
+	// document.addEventListener("DOMContentLoaded", function() {
+	// 		const statuses = document.querySelectorAll('.status');
 
-			statuses.forEach((statusElement) => {
-				const status = statusElement.getAttribute('data-status');
+	// 		statuses.forEach((statusElement) => {
+	// 			const status = statusElement.getAttribute('data-status');
 
-				switch(status) {
-					case 'cancelled':
-						statusElement.innerHTML ='Order Cancelled';
-						statusElement.style.color = 'red';
-						break;
-					case 'completed':
-						statusElement.innerHTML ='Order Completed';
-						statusElement.style.color = 'green';
-						break;
-					case 'returned':
-						statusElement.innerHTML ='The Product Returned';
-						statusElement.style.color = 'red';
-						break;
-					case 'Requested for Return':
-						statusElement.innerHTML ='Requested for Return';
-						statusElement.style.color = 'red';
-						break;
-				}
-			});
-		});
+	// 			switch(status) {
+	// 				case 'cancelled':
+	// 					statusElement.innerHTML ='Order Cancelled';
+	// 					statusElement.style.color = 'red';
+	// 					break;
+	// 				case 'completed':
+	// 					statusElement.innerHTML ='Order Completed';
+	// 					statusElement.style.color = 'green';
+	// 					break;
+	// 				case 'returned':
+	// 					statusElement.innerHTML ='The Product Returned';
+	// 					statusElement.style.color = 'red';
+	// 					break;
+	// 				case 'Requested for Return':
+	// 					statusElement.innerHTML ='Requested for Return';
+	// 					statusElement.style.color = 'red';
+	// 					break;
+	// 			}
+	// 		});
+	// 	});
 
 		// download invoice >>
 		function downloadInvoice(id) {

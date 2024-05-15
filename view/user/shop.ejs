@@ -79,49 +79,44 @@
 		<div class="row">
 			<div class="col-lg-12">
 				<!-- Start Filter Bar -->
+				<form action="/productFilter" method="get" id="filerForm">
+
 				<div class="filter-bar d-flex flex-wrap align-items-center">
-					<div class="sorting">
-						<form action="/filterByPrice" method="GET" id="priceFilterForm">
-							<select name="sortBy" onchange="submitForm('priceFilterForm')">
-								<option value="relevance">Relevance</option>
-								<option value="lowToHigh">Price-Low to High</option>
-								<option value="highToLow">Price-High to Low</option>
-								<option value="newestFirst">Newest First</option>
-							</select>
-						</form>
-					</div>
-					<div class="sorting">
-						<form action="/filterByCategory" method="GET" id="categoryFilterForm">
-							<select name="sortBy" onchange="submitForm('categoryFilterForm')">
-								<option value="allProduct">Categories</option>
-								<% for(let i=0 ; i< category.length ; i++){ %> 
-									<option value="<%= category[i].name%>"><%= category[i].name %></option>
-								<% } %>
-							</select>
-					    </form>
-					</div>
-					
-					<div class="sorting">
-						<form action="/filterByColor" method="GET" id="colorFilterForm">
-							<select name="sortBy" onchange="submitForm('colorFilterForm')">
-								<option value="allProduct">Color</option>
-								<% for (let i = 0 ; i < color.length ; i++) { %> 
-									<option value="<%= color[i] %>"><%= color[i] %></option>
-								<% } %>
-							</select>
-						</form>
-					</div>
-					<div class="sorting mr-auto">
-						<form action="/filterByBrand" method="GET" id="brandFilterForm">
-							<select name="sortBy" onchange="submitForm('brandFilterForm')">
-								<option value="allProduct">Brand</option>
-								<% for (let i = 0 ; i < brand.length ; i++) { %> 
-									<option value="<%= brand[i] %>"><%= brand[i] %></option>
-								<% } %>
-							</select>
-					    </form>
-					</div>
-		
+				<!-- pareekshanammmmmmmmmmmmmmmmmmmmmmmmmmm -->
+				<div class="sorting">
+					  <select name="sortByPrice" id="sortByPrice" onchange="submitForm('filerForm')">
+						<option value="relevance">Relevance</option>
+						<option value="lowToHigh">Price-Low to High</option>
+						<option value="highToLow">Price-High to Low</option>
+						<option value="newestFirst">Newest First</option>
+					  </select>
+				  </div>
+				  <div class="sorting">
+					  <select name="sortByCategory" id="sortByCategory" onchange="submitForm('filerForm')">
+						<option value="allCategories">All Categories</option>
+						<% for(let i=0 ; i< category.length ; i++){ %> 
+						  <option value="<%= category[i].name%>"><%= category[i].name %></option>
+						<% } %>
+					  </select>
+				  </div>
+				  <div class="sorting">
+					  <select name="sortByColor" id="sortByColor" onchange="submitForm('filerForm')">
+						<option value="allColors">All Colors</option>
+						<% for (let i = 0 ; i < color.length ; i++) { %> 
+						  <option value="<%= color[i] %>"><%= color[i] %></option>
+						<% } %>
+					  </select>
+				  </div>
+				  <div class="sorting mr-auto">
+					  <select name="sortByBrand" id="sortByBrand" onchange="submitForm('filerForm')">
+						<option value="allBrands">All Brands</option>
+						<% for (let i = 0 ; i < brand.length ; i++) { %> 
+						  <option value="<%= brand[i] %>"><%= brand[i] %></option>
+						<% } %>
+					  </select>
+				  </div>
+				  </form>
+		<!-- pareekshanammmmmmmmmmmmmmmmmmmmmmmmmmm -->
 					<div class="pagination">
 						<% if (currentPage > 1) { %>
 							<a href="/shop?page=<%= currentPage - 1 %>" class="prev-arrow"><i class="fa fa-long-arrow-left" aria-hidden="true"></i></a>
@@ -144,7 +139,7 @@
 						<div class="row">
 
 						<% for(let i = 0 ; i< products.length && i < 9 ; i++){ %>
-							<div class="col-xxl-3 col-xl-3 col-lg-3 col-md-4 col-sm-6 col-xs-6 col-6">
+							<div class="col-xxl-3 col-xl-3 col-lg-3 col-md-4 col-sm-6 col-xs-6 col-6 products">
 								<div class="single-product">
 									<img class="img-fluid" style="width: 250px; height: 250px;" src="/assets/categoryImg/<%= products[i].image[0] %>" alt="">
 									<div class="product-details">
@@ -265,6 +260,90 @@
     function submitForm(formId) {
         document.getElementById(formId).submit();
     }
+
+	// document.getElementById('filerForm').addEventListener('submit', function(event) {
+    //       event.preventDefault();
+          
+    //       const form = document.getElementById('filerForm');
+    //         const formData = new FormData(form);
+    //         const jsonObject = {};
+    //         formData.forEach((value, key) => {
+    //           jsonObject[key] = value;
+    //         });
+
+    //         fetch('/productFilter', {
+    //             method: 'POST',
+    //             headers: {
+    //               'Content-Type': 'application/json'
+    //             },
+    //             body: JSON.stringify(jsonObject)
+    //         })
+    //         .then(response => response.json())
+	// 		.then(data => {
+	// 			updateSoap(data.products);
+	// 		})
+	// 		.catch(error => console.error('Error:', error));
+	// 	});
+	document.getElementById('filerForm').addEventListener('submit', function(event) {
+          event.preventDefault();
+             
+
+          const sortByPrice = document.getElementById('sortByPrice').value;
+          const sortByCategory = document.getElementById('sortByCategory').value;
+		  const sortByColor = document.getElementById('sortByColor').value;
+		  const sortByBrand = document.getElementById('sortByBrand').value;
+
+
+            fetch(`/productFilter?sortByPrice=${sortByPrice}&sortByCategory=${sortByCategory}&sortByColor=${sortByColor}&sortByBrand=${sortByBrand}`)
+            .then(response => response.json())
+			.then(data => {
+				updateSoap(data.products);
+			})
+			.catch(error => console.error('Error:', error));
+		});
+
+
+
+	function updateSoap(products) {
+		const productContainer = document.querySelector('.category-list .products');
+		productContainer.innerHTML = '';
+
+		let productHTML = '';
+
+		products.forEach(product => {
+			productHTML += `
+				<div class="single-product">
+					<img class="img-fluid" style="width: 250px; height: 250px;" src="/assets/categoryImg/${product.image[0]}" alt="">
+					<div class="product-details">
+						<h6>${product.productName}</h6>
+						<div class="price">
+							<h6>₹ ${product.discountPrice}</h6>
+							<h6 class="l-through">₹ ${product.price}</h6>
+						</div>
+						${product.offer.length > 0 ? `<p class="text-success"><i class="fa-solid fa-tag" style="color: #308a00;"></i> Special Offer Available</p>` : `<p> <hr></p>`}
+						<div class="prd-bottom">
+							<a onclick="addToCart(event, '${product._id}')" href="javascript:void(0);" class="social-info">
+								<span class="fa-solid fa-cart-shopping"></span>
+								<p class="hover-text">add to cart</p>
+							</a>
+							<a onclick="addToWishlist(event, '${product._id}')" href="javascript:void(0);" class="social-info">
+								<span class="fa-regular fa-heart"></span>
+								<p class="hover-text">Wishlist</p>
+							</a>
+							<a href="/singleProduct?id=${product._id}" class="social-info">
+								<span class="fa-solid fa-maximize"></span>
+								<p class="hover-text">view more</p>
+							</a>
+						</div>
+					</div>
+				</div>
+			`;
+		});
+
+		productContainer.innerHTML = productHTML;
+	}
+
+
 </script>
 
 <!-- helper function -->

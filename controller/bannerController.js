@@ -36,7 +36,7 @@ const addBanner = async (req, res, next) => {
         const image = req.file
 
         if (!image || !head || !subHead) {
-            return res.status(400).json({ message: "All fields are required." });
+            return res.status(403).json({ message: "All fields are required." });
         }
         const imagePath = image ? image.filename : ''
         const banner = new Banners({
@@ -105,7 +105,7 @@ const editBanner = async (req, res, next) => {
         const image = req.file
 
         if (!head || !subHead) {
-            return res.status(400).json({ message: "All fields are required." });
+            return res.status(403).json({ message: "All fields are required." });
         }
         let imagePath = '';
 

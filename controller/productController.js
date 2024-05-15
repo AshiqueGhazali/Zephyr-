@@ -1,5 +1,6 @@
 const Products = require('../model/productModel')
 const Category = require('../model/categoryModel')
+const Orders = require('../model/orderModel')
 const fs = require('fs')
 const path = require('path')
 const sharp = require('sharp')
@@ -97,6 +98,15 @@ const searchProduct = async (req, res, next) => {
 const listAndUnlistProduct = async (req, res, next) => {
     try {
         const id = req.query.id
+
+        // const isOrder = await Orders.aggregate([
+        //     {$unwind:'$orderItems'},
+        //     {$match:{'orderItems.productId':id }}
+        // ])
+
+        // if(isOrder.length > 0){
+        //     return res.status(403).json({message:"can't unlist this product "})
+        // }
 
         const productData = await Products.findById({ _id: id })
         productData.isDeleted = !productData.isDeleted
