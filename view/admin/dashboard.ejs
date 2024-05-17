@@ -499,12 +499,12 @@
       fetchOrderStatusCounts();
 
       function fetchOrderStatusCounts() {
-          fetch('/admin/orderStatuses')
-              .then(response => response.json())
-              .then(data => updatePieChart(data.status, data.category, data.perDay))
-              .catch(error => console.error('Error:', error));
-      }
-    });
+        fetch('/admin/orderStatuses')
+          .then(response => response.json())
+          .then(data => updatePieChart(data.status, data.category, data.perDay))
+          .catch(error => console.error('Error:', error));
+        }
+      });
     </script>
    
     

@@ -10,10 +10,11 @@ const Razorpay = require('razorpay')
 const crypto = require('crypto')
 const Coupen = require('../model/coupenModel')
 const Offer = require('../model/offerModel')
+const puppeter = require('puppeteer')
+const fs = require('fs')
 
 const { Table } = require('pdfkit-table')
 const PDFDocument = require('pdfkit');
-const orderModel = require("../model/orderModel")
 
 
 // razorpay instance 
@@ -28,9 +29,17 @@ const ordersPageLoad = async (req, res, next) => {
     try {
         const id = req.session.userId
         const userData = await User.findById({ _id: id })
-        const orders = await OrderModel.find({ userId: id }).sort({ orderDate: -1 })
 
-        res.render('orders', { user: userData, orders })
+        const currentPage = parseInt(req.query.page)
+        const productPerPage = 10
+        const skip = (currentPage - 1) * productPerPage;
+
+        const totalProduct = await OrderModel.countDocuments()
+        const totalPages = Math.ceil(totalProduct / productPerPage)
+
+        const orders = await OrderModel.find({ userId: id }).sort({ orderDate: -1 }).skip(skip).limit(productPerPage)
+
+        res.render('orders', { user: userData, orders , currentPage, totalPages})
     } catch (error) {
         console.log(error.message);
         next(error)
@@ -583,32 +592,67 @@ function generateInvoiceNumber() {
 
 const downloadInvoice = async (req, res, next) => {
     try {
-        const id = req.query.id
-        
         const invoiceNumber = generateInvoiceNumber();
-
-
-        const order = await OrderModel.findOne({ _id: id })
-        // console.log(order);
-        const d = order.orderItems
-        const products = d.map((values) => {
-            return {
-                quantity: values.quantity,
-                category: values.category,
-                brand: values.brand,
-                description: values.productName,
-                'tax-rate': 0,
-                price: values.discountPrice
-            }
-        })
+        const orderId = req.query.orderId;
+        const order = await OrderModel.findById(orderId);
        
-        res.json(
-            {
-                order,
-                products,
-                invoiceNumber
-            }
-        );
+        const doc = new PDFDocument();
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename="invoice.pdf"');
+        doc.pipe(res);
+
+
+        doc.font('Helvetica-Bold').fontSize(10).text('Zephyr', { align: 'center' }).moveDown();
+        doc.font('Helvetica').fontSize(15).text('INVOICE', { align: 'center' }).moveDown();
+
+        doc.font('Helvetica-Bold').fontSize(8).text(`Invoice Number: ${invoiceNumber}`, { align: 'start' })
+        doc.font('Helvetica-Bold').fontSize(8).text(`Order Date: ${order.orderDate.toDateString()}`, { align: 'start' }).moveDown();
+        doc.font('Helvetica-Bold').fontSize(8).text(`Order id: ${order._id}`, { align: 'start' })
+        doc.font('Helvetica-Bold').fontSize(8).text(`Product id: ${order.orderItems[0].productId}`, { align: 'start' }).moveDown().moveDown();
+
+
+
+        doc.font('Helvetica-Bold').fontSize(12).text('Address')
+        doc.font('Helvetica').fontSize(10).text(`Name: ${order.address.Name}`);
+        doc.font('Helvetica').fontSize(10).text(`Address: ${order.address.address}, ${order.address.city}, ${order.address.PIN}`).moveDown();
+
+        const tableHeaders = ['Product Name', 'Quantity', 'Unit Price'];
+
+        const startX = 50;
+        const startY = doc.y + 15;
+        const cellWidth = 120;
+        const headerHeight = 30;
+
+        doc.rect(startX, startY, cellWidth * tableHeaders.length, headerHeight).fillAndStroke('#CCCCCC', '#000000');
+        doc.font('Helvetica-Bold').fontSize(10).fillColor('#000000');
+        tableHeaders.forEach((header, index) => {
+            doc.text(header, startX + (cellWidth * index) + (cellWidth / 2), startY + (headerHeight / 2), { width: cellWidth, align: 'start', valign: 'start' });
+        });
+
+        const rowHeight = 50;
+        let yPos = startY + headerHeight;
+        let totalPrice = 0;
+        order.orderItems.forEach((item, rowIndex) => {
+            const fillColor = rowIndex % 2 === 0 ? '#FFFFFF' : '#EEEEEE';
+            doc.rect(startX, yPos, cellWidth * tableHeaders.length, rowHeight).fillAndStroke(fillColor, '#000000');
+            doc.fillColor('#000000');
+            doc.font('Helvetica').fontSize(10);
+            doc.text(item.productName || 'N/A', startX + (cellWidth / 2), yPos + (rowHeight / 2), { width: cellWidth, align: 'start', valign: 'start' });
+            doc.text(item.quantity.toString(), startX + cellWidth + (cellWidth / 2), yPos + (rowHeight / 2), { width: cellWidth, align: 'start', valign: 'start' });
+            doc.text(item.price !== undefined ? item.price.toString() : 'N/A', startX + (cellWidth * 2) + (cellWidth / 2), yPos + (rowHeight / 2), { width: cellWidth, align: 'start', valign: 'start' });
+            const itemTotalPrice = item.price !== undefined && item.quantity !== undefined ? item.price * item.quantity : 0;
+            totalPrice += itemTotalPrice;
+            yPos += rowHeight;
+        });
+
+        // Calculate discount
+        yPos += rowHeight;
+        const discount = totalPrice - order.totalAmount;
+
+        // Add the total amount and discount at the end
+        doc.font('Helvetica-Bold').text(`Total Amount: ${order.totalAmount.toFixed(2)}    Discount: ${discount.toFixed(2)}`, startX, yPos, { width: cellWidth * tableHeaders.length, align: 'start', valign: 'center' });
+        doc.end();
     } catch (error) {
         console.log(error.message);
         next(error)

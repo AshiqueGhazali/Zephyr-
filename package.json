@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.6",
     "cookie-session": "^2.1.0",
@@ -31,6 +32,7 @@
     "passport-oauth2": "^1.8.0",
     "pdfkit": "^0.15.0",
     "pdfkit-table": "^0.1.99",
+    "puppeteer": "^22.8.2",
     "razorpay": "^2.9.3",
     "sharp": "^0.33.3"
   },

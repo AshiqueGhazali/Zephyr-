@@ -369,9 +369,21 @@ function confirmOrder(addressId, paymentMethod) {
                     },
                     "theme": {
                         "color": "#192e68"
+                    },
+                    "modal": {
+                        "ondismiss": function(){
+                            window.location.href = '/orders';
+                        }
                     }
                 };
                 var paymentGateway = new Razorpay(options);
+                
+                paymentGateway.on('payment.failed', function(response){
+                    Swal.fire('Payment Failed', 'Your payment could not be processed. Please try again.', 'error').then(() => {
+                        window.location.href = '/orders';
+                    });
+                });
+
                 paymentGateway.open();
             } else {
                 Swal.fire({
@@ -415,7 +427,10 @@ function verifyPayment(paymentId, orderId, signature) {
                 window.location.href = `/orderDetails?orderId=${orderId}`; 
             });
         } else {
-            Swal.fire('Error', 'Payment verification failed. Please try again.', 'error');
+            Swal.fire('Error', 'Payment verification failed. Please try again.', 'error')
+            .then(() => {
+                window.location.href = `/orders`; 
+            });
         }
     })
     .catch(error => {

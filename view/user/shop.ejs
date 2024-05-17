@@ -79,12 +79,13 @@
 		<div class="row">
 			<div class="col-lg-12">
 				<!-- Start Filter Bar -->
-				<form action="/productFilter" method="get" id="filerForm">
+				<form   id="filerForm">
 
 				<div class="filter-bar d-flex flex-wrap align-items-center">
 				<!-- pareekshanammmmmmmmmmmmmmmmmmmmmmmmmmm -->
 				<div class="sorting">
-					  <select name="sortByPrice" id="sortByPrice" onchange="submitForm('filerForm')">
+					<!-- onchange="submitForm('filerForm')" -->
+					  <select name="sortByPrice" id="sortByPrice" >
 						<option value="relevance">Relevance</option>
 						<option value="lowToHigh">Price-Low to High</option>
 						<option value="highToLow">Price-High to Low</option>
@@ -92,7 +93,8 @@
 					  </select>
 				  </div>
 				  <div class="sorting">
-					  <select name="sortByCategory" id="sortByCategory" onchange="submitForm('filerForm')">
+					<!-- onchange="submitForm('filerForm')" -->
+					  <select name="sortByCategory" id="sortByCategory" >
 						<option value="allCategories">All Categories</option>
 						<% for(let i=0 ; i< category.length ; i++){ %> 
 						  <option value="<%= category[i].name%>"><%= category[i].name %></option>
@@ -100,21 +102,24 @@
 					  </select>
 				  </div>
 				  <div class="sorting">
-					  <select name="sortByColor" id="sortByColor" onchange="submitForm('filerForm')">
+					<!-- onchange="submitForm('filerForm')" -->
+					  <select name="sortByColor" id="sortByColor" >
 						<option value="allColors">All Colors</option>
 						<% for (let i = 0 ; i < color.length ; i++) { %> 
 						  <option value="<%= color[i] %>"><%= color[i] %></option>
 						<% } %>
 					  </select>
 				  </div>
-				  <div class="sorting mr-auto">
-					  <select name="sortByBrand" id="sortByBrand" onchange="submitForm('filerForm')">
+				  <div class="sorting ">
+					<!-- onchange="submitForm('filerForm')" -->
+					  <select name="sortByBrand" id="sortByBrand">
 						<option value="allBrands">All Brands</option>
 						<% for (let i = 0 ; i < brand.length ; i++) { %> 
 						  <option value="<%= brand[i] %>"><%= brand[i] %></option>
 						<% } %>
 					  </select>
 				  </div>
+				  <div class="sorting mr-auto"><button type="submit" class="genric-btn success-border radius">Filter</button></div>
 				  </form>
 		<!-- pareekshanammmmmmmmmmmmmmmmmmmmmmmmmmm -->
 					<div class="pagination">
@@ -133,13 +138,11 @@
 						<% } %>
 					</div>
 				</div>
-				<section class="lattest-product-area pb-40 category-list">
-					
+				<section class="lattest-product-area pb-40 category-list productSection" id="productSection">
 						<% if (products.length > 0){ %> 
-						<div class="row">
-
+						<div class="row products">
 						<% for(let i = 0 ; i< products.length && i < 9 ; i++){ %>
-							<div class="col-xxl-3 col-xl-3 col-lg-3 col-md-4 col-sm-6 col-xs-6 col-6 products">
+							<div class="col-xxl-3 col-xl-3 col-lg-3 col-md-4 col-sm-6 col-xs-6 col-6">
 								<div class="single-product">
 									<img class="img-fluid" style="width: 250px; height: 250px;" src="/assets/categoryImg/<%= products[i].image[0] %>" alt="">
 									<div class="product-details">
@@ -168,7 +171,6 @@
 									</div>
 								</div>
 							</div>
-							
 						<% } %>
 					</div>
 				</section>
@@ -258,36 +260,15 @@
 
 <script>
     function submitForm(formId) {
+		console.log("jfsdlafjkdalfjldksajf");
+
         document.getElementById(formId).submit();
     }
 
-	// document.getElementById('filerForm').addEventListener('submit', function(event) {
-    //       event.preventDefault();
-          
-    //       const form = document.getElementById('filerForm');
-    //         const formData = new FormData(form);
-    //         const jsonObject = {};
-    //         formData.forEach((value, key) => {
-    //           jsonObject[key] = value;
-    //         });
-
-    //         fetch('/productFilter', {
-    //             method: 'POST',
-    //             headers: {
-    //               'Content-Type': 'application/json'
-    //             },
-    //             body: JSON.stringify(jsonObject)
-    //         })
-    //         .then(response => response.json())
-	// 		.then(data => {
-	// 			updateSoap(data.products);
-	// 		})
-	// 		.catch(error => console.error('Error:', error));
-	// 	});
 	document.getElementById('filerForm').addEventListener('submit', function(event) {
+		console.log("Form submission event triggered");
           event.preventDefault();
              
-
           const sortByPrice = document.getElementById('sortByPrice').value;
           const sortByCategory = document.getElementById('sortByCategory').value;
 		  const sortByColor = document.getElementById('sortByColor').value;
@@ -303,15 +284,13 @@
 		});
 
 
-
 	function updateSoap(products) {
-		const productContainer = document.querySelector('.category-list .products');
-		productContainer.innerHTML = '';
-
-		let productHTML = '';
-
+	const productSec = document.querySelector('.productSection .products');
+    productSec.innerHTML = ''; 
+	if(products.length > 0){
 		products.forEach(product => {
-			productHTML += `
+      const row = `
+	  		<div class="col-xxl-3 col-xl-3 col-lg-3 col-md-4 col-sm-6 col-xs-6 col-6">
 				<div class="single-product">
 					<img class="img-fluid" style="width: 250px; height: 250px;" src="/assets/categoryImg/${product.image[0]}" alt="">
 					<div class="product-details">
@@ -337,12 +316,30 @@
 						</div>
 					</div>
 				</div>
-			`;
-		});
+			</div>
+      `;
+      productSec.innerHTML += row; 
+    });
+	}else{
+		const row = `
+		    	<div class="container-fluid  mt-50">
+					<div class="row">
+						<div class="col-md-12">
+							<div class="card-body cart">
+								<div class="col-sm-12 empty-cart-cls text-center">
+									<img src="https://i.imgur.com/dCdflKN.png" width="130" height="130" class="img-fluid mb-4 mr-3">
+									<h3><strong>Oops! We hit a snag!!</strong></h3>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>`
 
-		productContainer.innerHTML = productHTML;
+		productSec.innerHTML += row; 
+		
 	}
-
+    
+  }
 
 </script>
 

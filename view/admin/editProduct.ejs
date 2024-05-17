@@ -40,8 +40,9 @@
                         <div class="form-groups">
                             <label for="description">Category</label>
                             <select name="category" class="form-control" id="category">
+                                <option value="<%=product.category %>"><%=product.category %></option>
                                 <% for(let i=0; i< category.length; i++){ %> 
-                                    <option value="<%=product.category %>"><%= category[i].name %></option>
+                                    <option value="<%= category[i].name %>"><%= category[i].name %></option>
                                <% } %>
                             </select>
                         </div>

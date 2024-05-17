@@ -229,113 +229,57 @@
 
 	// status change
 
-	// document.addEventListener("DOMContentLoaded", function() {
-	// 		const statuses = document.querySelectorAll('.status');
+	document.addEventListener("DOMContentLoaded", function() {
+			const statuses = document.querySelectorAll('.status');
 
-	// 		statuses.forEach((statusElement) => {
-	// 			const status = statusElement.getAttribute('data-status');
+			statuses.forEach((statusElement) => {
+				const status = statusElement.getAttribute('data-status');
 
-	// 			switch(status) {
-	// 				case 'cancelled':
-	// 					statusElement.innerHTML ='Order Cancelled';
-	// 					statusElement.style.color = 'red';
-	// 					break;
-	// 				case 'completed':
-	// 					statusElement.innerHTML ='Order Completed';
-	// 					statusElement.style.color = 'green';
-	// 					break;
-	// 				case 'returned':
-	// 					statusElement.innerHTML ='The Product Returned';
-	// 					statusElement.style.color = 'red';
-	// 					break;
-	// 				case 'Requested for Return':
-	// 					statusElement.innerHTML ='Requested for Return';
-	// 					statusElement.style.color = 'red';
-	// 					break;
-	// 			}
-	// 		});
-	// 	});
+				switch(status) {
+					case 'cancelled':
+						statusElement.innerHTML ='Order Cancelled';
+						statusElement.style.color = 'red';
+						break;
+					case 'completed':
+						statusElement.innerHTML ='Order Completed';
+						statusElement.style.color = 'green';
+						break;
+					case 'returned':
+						statusElement.innerHTML ='The Product Returned';
+						statusElement.style.color = 'red';
+						break;
+					case 'Requested for Return':
+						statusElement.innerHTML ='Requested for Return';
+						statusElement.style.color = 'red';
+						break;
+				}
+			});
+		});
 
-		// download invoice >>
-		function downloadInvoice(id) {
-            const Orderid = id;
-            console.log('kk', Orderid);
-
-            // Show loading spinner
-            const spinner = new Spinner().spin(document.getElementById('loading-container'));
-
-            $.ajax({
-                url: `/downloadInvoice?id=${Orderid}`,
-                type: 'POST',
-                success: function (response) {
-                    console.log('hiiii', response);
-                    showInvoice(response);
-                },
-                error: function (xhr, status, error) {
-                    console.error('Request failed:', status, error);
-                },
-                complete: function () {
-                    // Hide loading spinner when the request is complete
-                    spinner.stop();
-                }
-            });
-        }
-
-
-
-        function showInvoice(values) {
-           const date = new Date(values.order.orderDate) 
-		   const orderDate = date.toLocaleDateString('en-US', {
-        year: 'numeric', month: 'short', day: '2-digit' })
-
-            var data = {
-                "customize": {
-                    //  "template": fs.readFileSync('template.html', 'base64') // Must be base64 encoded html 
-                },
-                "images": {
-                    // The logo on top of your invoice
-                    "logo": "https://public.budgetinvoice.com/img/logo_en_original.png",
-                    // The invoice background
-                    "background": "https://public.budgetinvoice.com/img/watermark-draft.jpg"
-                },
-                // Your own data
-                "sender": {
-                    "company": "Zephyr",
-                    "address": "Sample Street 123",
-                    "zip": "1234 AB",
-                    "city": "Sampletown",
-                    "country": "Samplecountry"
-                },
-                // Your recipient
-                "client": {
-					"company": values.order.address.Name,
-                    "address": values.order.address.address,
-                    "zip": `PIN : ${values.order.address.PIN}`,
-                    "city": values.order.address.city,
-                    "country": values.order.address.state,
-                },
-                "information": {
-                    "number": values.invoiceNumber,
-                    "date": orderDate
-                },
-                
-                "products": values.products,
-               
-                "settings": {
-                    "currency": "USD", 
-                },
-                "translate": {
-                },
-            };
-
-            easyinvoice.createInvoice(data, function (result) {
-                console.log('PDF base64 string: ', result.pdf);
-
-                easyinvoice.download('invoice.pdf')
-            });
-
-        }
-
+		function downloadInvoice(orderId) {
+			fetch(`/downloadInvoice?orderId=${orderId}`)
+				.then(response => {
+					if (!response.ok) {
+						throw new Error('Network response was not ok');
+					}
+					return response.blob();
+				})
+				.then(blob => {
+					// Create a temporary anchor element to trigger the download
+					const url = window.URL.createObjectURL(blob);
+					const a = document.createElement('a');
+					a.href = url;
+					a.download = `invoice_${orderId}.pdf`;
+					document.body.appendChild(a);
+					a.click();
+					window.URL.revokeObjectURL(url);
+					document.body.removeChild(a);
+				})
+				.catch(error => {
+					console.error('Error downloading invoice:', error);
+				});
+		}
+		
 		
    </script>
 
