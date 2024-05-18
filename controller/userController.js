@@ -423,29 +423,26 @@ const forgotOtpVerify = async (req, res) => {
     try {
 
         const userEmail = req.session.forgotUser;
-        res.render('resetPassword');
 
-        // if (!req.body || !req.body.otp) {
-        //     return res.status(400).render('forgotOtp', { userEmail:userEmail, message: "Please enter OTP" });
-        // }
-
-
-        // const otpUserData = await otpModel.findOne({ _id: req.session.forgotOtpId });
-        // if (!otpUserData) {
-        //     return res.status(404).render('forgotOtp', { userEmail:userEmail, message: "OTP session expired or invalid. Please try again." });
-        // }
-
-        // const otpUser = otpUserData.otp;
-        // const otp = parseFloat(req.body.otp.join(""));
+        if (!req.body || !req.body.otp) {
+            return res.status(400).render('forgotOtp', { userEmail:userEmail, message: "Please enter OTP" });
+        }
 
 
-        // if (otp === otpUser) {
-        //     res.render('resetPassword');
-        // } else {
-        //     res.status(400).render('forgotOtp', { userEmail, message: "Incorrect OTP" });
-        // }
-        // res.render('resetPassword');
+        const otpUserData = await otpModel.findOne({ email: userEmail });
+        if (!otpUserData) {
+            return res.status(404).render('forgotOtp', { userEmail:userEmail, message: "OTP session expired or invalid. Please try again." });
+        }
 
+        const otpUser = otpUserData.otp;
+        const otp = parseFloat(req.body.otp.join(""));
+
+
+        if (otp === otpUser) {
+            res.render('resetPassword');
+        } else {
+            res.status(400).render('forgotOtp', { userEmail, message: "Incorrect OTP" });
+        }
     } catch (error) {
         console.log(error.message);
     }
@@ -458,13 +455,11 @@ const resetPassword = async (req, res, next) => {
 
 
         if (newPassword != cnfmPassword) {
-            // return res.render('resetPassword', { message: "Password dosn't Match" })
             return res.status(403), json({ message: "Password dosn't Match" })
         }
 
         const spassword = await securePassword(newPassword)
         const updatePassword = await User.findByIdAndUpdate({ _id: userId }, { $set: { password: spassword } })
-        // res.render('login')
         res.status(200).json({ success: true })
     } catch (error) {
         console.log(error.message);
