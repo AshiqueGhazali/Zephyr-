@@ -32,7 +32,7 @@ const addProductLoad = async (req, res, next) => {
         console.log(error.message);
         next(error)
     }
-}
+} 
 
 
 const addProduct = async (req, res, next) => {

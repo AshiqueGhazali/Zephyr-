@@ -245,7 +245,7 @@ const loadShop = async (req, res) => {
         const currentPage = parseInt(req.query.page)
         const productPerPage = 28
         const skip = (currentPage - 1) * productPerPage;
-
+        ``
         const totalProduct = await User.countDocuments()
         const totalPages = Math.ceil(totalProduct / productPerPage)
 
