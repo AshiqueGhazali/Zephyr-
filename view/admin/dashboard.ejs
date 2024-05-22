@@ -274,58 +274,61 @@
                 </div>
               </div>
             </div>
+             <!-- headddd -->
+             <hr>
+            <div class="d-flex justify-content-between">
+              <h3 class="text-danger" style="font-weight: bold;">SALES REPORT</h3>
+                <div>
+                  <button class="btn btn-info dropdown-toggle custom-size" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select</button>
+                  <div class="dropdown-menu" >
+                    <a class="dropdown-item" href="#" data-target="Daily" data-interval="daily">Daily</a>
+                    <a class="dropdown-item" href="#" data-target="Weekly" data-interval="weekly">Weekly</a>
+                    <a class="dropdown-item" href="#" data-target="Yearly" data-interval="yearly">Yearly</a>
+                  </div>
+                  <button type="button" class="btn btn-secondary custom-size" data-toggle="modal" data-target="#basicModal" data-whatever="@mdo">Costom</button>
+                  <!-- modal -->
+                  <div class="modal fade" id="basicModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <h4 class="text-center" id="">Select Costom Date</h4>
+                          <form id="custom-date-form">
+                            <div class="row justify-content-center">
+                                <div class="form-group col-sm-4" style="padding: 0;">
+                                    <input type="date" class="form-control" id="start-date">
+                                </div>
+                                <div class="form-group col-sm-4" style="padding: 0; margin-left: 4px;" >
+                                    <input type="date" class="form-control" id="end-date">
+                                </div>
+                                <div class="form-group col-sm-2" >
+                                    <button type="submit" class="btn btn-info custom-size">Search</button>
+                                </div>
+                            </div>  
+                        </form>
+                        <div id="error-message" class="alert alert-danger" style="display:none;"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-            <div class="row" id="salesReport">
+                  <!-- modal -->
+                  <button type="button" class="btn btn btn-outline-danger custom-size downloadPdfBtn" id="downloadPdfBtn" onclick="downloadPDF('salesReport')"><i class="fa-solid fa-file-pdf"></i></button>
+                  <button type="button" class="btn btn btn-outline-success custom-size excelDownload" id="excelDownloadBtn" onclick="downloadExcel()"><i class="fa-solid fa-file-excel"></i></button>
+                </div>
+             </div><br>
+             <!-- headddd -->
+            <div class="row" id="salesReport" >
               <div class="col-md-12 grid-margin stretch-card">
                 <div class="card">
+                    <h4 class="card-title mt-4 text-center">Sales Report</h4>
                   <div class="card-body">
-                   <div class="d-flex justify-content-between">
-                    <p class="card-title">SALES REPORT</p>
-                      <div>
-                        <button class="btn btn-info dropdown-toggle custom-size" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select</button>
-                        <div class="dropdown-menu" >
-                          <a class="dropdown-item" href="#" data-target="Daily" data-interval="daily">Daily</a>
-                          <a class="dropdown-item" href="#" data-target="Weekly" data-interval="weekly">Weekly</a>
-                          <a class="dropdown-item" href="#" data-target="Yearly" data-interval="yearly">Yearly</a>
-                        </div>
-                        <button type="button" class="btn btn-secondary custom-size" data-toggle="modal" data-target="#basicModal" data-whatever="@mdo">Costom</button>
-                        <!-- modal -->
-                        <div class="modal fade" id="basicModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
-                          <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                  <span aria-hidden="true">&times;</span>
-                                </button>
-                              </div>
-                              <div class="modal-body">
-                                <h4 class="text-center" id="">Select Costom Date</h4>
-                                <form id="custom-date-form">
-                                  <div class="row justify-content-center">
-                                      <div class="form-group col-sm-4" style="padding: 0;">
-                                          <input type="date" class="form-control" id="start-date">
-                                      </div>
-                                      <div class="form-group col-sm-4" style="padding: 0; margin-left: 4px;" >
-                                          <input type="date" class="form-control" id="end-date">
-                                      </div>
-                                      <div class="form-group col-sm-2" >
-                                          <button type="submit" class="btn btn-info custom-size">Search</button>
-                                      </div>
-                                  </div>  
-                              </form>
-                              <div id="error-message" class="alert alert-danger" style="display:none;"></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- modal -->
-                        <button type="button" class="btn btn btn-outline-danger custom-size downloadPdfBtn" id="downloadPdfBtn" onclick="downloadPDF('salesReport')"><i class="fa-solid fa-file-pdf"></i></button>
-                        <button type="button" class="btn btn btn-outline-success custom-size excelDownload" id="excelDownloadBtn" onclick="downloadExcel()"><i class="fa-solid fa-file-excel"></i></button>
-                      </div>
-                   </div>
-                   <% if(salesReport && salesReport.length > 0){ %> 
-                    <div id="sales-legend" class="chartjs-legend mt-4 mb-2">
+                  <% if(salesReport && salesReport.length > 0){ %> 
+                    <div id="sales-legend" class="chartjs-legend mt-1 mb-2">
                       <div class="cart-table-wrap">
                         <table class="cart-table">
                           <thead class="cart-table-head">
@@ -369,8 +372,7 @@
                     </div>
                     <% }else{ %> 
                       <h3>NO Found</h3>
-                    <% } %>
-                    
+                    <% } %>                    
                   </div>
                 </div>
               </div>

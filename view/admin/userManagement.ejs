@@ -163,9 +163,7 @@
                                         <td><%= new Date(users[i].createdAt).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) %></td>
                                         <td>
                                           <% if(users[i].is_block==false) { %>
-                                            <!-- <button class="edit-btn btn-info"><a href="/admin/blockUser/<%= users[i]._id %>" id="blockButton">Block</a></button> -->
                                             <button class="edit-btn btn-info block-btn" onclick="blockAndUnblockUser('<%= users[i]._id %>',false)">Block</button>
-
                                           <%}else{ %>
                                             <button class="edit-btn btn-danger" onclick="blockAndUnblockUser('<%= users[i]._id %>',true)">Unblock</button> 
                                           <% } %>
@@ -197,7 +195,6 @@
 
     <script>
       function blockAndUnblockUser(userId,status) {
-        // SweetAlert confirmation dialog
         Swal.fire({
           title: "Are you sure?",
           text: "You won't be able to revert this!",
