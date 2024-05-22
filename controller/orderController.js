@@ -228,7 +228,8 @@ const createOrder = async (req, res, next) => {
             orderItems: orderItems,
             paymentMethod: paymentMethod,
             address: UserAddress,
-            totalAmount: req.session.totalAmount
+            totalAmount: req.session.totalAmount,
+            orderDate:Date.now()
         })
 
 
