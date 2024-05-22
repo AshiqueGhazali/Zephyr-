@@ -229,7 +229,6 @@ const createOrder = async (req, res, next) => {
             paymentMethod: paymentMethod,
             address: UserAddress,
             totalAmount: req.session.totalAmount,
-            orderDate:Date.now()
         })
 
 
